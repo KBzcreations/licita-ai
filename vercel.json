@@ -1,0 +1,42 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    },
+    {
+      "src": "main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "main.py"
+    },
+    {
+      "src": "/licitaciones(.*)",
+      "dest": "frontend/index.html"
+    },
+    {
+      "src": "/precios",
+      "dest": "frontend/index.html"
+    },
+    {
+      "src": "/login",
+      "dest": "frontend/index.html"
+    },
+    {
+      "src": "/registro",
+      "dest": "frontend/index.html"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/$1"
+    }
+  ]
+}
