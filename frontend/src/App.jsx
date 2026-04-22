@@ -1,25 +1,30 @@
-import { BrowserRouter as Router, Routes, Route, Link, useParams, useNavigate } from 'react-router-dom'
-import { Rocket, ArrowRight, Building2, Euro, Calendar, ArrowLeft, ExternalLink, Search, Filter, X, LogIn, UserPlus, LogOut } from 'lucide-react'
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom'
+import { Rocket, ArrowRight, Building2, Euro, Calendar, ExternalLink, Search, Filter, X, LogIn, UserPlus, LogOut, Check } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { supabase } from './lib/supabase'
 import { useAuth } from './contexts/AuthContext'
 import './App.css'
 
-// ============================================
-// CONFIGURACION
-// ============================================
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY
+const STRIPE_PK = import.meta.env.VITE_STRIPE_PK
 
-const api = axios.create({
-  baseURL: API_URL,
-  timeout: 10000,
-})
+const PLANES = {
+  pro: {
+    priceId: 'price_1TP8RZDwJ53fjQyspnaGGQS6',
+    nombre: 'Pro',
+    precio: '49',
+  },
+  enterprise: {
+    priceId: 'price_1TP8S3DwJ53fjQysLUpFsKAC',
+    nombre: 'Enterprise',
+    precio: '199',
+  }
+}
 
 // ============================================
-// COMPONENTES
+// HEADER
 // ============================================
-
-// Header con navegacion
 function Header() {
   const { user, signOut } = useAuth()
 
@@ -32,29 +37,22 @@ function Header() {
     <header className="header">
       <div className="header-content">
         <Link to="/" className="logo">
-          <div className="logo-icon">
-            <Rocket size={20} />
-          </div>
+          <div className="logo-icon"><Rocket size={20} /></div>
           Licita AI
         </Link>
         <nav className="nav">
           <Link to="/" className="nav-link">Inicio</Link>
           <Link to="/licitaciones" className="nav-link">Licitaciones</Link>
-          <Link to="/pricing" className="nav-link">Precios</Link>
+          <Link to="/precios" className="nav-link">Precios</Link>
           {user ? (
             <button onClick={handleSignOut} className="btn btn-secondary" style={{ marginLeft: '1rem' }}>
-              <LogOut size={16} />
-              Salir
+              <LogOut size={16} /> Salir
             </button>
           ) : (
             <>
-              <Link to="/login" className="nav-link">
-                <LogIn size={16} />
-                Login
-              </Link>
+              <Link to="/login" className="nav-link"><LogIn size={16} /> Login</Link>
               <Link to="/registro" className="btn btn-primary" style={{ marginLeft: '1rem' }}>
-                <UserPlus size={16} />
-                Registro
+                <UserPlus size={16} /> Registro
               </Link>
             </>
           )}
@@ -64,7 +62,9 @@ function Header() {
   )
 }
 
-// Footer
+// ============================================
+// FOOTER
+// ============================================
 function Footer() {
   return (
     <footer className="footer">
@@ -74,7 +74,9 @@ function Footer() {
   )
 }
 
-// Pagina de inicio
+// ============================================
+// HOME
+// ============================================
 function Home() {
   return (
     <>
@@ -87,19 +89,11 @@ function Home() {
         <div className="filters-grid">
           <div className="filter-group">
             <label>Buscar por palabra clave</label>
-            <input
-              type="text"
-              placeholder="Ej: software, cloud, IA..."
-              id="busqueda"
-            />
+            <input type="text" placeholder="Ej: software, cloud, IA..." id="busqueda" />
           </div>
           <div className="filter-group">
             <label>Organismo</label>
-            <input
-              type="text"
-              placeholder="Ej: Ministerio, Ayuntamiento..."
-              id="organismo-home"
-            />
+            <input type="text" placeholder="Ej: Ministerio, Ayuntamiento..." id="organismo-home" />
           </div>
           <div className="filter-group">
             <label>Tecnologia</label>
@@ -111,29 +105,22 @@ function Home() {
               <option value="Java">Java</option>
               <option value="JavaScript">JavaScript</option>
               <option value="React">React</option>
-              <option value="PostgreSQL">PostgreSQL</option>
-              <option value="MongoDB">MongoDB</option>
-              <option value="Kubernetes">Kubernetes</option>
-              <option value="Docker">Docker</option>
               <option value="Machine Learning">Machine Learning</option>
+              <option value="Ciberseguridad">Ciberseguridad</option>
             </select>
           </div>
           <div className="filter-actions">
-            <button
-              className="btn btn-primary"
-              onClick={() => {
-                const busqueda = document.getElementById('busqueda').value
-                const organismo = document.getElementById('organismo-home').value
-                const tecnologia = document.getElementById('tecnologia-home').value
-                const params = new URLSearchParams()
-                if (busqueda) params.set('q', busqueda)
-                if (organismo) params.set('organismo', organismo)
-                if (tecnologia) params.set('tecnologia', tecnologia)
-                window.location.href = `/licitaciones?${params.toString()}`
-              }}
-            >
-              <Search size={18} />
-              Buscar
+            <button className="btn btn-primary" onClick={() => {
+              const q = document.getElementById('busqueda').value
+              const org = document.getElementById('organismo-home').value
+              const tech = document.getElementById('tecnologia-home').value
+              const params = new URLSearchParams()
+              if (q) params.set('q', q)
+              if (org) params.set('organismo', org)
+              if (tech) params.set('tecnologia', tech)
+              window.location.href = `/licitaciones?${params.toString()}`
+            }}>
+              <Search size={18} /> Buscar
             </button>
           </div>
         </div>
@@ -142,23 +129,17 @@ function Home() {
       <div className="container">
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon">
-              <Search size={32} />
-            </div>
+            <div className="feature-icon"><Search size={32} /></div>
             <h3>Busqueda Inteligente</h3>
             <p>Filtra por tecnologia, organismo, presupuesto y fecha para encontrar exactamente lo que buscas</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">
-              <Rocket size={32} />
-            </div>
+            <div className="feature-icon"><Rocket size={32} /></div>
             <h3>Analisis con IA</h3>
-            <p>Cada licitation es procesada con IA para extraer informacion clave y resumenes ejecutivos</p>
+            <p>Cada licitacion es procesada con IA para extraer informacion clave y resumenes ejecutivos</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">
-              <Building2 size={32} />
-            </div>
+            <div className="feature-icon"><Building2 size={32} /></div>
             <h3>Actualizacion Diaria</h3>
             <p>Nuevas licitaciones cada dia para que nunca pierdas una oportunidad de negocio</p>
           </div>
@@ -167,8 +148,7 @@ function Home() {
         <div className="cta-section">
           <h2>¿Listo para encontrar tu proxima oportunidad?</h2>
           <Link to="/licitaciones" className="btn btn-primary btn-large">
-            Ver Licitaciones
-            <ArrowRight size={20} />
+            Ver Licitaciones <ArrowRight size={20} />
           </Link>
         </div>
       </div>
@@ -176,146 +156,88 @@ function Home() {
   )
 }
 
-// Componente para mostrar una licitacion individual
+// ============================================
+// CARD LICITACION
+// ============================================
 function LicitacionCard({ licitacion }) {
-  const formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A'
-    return new Date(dateStr).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+  const formatDate = (d) => {
+    if (!d) return 'N/A'
+    return new Date(d).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
   }
-
-  const formatPresupuesto = (presupuesto) => {
-    if (!presupuesto) return 'No especificado'
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(presupuesto)
+  const formatPresupuesto = (p) => {
+    if (!p) return 'No especificado'
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(p)
   }
 
   return (
     <article className="card">
       <div className="card-header">
         <h3 className="card-title">{licitacion.titulo}</h3>
-        <span className={`card-badge ${licitacion.estado === 'activa' ? 'badge-active' : 'badge-closed'}`}>
-          {licitacion.estado || 'activa'}
-        </span>
+        <span className="card-badge badge-active">{licitacion.estado || 'activa'}</span>
       </div>
-
-      <p className="card-organismo">
-        <Building2 size={16} />
-        {licitacion.organismo}
-      </p>
-
-      <p className="card-presupuesto">
-        <Euro size={20} />
-        {formatPresupuesto(licitacion.presupuesto)}
-      </p>
-
+      <p className="card-organismo"><Building2 size={16} />{licitacion.organismo}</p>
+      <p className="card-presupuesto"><Euro size={20} />{formatPresupuesto(licitacion.presupuesto)}</p>
       <p className="card-resumen">{licitacion.resumen_comercial}</p>
-
-      {licitacion.tecnologias && licitacion.tecnologias.length > 0 && (
+      {licitacion.tecnologias?.length > 0 && (
         <div className="card-tags">
-          {licitacion.tecnologias.slice(0, 5).map((tech, index) => (
-            <span key={index} className="tag">{tech}</span>
+          {licitacion.tecnologias.slice(0, 5).map((tech, i) => (
+            <span key={i} className="tag">{tech}</span>
           ))}
         </div>
       )}
-
       <div className="card-footer">
-        <span className="card-date">
-          <Calendar size={14} />
-          {formatDate(licitacion.fecha_publicacion)}
-        </span>
-        <a
-          href={licitacion.url_origen}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-link"
-        >
-          Ver original
-          <ExternalLink size={16} />
+        <span className="card-date"><Calendar size={14} />{formatDate(licitacion.fecha_publicacion)}</span>
+        <a href={licitacion.url_origen} target="_blank" rel="noopener noreferrer" className="btn-link">
+          Ver original <ExternalLink size={16} />
         </a>
       </div>
     </article>
   )
 }
 
-// Pagina de listado de licitaciones
+// ============================================
+// LICITACIONES (directo a Supabase)
+// ============================================
 function Licitaciones() {
   const [licitaciones, setLicitaciones] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-
-  // Filtros
   const [organismo, setOrganismo] = useState('')
   const [tecnologia, setTecnologia] = useState('')
   const [presupuestoMin, setPresupuestoMin] = useState('')
   const [presupuestoMax, setPresupuestoMax] = useState('')
+  const LIMIT = 20
 
   const fetchLicitaciones = async () => {
     setLoading(true)
     setError(null)
     try {
-      const params = { page, limit: 20 }
-      if (organismo) params.organismo = organismo
-      if (tecnologia) params.tecnologia = tecnologia
-      if (presupuestoMin) params.presupuesto_min = parseFloat(presupuestoMin)
-      if (presupuestoMax) params.presupuesto_max = parseFloat(presupuestoMax)
+      let query = supabase
+        .from('licitaciones')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range((page - 1) * LIMIT, page * LIMIT - 1)
 
-      const response = await api.get('/licitaciones', { params })
-      setLicitaciones(response.data)
-      // Asumimos 20 items por pagina
-      setTotalPages(Math.max(1, page)) // Simplificado, se podria obtener del header
+      if (organismo) query = query.ilike('organismo', `%${organismo}%`)
+      if (tecnologia) query = query.contains('tecnologias', [tecnologia])
+      if (presupuestoMin) query = query.gte('presupuesto', parseFloat(presupuestoMin))
+      if (presupuestoMax) query = query.lte('presupuesto', parseFloat(presupuestoMax))
+
+      const { data, error } = await query
+      if (error) throw error
+      setLicitaciones(data || [])
     } catch (err) {
-      setError(err.message || 'Error al cargar licitaciones')
+      setError(err.message)
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    fetchLicitaciones()
-  }, [page, organismo, tecnologia, presupuestoMin, presupuestoMax])
-
-  const handleFilterSubmit = (e) => {
-    e.preventDefault()
-    setPage(1)
-    fetchLicitaciones()
-  }
+  useEffect(() => { fetchLicitaciones() }, [page, organismo, tecnologia, presupuestoMin, presupuestoMax])
 
   const clearFilters = () => {
-    setOrganismo('')
-    setTecnologia('')
-    setPresupuestoMin('')
-    setPresupuestoMax('')
-    setPage(1)
-  }
-
-  if (loading) {
-    return (
-      <div className="loading">
-        <div className="spinner"></div>
-        <p>Cargando licitaciones...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="error">
-        <p>Error: {error}</p>
-        <button className="btn btn-primary" onClick={fetchLicitaciones} style={{ marginTop: '1rem' }}>
-          Reintentar
-        </button>
-      </div>
-    )
+    setOrganismo(''); setTecnologia(''); setPresupuestoMin(''); setPresupuestoMax(''); setPage(1)
   }
 
   return (
@@ -326,68 +248,49 @@ function Licitaciones() {
       </section>
 
       <div className="filters">
-        <form onSubmit={handleFilterSubmit}>
-          <div className="filters-grid">
-            <div className="filter-group">
-              <label><Building2 size={14} style={{ display: 'inline', marginRight: '4px' }} /> Organismo</label>
-              <input
-                type="text"
-                placeholder="Ej: Ministerio..."
-                value={organismo}
-                onChange={(e) => setOrganismo(e.target.value)}
-              />
-            </div>
-            <div className="filter-group">
-              <label><Filter size={14} style={{ display: 'inline', marginRight: '4px' }} /> Tecnologia</label>
-              <select value={tecnologia} onChange={(e) => setTecnologia(e.target.value)}>
-                <option value="">Todas</option>
-                <option value="Python">Python</option>
-                <option value="AWS">AWS</option>
-                <option value="Azure">Azure</option>
-                <option value="Java">Java</option>
-                <option value="JavaScript">JavaScript</option>
-                <option value="React">React</option>
-                <option value="PostgreSQL">PostgreSQL</option>
-                <option value="MongoDB">MongoDB</option>
-                <option value="Kubernetes">Kubernetes</option>
-                <option value="Docker">Docker</option>
-                <option value="Machine Learning">Machine Learning</option>
-              </select>
-            </div>
-            <div className="filter-group">
-              <label>Presupuesto Min</label>
-              <input
-                type="number"
-                placeholder="€"
-                value={presupuestoMin}
-                onChange={(e) => setPresupuestoMin(e.target.value)}
-              />
-            </div>
-            <div className="filter-group">
-              <label>Presupuesto Max</label>
-              <input
-                type="number"
-                placeholder="€"
-                value={presupuestoMax}
-                onChange={(e) => setPresupuestoMax(e.target.value)}
-              />
-            </div>
-            <div className="filter-actions">
-              <button type="submit" className="btn btn-primary">
-                <Search size={18} />
-                Filtrar
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={clearFilters}>
-                <X size={18} />
-                Limpiar
-              </button>
-            </div>
+        <div className="filters-grid">
+          <div className="filter-group">
+            <label><Building2 size={14} style={{ display: 'inline', marginRight: '4px' }} /> Organismo</label>
+            <input type="text" placeholder="Ej: Ministerio..." value={organismo} onChange={(e) => setOrganismo(e.target.value)} />
           </div>
-        </form>
+          <div className="filter-group">
+            <label><Filter size={14} style={{ display: 'inline', marginRight: '4px' }} /> Tecnologia</label>
+            <select value={tecnologia} onChange={(e) => setTecnologia(e.target.value)}>
+              <option value="">Todas</option>
+              <option value="Python">Python</option>
+              <option value="AWS">AWS</option>
+              <option value="Azure">Azure</option>
+              <option value="Java">Java</option>
+              <option value="JavaScript">JavaScript</option>
+              <option value="Machine Learning">Machine Learning</option>
+              <option value="Ciberseguridad">Ciberseguridad</option>
+            </select>
+          </div>
+          <div className="filter-group">
+            <label>Presupuesto Min</label>
+            <input type="number" placeholder="€" value={presupuestoMin} onChange={(e) => setPresupuestoMin(e.target.value)} />
+          </div>
+          <div className="filter-group">
+            <label>Presupuesto Max</label>
+            <input type="number" placeholder="€" value={presupuestoMax} onChange={(e) => setPresupuestoMax(e.target.value)} />
+          </div>
+          <div className="filter-actions">
+            <button className="btn btn-primary" onClick={() => { setPage(1); fetchLicitaciones() }}>
+              <Search size={18} /> Filtrar
+            </button>
+            <button className="btn btn-secondary" onClick={clearFilters}>
+              <X size={18} /> Limpiar
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="container">
-        {licitaciones.length === 0 ? (
+        {loading ? (
+          <div className="loading"><div className="spinner"></div><p>Cargando licitaciones...</p></div>
+        ) : error ? (
+          <div className="error"><p>Error: {error}</p></div>
+        ) : licitaciones.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state-icon">📄</div>
             <h3>No se encontraron licitaciones</h3>
@@ -396,26 +299,12 @@ function Licitaciones() {
         ) : (
           <>
             <div className="licitaciones-grid">
-              {licitaciones.map((licitacion) => (
-                <LicitacionCard key={licitacion.id} licitacion={licitacion} />
-              ))}
+              {licitaciones.map((l) => <LicitacionCard key={l.id} licitacion={l} />)}
             </div>
-
             <div className="pagination">
-              <button
-                className="pagination-btn"
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                disabled={page === 1}
-              >
-                Anterior
-              </button>
+              <button className="pagination-btn" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>Anterior</button>
               <span className="pagination-btn active">{page}</span>
-              <button
-                className="pagination-btn"
-                onClick={() => setPage(p => p + 1)}
-              >
-                Siguiente
-              </button>
+              <button className="pagination-btn" onClick={() => setPage(p => p + 1)} disabled={licitaciones.length < LIMIT}>Siguiente</button>
             </div>
           </>
         )}
@@ -424,197 +313,82 @@ function Licitaciones() {
   )
 }
 
-// Pagina de detalle de licitacion
-function LicitacionDetalle() {
-  const { id } = useParams()
-  const [licitacion, setLicitacion] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  useEffect(() => {
-    const fetchLicitacion = async () => {
-      try {
-        const response = await api.get(`/licitaciones/${id}`)
-        setLicitacion(response.data)
-      } catch (err) {
-        setError(err.message || 'Error al cargar la licitacion')
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchLicitacion()
-  }, [id])
-
-  if (loading) {
-    return (
-      <div className="loading">
-        <div className="spinner"></div>
-        <p>Cargando detalles...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="error">
-        <p>Error: {error}</p>
-      </div>
-    )
-  }
-
-  if (!licitacion) {
-    return (
-      <div className="empty-state">
-        <h3>Licitacion no encontrada</h3>
-      </div>
-    )
-  }
-
-  const formatPresupuesto = (presupuesto) => {
-    if (!presupuesto) return 'No especificado'
-    return new Intl.NumberFormat('es-ES', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 0,
-    }).format(presupuesto)
-  }
-
-  const formatDate = (dateStr) => {
-    if (!dateStr) return 'N/A'
-    return new Date(dateStr).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-
-  return (
-    <div className="detail-container">
-      <Link to="/licitaciones" className="btn-back">
-        <ArrowLeft size={20} />
-        Volver al listado
-      </Link>
-
-      <div className="detail-card">
-        <div className="detail-header">
-          <h1 className="detail-title">{licitacion.titulo}</h1>
-          <div className="detail-meta">
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <Building2 size={16} />
-              {licitacion.organismo}
-            </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-              <Calendar size={16} />
-              {formatDate(licitacion.fecha_publicacion)}
-            </span>
-          </div>
-        </div>
-
-        <div className="detail-section">
-          <h2 className="detail-section-title">Presupuesto</h2>
-          <p className="detail-budget">{formatPresupuesto(licitacion.presupuesto)}</p>
-        </div>
-
-        <div className="detail-section">
-          <h2 className="detail-section-title">Resumen Comercial</h2>
-          <p className="detail-section-content">{licitacion.resumen_comercial}</p>
-        </div>
-
-        {licitacion.tecnologias && licitacion.tecnologias.length > 0 && (
-          <div className="detail-section">
-            <h2 className="detail-section-title">Tecnologias</h2>
-            <div className="detail-tags">
-              {licitacion.tecnologias.map((tech, index) => (
-                <span key={index} className="tag" style={{ fontSize: '0.875rem', padding: '0.375rem 0.75rem' }}>
-                  {tech}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="detail-section">
-          <h2 className="detail-section-title">Enlaces</h2>
-          <a
-            href={licitacion.url_origen}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-link"
-            style={{ fontSize: '1rem' }}
-          >
-            Ver licitacion original
-            <ExternalLink size={16} />
-          </a>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// Pagina de Pricing/Planes
-function Pricing() {
+// ============================================
+// PRECIOS CON STRIPE
+// ============================================
+function Precios() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [loadingPlan, setLoadingPlan] = useState(null)
 
-  const plans = [
-    {
-      name: 'Free',
-      price: '€0',
-      period: '/mes',
-      description: 'Para explorar la plataforma',
-      features: [
-        '5 licitaciones/día',
-        'Filtros básicos',
-        'Búsquedas simples',
-        'Soporte por email'
-      ],
-      cta: 'Empezar Gratis',
-      highlighted: false
-    },
-    {
-      name: 'Pro',
-      price: '€49',
-      period: '/mes',
-      description: 'Para empresas que buscan oportunidades activamente',
-      features: [
-        'Licitaciones ilimitadas',
-        'Alertas email diarias',
-        'Filtros avanzados',
-        'Exportar a PDF/Excel',
-        'API Access',
-        'Soporte prioritario'
-      ],
-      cta: 'Suscribirse Pro',
-      highlighted: true
-    },
-    {
-      name: 'Enterprise',
-      price: '€199',
-      period: '/mes',
-      description: 'Para consultoras y grandes equipos',
-      features: [
-        'Todo lo de Pro',
-        'Multi-usuario (hasta 10)',
-        'Webhooks personalizados',
-        'SLA garantizado',
-        'Soporte dedicado 24/7',
-        'White-label disponible'
-      ],
-      cta: 'Contactar Ventas',
-      highlighted: false
+  const handlePlanClick = async (planKey) => {
+    if (planKey === 'free') {
+      navigate('/registro')
+      return
     }
-  ]
 
-  const handlePlanClick = (planName) => {
     if (!user) {
       navigate('/login')
       return
     }
-    // TODO: Integrar con Stripe cuando este configurado
-    alert(`Plan ${planName} seleccionado. Integración con Stripe pendiente.`)
+
+    setLoadingPlan(planKey)
+
+    try {
+      const plan = PLANES[planKey]
+
+      // Cargar Stripe dinamicamente
+      const { loadStripe } = await import('@stripe/stripe-js')
+      const stripe = await loadStripe(STRIPE_PK)
+
+      // Redirigir a Stripe Checkout
+      const { error } = await stripe.redirectToCheckout({
+        lineItems: [{ price: plan.priceId, quantity: 1 }],
+        mode: 'subscription',
+        successUrl: `${window.location.origin}/licitaciones?suscripcion=ok`,
+        cancelUrl: `${window.location.origin}/precios`,
+        customerEmail: user.email,
+      })
+
+      if (error) {
+        alert('Error al procesar el pago: ' + error.message)
+      }
+    } catch (err) {
+      alert('Error: ' + err.message)
+    } finally {
+      setLoadingPlan(null)
+    }
   }
+
+  const plans = [
+    {
+      key: 'free',
+      name: 'Free',
+      precio: '0',
+      descripcion: 'Para explorar la plataforma',
+      features: ['5 licitaciones/dia', 'Filtros basicos', 'Busquedas simples', 'Soporte por email'],
+      cta: 'Empezar Gratis',
+      highlighted: false
+    },
+    {
+      key: 'pro',
+      name: 'Pro',
+      precio: '49',
+      descripcion: 'Para empresas que buscan oportunidades activamente',
+      features: ['Licitaciones ilimitadas', 'Alertas email diarias', 'Filtros avanzados', 'Exportar a PDF/Excel', 'API Access', 'Soporte prioritario'],
+      cta: 'Suscribirse Pro',
+      highlighted: true
+    },
+    {
+      key: 'enterprise',
+      name: 'Enterprise',
+      precio: '199',
+      descripcion: 'Para consultoras y grandes equipos',
+      features: ['Todo lo de Pro', 'Multi-usuario (hasta 10)', 'Webhooks personalizados', 'SLA garantizado', 'Soporte dedicado 24/7', 'White-label disponible'],
+      cta: 'Contactar Ventas',
+      highlighted: false
+    }
+  ]
 
   return (
     <div className="pricing-container">
@@ -624,54 +398,48 @@ function Pricing() {
       </section>
 
       <div className="pricing-grid">
-        {plans.map((plan, index) => (
-          <div
-            key={index}
-            className={`pricing-card ${plan.highlighted ? 'highlighted' : ''}`}
-          >
-            {plan.highlighted && <span className="pricing-badge">Más Popular</span>}
+        {plans.map((plan) => (
+          <div key={plan.key} className={`pricing-card ${plan.highlighted ? 'highlighted' : ''}`}>
+            {plan.highlighted && <span className="pricing-badge">Mas Popular</span>}
             <h3 className="pricing-name">{plan.name}</h3>
             <div className="pricing-price">
-              <span className="price">{plan.price}</span>
-              <span className="period">{plan.period}</span>
+              <span className="price">€{plan.precio}</span>
+              <span className="period">/mes</span>
             </div>
-            <p className="pricing-description">{plan.description}</p>
+            <p className="pricing-description">{plan.descripcion}</p>
             <ul className="pricing-features">
-              {plan.features.map((feature, i) => (
+              {plan.features.map((f, i) => (
                 <li key={i}>
-                  <svg className="check-icon" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  {feature}
+                  <Check size={16} style={{ color: '#22c55e', flexShrink: 0 }} />
+                  {f}
                 </li>
               ))}
             </ul>
             <button
               className={`btn ${plan.highlighted ? 'btn-primary' : 'btn-secondary'} btn-block`}
-              onClick={() => handlePlanClick(plan.name)}
+              onClick={() => handlePlanClick(plan.key)}
+              disabled={loadingPlan === plan.key}
             >
-              {plan.cta}
+              {loadingPlan === plan.key ? 'Procesando...' : plan.cta}
             </button>
           </div>
         ))}
       </div>
 
-      {/* Seccion informativa */}
       <section style={{ textAlign: 'center', padding: '3rem 1rem', maxWidth: '800px', margin: '0 auto' }}>
         <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>¿Tienes dudas?</h2>
         <p style={{ color: 'var(--gray)', marginBottom: '1.5rem' }}>
           Todos los planes incluyen acceso inmediato. Puedes cancelar cuando quieras.
-          Para empresas que necesitan facturación especial o condiciones personalizadas, contacta con nuestro equipo.
         </p>
-        <a href="mailto:hola@licita.ai" className="btn btn-secondary">
-          Contactar soporte
-        </a>
+        <a href="mailto:hola@licita-ai.com" className="btn btn-secondary">Contactar soporte</a>
       </section>
     </div>
   )
 }
 
-// Pagina de Login
+// ============================================
+// LOGIN
+// ============================================
 function Login() {
   const navigate = useNavigate()
   const { signIn } = useAuth()
@@ -684,9 +452,7 @@ function Login() {
     e.preventDefault()
     setError('')
     setLoading(true)
-
     const result = await signIn(email, password)
-
     if (result.success) {
       navigate('/licitaciones')
     } else {
@@ -698,161 +464,109 @@ function Login() {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h1>Iniciar Sesión</h1>
+        <h1>Iniciar Sesion</h1>
         <p className="auth-subtitle">Accede a tu cuenta de Licita AI</p>
-
         {error && <div className="auth-error">{error}</div>}
-
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tu@empresa.com"
-              required
-            />
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@empresa.com" required />
           </div>
           <div className="form-group">
-            <label>Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-            />
+            <label>Contrasena</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required />
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-            {loading ? 'Iniciando...' : 'Iniciar Sesión'}
+            {loading ? 'Iniciando...' : 'Iniciar Sesion'}
           </button>
         </form>
-
-        <p className="auth-footer">
-          ¿No tienes cuenta? <Link to="/registro">Regístrate gratis</Link>
-        </p>
+        <p className="auth-footer">¿No tienes cuenta? <Link to="/registro">Registrate gratis</Link></p>
       </div>
     </div>
   )
 }
 
-// Pagina de Registro
+// ============================================
+// REGISTRO
+// ============================================
 function Registro() {
   const navigate = useNavigate()
   const { signUp } = useAuth()
-  const [formData, setFormData] = useState({
-    nombre: '',
-    empresa: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
-  })
+  const [formData, setFormData] = useState({ nombre: '', empresa: '', email: '', password: '', confirmPassword: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [exito, setExito] = useState(false)
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
-
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden')
+      setError('Las contrasenas no coinciden')
       return
     }
-
     if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres')
+      setError('La contrasena debe tener al menos 6 caracteres')
       return
     }
-
     setLoading(true)
-
     const result = await signUp(formData.email, formData.password, formData.nombre, formData.empresa)
-
     if (result.success) {
-      alert('¡Cuenta creada! Revisa tu email para verificar la cuenta.')
-      navigate('/login')
+      setExito(true)
     } else {
       setError(result.error)
     }
     setLoading(false)
   }
 
+  if (exito) {
+    return (
+      <div className="auth-container">
+        <div className="auth-card" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
+          <h1>¡Cuenta creada!</h1>
+          <p className="auth-subtitle">Revisa tu email para verificar tu cuenta y luego inicia sesion.</p>
+          <Link to="/login" className="btn btn-primary btn-block" style={{ marginTop: '1.5rem' }}>
+            Ir al Login
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="auth-container">
       <div className="auth-card">
         <h1>Crear Cuenta</h1>
-        <p className="auth-subtitle">Únete a Licita AI y encuentra oportunidades de negocio</p>
-
+        <p className="auth-subtitle">Unete a Licita AI y encuentra oportunidades de negocio</p>
         {error && <div className="auth-error">{error}</div>}
-
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Nombre completo</label>
-            <input
-              type="text"
-              name="nombre"
-              value={formData.nombre}
-              onChange={handleChange}
-              placeholder="Juan García"
-              required
-            />
+            <input type="text" name="nombre" value={formData.nombre} onChange={handleChange} placeholder="Juan Garcia" required />
           </div>
           <div className="form-group">
             <label>Empresa</label>
-            <input
-              type="text"
-              name="empresa"
-              value={formData.empresa}
-              onChange={handleChange}
-              placeholder="Tu Empresa S.L."
-            />
+            <input type="text" name="empresa" value={formData.empresa} onChange={handleChange} placeholder="Tu Empresa S.L." />
           </div>
           <div className="form-group">
             <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="tu@empresa.com"
-              required
-            />
+            <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="tu@empresa.com" required />
           </div>
           <div className="form-group">
-            <label>Contraseña</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
+            <label>Contrasena</label>
+            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" required />
           </div>
           <div className="form-group">
-            <label>Confirmar contraseña</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
+            <label>Confirmar contrasena</label>
+            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" required />
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </button>
         </form>
-
-        <p className="auth-footer">
-          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
-        </p>
+        <p className="auth-footer">¿Ya tienes cuenta? <Link to="/login">Inicia sesion</Link></p>
       </div>
     </div>
   )
@@ -861,17 +575,11 @@ function Registro() {
 // ============================================
 // APP PRINCIPAL
 // ============================================
-
 function App() {
   const { loading } = useAuth()
 
   if (loading) {
-    return (
-      <div className="loading">
-        <div className="spinner"></div>
-        <p>Cargando...</p>
-      </div>
-    )
+    return <div className="loading"><div className="spinner"></div><p>Cargando...</p></div>
   }
 
   return (
@@ -882,8 +590,8 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/licitaciones" element={<Licitaciones />} />
-            <Route path="/licitacion/:id" element={<LicitacionDetalle />} />
-            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/precios" element={<Precios />} />
+            <Route path="/pricing" element={<Precios />} />
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Registro />} />
           </Routes>
