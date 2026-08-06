@@ -1024,6 +1024,30 @@ function switchAuth(mode){
   document.getElementById('reg-card').classList.toggle('hidden', mode!=='register');
 }
 
+/* ─── CATEGORIAS (la tabla no tiene columna categoria, se
+   deriva por keywords sobre titulo/resumen/tecnologias) ─ */
+const CATEGORIA_KEYWORDS = {
+  ia: ['inteligencia artificial','machine learning',' ia ','ia,',' ia)','ia.'],
+  cloud: ['cloud','aws','azure','nube'],
+  ciberseguridad: ['ciberseguridad','seguridad informatica','seguridad inform'],
+  datos: ['datos','business intelligence','big data','analitica'],
+  mobile: ['movil','mobile','app','ios','android'],
+  web: ['web','portal'],
+  iot: ['iot','internet de las cosas','sensor'],
+  backend: ['erp','crm','backend'],
+  telecomunicaciones: ['telecomunicac','redes','fibra'],
+};
+function aplicarFiltroCategoria(q, cat){
+  const kws = CATEGORIA_KEYWORDS[cat];
+  if(!kws || !kws.length) return q;
+  const partes=[];
+  kws.forEach(k=>{
+    partes.push(`titulo.ilike.%${k}%`);
+    partes.push(`resumen_comercial.ilike.%${k}%`);
+  });
+  return q.or(partes.join(','));
+}
+
 /* ─── PLAN / LIMITES ─────────────────────────────── */
 const LIMITE_FREE=10;
 function planActual(){ return (S.user && S.profile && S.profile.plan) || 'free'; }
@@ -1039,7 +1063,7 @@ async function load(reset=true){
   let q = sb.from('licitaciones').select('*',{count:'exact'});
 
   if(S.f.estado) q=q.eq('estado',S.f.estado);
-  if(S.f.cat)    q=q.eq('categoria',S.f.cat);
+  if(S.f.cat)    q=aplicarFiltroCategoria(q,S.f.cat);
   if(S.f.bMin!=null) q=q.gte('presupuesto',S.f.bMin);
   if(S.f.bMax!=null) q=q.lte('presupuesto',S.f.bMax);
   if(S.q) q=q.or(`titulo.ilike.%${S.q}%,organismo.ilike.%${S.q}%,resumen_comercial.ilike.%${S.q}%`);
