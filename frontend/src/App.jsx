@@ -556,11 +556,11 @@ function Registro() {
           </div>
           <div className="form-group">
             <label>Contrasena</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" required />
+            <input type="password" name="password" autoComplete="new-password" value={formData.password} onChange={handleChange} placeholder="••••••••" required />
           </div>
           <div className="form-group">
             <label>Confirmar contrasena</label>
-            <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" required />
+            <input type="password" name="confirmPassword" autoComplete="new-password" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" required />
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
