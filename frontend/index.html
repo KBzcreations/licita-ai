@@ -957,6 +957,11 @@ function switchAuth(mode){
   document.getElementById('reg-card').classList.toggle('hidden', mode!=='register');
 }
 
+/* ─── PLAN / LIMITES ─────────────────────────────── */
+const LIMITE_FREE=10;
+function planActual(){ return (S.user && S.profile && S.profile.plan) || 'free'; }
+function esPro(){ return planActual()==='pro' || planActual()==='enterprise'; }
+
 /* ─── SUPABASE QUERY ─────────────────────────────── */
 async function load(reset=true){
   if(S.busy) return;
@@ -975,8 +980,11 @@ async function load(reset=true){
   const [col,dir]=(S.ord||'created_at.desc').split('.');
   q=q.order(col,{ascending:dir==='asc'});
 
+  const limitePlan=esPro()?Infinity:LIMITE_FREE;
   const from=(S.pg-1)*S.lim;
-  q=q.range(from,from+S.lim-1);
+  const hasta=Math.min(from+S.lim-1, limitePlan-1);
+  if(from>hasta){ S.busy=false; return; }
+  q=q.range(from,hasta);
 
   const {data,count,error}=await q;
 
@@ -985,9 +993,11 @@ async function load(reset=true){
   S.rows = reset ? data : [...S.rows,...(data||[])];
   S.total = count||0;
   render(reset);
+  const totalMostrable=Math.min(S.total, limitePlan);
   document.getElementById('res-info').innerHTML=
-    `<strong>${S.total}</strong> licitación${S.total!==1?'es':''} encontrada${S.total!==1?'s':''}`;
-  document.getElementById('lm-wrap').classList.toggle('hidden', S.rows.length>=S.total);
+    `<strong>${S.total}</strong> licitación${S.total!==1?'es':''} encontrada${S.total!==1?'s':''}`
+    + (!esPro() && S.total>LIMITE_FREE ? ` · plan Free limitado a ${LIMITE_FREE}` : '');
+  document.getElementById('lm-wrap').classList.toggle('hidden', S.rows.length>=totalMostrable);
   S.busy=false;
 }
 
@@ -1086,6 +1096,7 @@ function changeSort(v){ S.ord=v; load(); }
 /* ─── FIT ANALYSIS ───────────────────────────────── */
 async function doFit(){
   if(!S.user){ toast('Inicia sesión para usar el análisis de fit','nf'); goto('auth-page','login'); return; }
+  if(!esPro()){ toast('El análisis de fit con IA es solo para planes Pro y Enterprise','nf'); goto('pricing-page'); return; }
   const box=document.getElementById('fit-box');
   box.classList.remove('hidden');
   document.getElementById('fit-inner').innerHTML='<div class="spin-wrap"><div class="spin"></div></div>';
@@ -1291,7 +1302,13 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
     const {data}=await sb.from('user_profiles').select('*').eq('id',session.user.id).single();
     if(data) S.profile=data;
   }
-  sb.auth.onAuthStateChange((_e,s)=>{ S.user=s?.user||null; updateNav(); });
+  sb.auth.onAuthStateChange(async(_e,s)=>{
+    S.user=s?.user||null; updateNav();
+    if(S.user){
+      const {data}=await sb.from('user_profiles').select('*').eq('id',S.user.id).single();
+      if(data) S.profile=data;
+    }
+  });
   loadStats();
 })();
 </script>
