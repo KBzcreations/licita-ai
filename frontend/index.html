@@ -929,8 +929,6 @@ h1.ht .acc{
 /* ─── CONFIG ─────────────────────────────────────── */
 const SB_URL  = 'https://ainldfadnebxwkfzzajp.supabase.co';
 const SB_ANON = 'sb_publishable_LydGj5vbZxcmlF8f5C6MPQ_9CZI-JDx';
-const GEM_KEY = 'AIzaSyDq9ic6B9Q_TxZk850dyh09mCSR_S9d9n4';
-
 const sb = window.supabase.createClient(SB_URL, SB_ANON);
 
 /* ─── STATE ──────────────────────────────────────── */
@@ -1094,24 +1092,14 @@ async function doFit(){
 
   try{
     const r=S.curLic, p=S.profile;
-    const prompt=`Eres analista senior en licitaciones públicas tecnológicas. Analiza el encaje empresa-licitación. Responde SOLO JSON sin backticks.
 
-LICITACIÓN: ${r.titulo} | ${r.organismo} | ${r.presupuesto||'?'}€ | Techs: ${(r.tecnologias||[]).join(',')}
-RESUMEN: ${r.resumen_comercial}
-EMPRESA: ${p.empresa||'empresa tech'} | Stack: ${(p.tecnologias_interes||[]).join(',')}
-
-JSON: {"puntuacion":85,"nivel":"Alto","recomendacion":"texto","fortalezas":["f1","f2"],"debilidades":["d1"],"acciones":["a1","a2","a3"]}`;
-
-    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEM_KEY}`,{
+    const res=await fetch('/.netlify/functions/fit-analysis',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        contents:[{parts:[{text:prompt}]}],
-        generationConfig:{responseMimeType:'application/json',temperature:0.1}
-      })
+      body:JSON.stringify({ licitacion:r, perfil:p })
     });
-    const raw=await res.json();
-    const fit=JSON.parse(raw.candidates[0].content.parts[0].text);
+    const fit=await res.json();
+    if(!res.ok) throw new Error(fit.error||'Error al analizar el encaje');
     const col=fit.puntuacion>=70?'var(--lime)':fit.puntuacion>=50?'var(--amber)':'var(--rose)';
 
     document.getElementById('fit-inner').innerHTML=`
