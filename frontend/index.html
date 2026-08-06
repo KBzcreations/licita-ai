@@ -866,7 +866,7 @@ h1.ht .acc{
           <li>Prioridad en soporte</li>
           <li class="no">API access</li>
         </ul>
-        <button class="nb solid" style="width:100%;padding:11px" onclick="toast('Stripe en integración — próximamente','nf')">Empezar Pro →</button>
+        <button class="nb solid" style="width:100%;padding:11px" onclick="suscribir('pro')">Empezar Pro →</button>
       </div>
 
       <div class="plan">
@@ -881,7 +881,7 @@ h1.ht .acc{
           <li>SLA 99.9% uptime</li>
           <li>Soporte dedicado</li>
         </ul>
-        <button class="nb" style="width:100%;padding:11px" onclick="toast('Escríbenos: hola@licita-ai.com','nf')">Contactar →</button>
+        <button class="nb" style="width:100%;padding:11px" onclick="suscribir('enterprise')">Contactar →</button>
       </div>
     </div>
   </div>
@@ -1169,6 +1169,21 @@ async function doRegister(){
   S.user=data.user; updateNav();
   toast('¡Cuenta creada! Configura tu perfil para alertas personalizadas.','ok');
   goto('profile-page');
+}
+
+async function suscribir(plan){
+  if(!S.user){ toast('Inicia sesión primero para suscribirte','nf'); goto('auth-page','register'); return; }
+  toast('Redirigiendo a pago seguro…','ok');
+  try{
+    const res=await fetch('/api/create-checkout-session',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({plan, email:S.user.email, userId:S.user.id})
+    });
+    const data=await res.json();
+    if(!res.ok||!data.url){ toast(data.error||'Error iniciando el pago','nf'); return; }
+    window.location.href=data.url;
+  }catch(e){ toast('Error de conexión con el pago','nf'); }
 }
 
 async function doLogout(){

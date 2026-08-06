@@ -1,0 +1,2 @@
+ALTER TABLE user_profiles
+  ADD COLUMN IF NOT EXISTS plan TEXT NOT NULL DEFAULT 'free';
