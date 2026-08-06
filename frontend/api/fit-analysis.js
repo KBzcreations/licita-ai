@@ -1,4 +1,4 @@
-// Funcion serverless de Vercel (Node). La API key de Gemini vive solo
+// Funcion serverless de Vercel (Node). La API key de Groq vive solo
 // aqui, en la variable de entorno del proyecto, nunca llega al navegador.
 
 export default async function handler(req, res) {
@@ -7,9 +7,9 @@ export default async function handler(req, res) {
     return;
   }
 
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) {
-    res.status(500).json({ error: "GEMINI_API_KEY no configurada" });
+  const GROQ_API_KEY = process.env.GROQ_API_KEY;
+  if (!GROQ_API_KEY) {
+    res.status(500).json({ error: "GROQ_API_KEY no configurada" });
     return;
   }
 
@@ -28,27 +28,29 @@ EMPRESA: ${perfil.empresa || "empresa tech"} | Stack: ${(perfil.tecnologias_inte
 JSON: {"puntuacion":85,"nivel":"Alto","recomendacion":"texto","fortalezas":["f1","f2"],"debilidades":["d1"],"acciones":["a1","a2","a3"]}`;
 
   try {
-    const r = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseMimeType: "application/json", temperature: 0.1 },
-        }),
-      }
-    );
+    const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        response_format: { type: "json_object" },
+        temperature: 0.1,
+      }),
+    });
 
     const raw = await r.json();
     if (!r.ok) {
-      res.status(r.status).json({ error: "Error de Gemini", detalle: raw });
+      res.status(r.status).json({ error: "Error de Groq", detalle: raw });
       return;
     }
 
-    const texto = raw.candidates?.[0]?.content?.parts?.[0]?.text;
+    const texto = raw.choices?.[0]?.message?.content;
     if (!texto) {
-      res.status(502).json({ error: "Respuesta de Gemini invalida" });
+      res.status(502).json({ error: "Respuesta de Groq invalida" });
       return;
     }
 

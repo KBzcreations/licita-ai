@@ -82,12 +82,12 @@ def ejecutar_pipeline_completo():
 
 if __name__ == "__main__":
     # Verificar variables de entorno
-    if not os.getenv("SUPABASE_URL") or not os.getenv("GEMINI_API_KEY"):
+    if not os.getenv("SUPABASE_URL") or not os.getenv("GROQ_API_KEY"):
         print("[ERROR] Faltan variables de entorno")
         print("   Asegúrate de tener configurado el archivo .env con:")
         print("   - SUPABASE_URL")
         print("   - SUPABASE_KEY")
-        print("   - GEMINI_API_KEY")
+        print("   - GROQ_API_KEY")
         sys.exit(1)
 
     # Ejecutar pipeline

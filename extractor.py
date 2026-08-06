@@ -14,7 +14,7 @@ load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
 SUPABASE_HEADERS = {
     "apikey": SUPABASE_KEY,
@@ -23,7 +23,8 @@ SUPABASE_HEADERS = {
     "Prefer": "return=representation"
 }
 
-GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
+GROQ_MODEL = "llama-3.3-70b-versatile"
 
 
 def extraer_contenido_url(url: str) -> str:
@@ -42,7 +43,7 @@ def extraer_contenido_url(url: str) -> str:
 
 def extraer_datos_con_ia(texto: str, reintentos: int = 3) -> dict:
     """
-    Envia el texto a Gemini API y extrae datos estructurados.
+    Envia el texto a Groq (Llama 3.3 70B) y extrae datos estructurados.
     Reintenta automaticamente si hay error 429 (rate limit).
     """
     prompt = """
@@ -69,30 +70,29 @@ Texto de la licitacion:
 """
 
     payload = {
-        "contents": [{
-            "parts": [{
-                "text": f"{prompt}\n\n{texto[:50000]}"
-            }]
-        }],
-        "generationConfig": {
-            "responseMimeType": "application/json",
-            "temperature": 0.1,
-        }
+        "model": GROQ_MODEL,
+        "messages": [
+            {"role": "user", "content": f"{prompt}\n\n{texto[:20000]}"}
+        ],
+        "response_format": {"type": "json_object"},
+        "temperature": 0.1,
     }
 
     for intento in range(reintentos):
         try:
             respuesta = requests.post(
-                GEMINI_API_URL,
-                headers={"Content-Type": "application/json"},
-                params={"key": GEMINI_API_KEY},
+                GROQ_API_URL,
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {GROQ_API_KEY}",
+                },
                 json=payload,
                 timeout=60
             )
 
             # Si hay rate limit, esperar y reintentar
             if respuesta.status_code == 429:
-                espera = 60 * (intento + 1)  # 60s, 120s, 180s
+                espera = 30 * (intento + 1)  # 30s, 60s, 90s
                 print(f"   [RATE LIMIT] Esperando {espera}s antes de reintentar...")
                 time.sleep(espera)
                 continue
@@ -100,20 +100,20 @@ Texto de la licitacion:
             respuesta.raise_for_status()
             resultado = respuesta.json()
 
-            if "candidates" in resultado and len(resultado["candidates"]) > 0:
-                contenido = resultado["candidates"][0]["content"]["parts"][0]["text"]
+            if "choices" in resultado and len(resultado["choices"]) > 0:
+                contenido = resultado["choices"][0]["message"]["content"]
                 return json.loads(contenido)
             else:
-                raise ValueError("Gemini no devolvio respuesta valida")
+                raise ValueError("Groq no devolvio respuesta valida")
 
         except requests.exceptions.HTTPError as e:
             if intento < reintentos - 1:
-                print(f"   [ERROR HTTP] Reintentando en 30s... ({intento + 1}/{reintentos})")
-                time.sleep(30)
+                print(f"   [ERROR HTTP] Reintentando en 15s... ({intento + 1}/{reintentos})")
+                time.sleep(15)
             else:
                 raise e
 
-    raise ValueError("Se agotaron los reintentos con Gemini API")
+    raise ValueError("Se agotaron los reintentos con Groq API")
 
 
 def guardar_en_supabase(datos: dict, url_origen: str) -> dict:
