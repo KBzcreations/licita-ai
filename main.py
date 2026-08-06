@@ -17,6 +17,7 @@ load_dotenv()
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not SUPABASE_URL or not SUPABASE_KEY:
     raise RuntimeError("Faltan variables de entorno: SUPABASE_URL y SUPABASE_KEY")
@@ -206,6 +207,59 @@ async def licitaciones_por_tecnologia(tecnologia: str):
         return response.json()
     except requests.RequestException as e:
         raise HTTPException(status_code=503, detail=f"Error: {str(e)}")
+
+
+class LicitacionFit(BaseModel):
+    titulo: str
+    organismo: str
+    presupuesto: Optional[float] = None
+    tecnologias: list[str] = Field(default_factory=list)
+    resumen_comercial: str
+
+
+class PerfilFit(BaseModel):
+    empresa: Optional[str] = None
+    tecnologias_interes: list[str] = Field(default_factory=list)
+
+
+class FitAnalysisRequest(BaseModel):
+    licitacion: LicitacionFit
+    perfil: PerfilFit
+
+
+@app.post("/api/fit-analysis")
+async def fit_analysis(req: FitAnalysisRequest):
+    """Analiza con IA el encaje entre una empresa y una licitacion.
+    La API key de Gemini vive solo en el servidor."""
+    if not GEMINI_API_KEY:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY no configurada")
+
+    r, p = req.licitacion, req.perfil
+    prompt = f"""Eres analista senior en licitaciones publicas tecnologicas. Analiza el encaje empresa-licitacion. Responde SOLO JSON sin backticks.
+
+LICITACION: {r.titulo} | {r.organismo} | {r.presupuesto or '?'}EUR | Techs: {','.join(r.tecnologias)}
+RESUMEN: {r.resumen_comercial}
+EMPRESA: {p.empresa or 'empresa tech'} | Stack: {','.join(p.tecnologias_interes)}
+
+JSON: {{"puntuacion":85,"nivel":"Alto","recomendacion":"texto","fortalezas":["f1","f2"],"debilidades":["d1"],"acciones":["a1","a2","a3"]}}"""
+
+    try:
+        res = requests.post(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+            params={"key": GEMINI_API_KEY},
+            json={
+                "contents": [{"parts": [{"text": prompt}]}],
+                "generationConfig": {"responseMimeType": "application/json", "temperature": 0.1},
+            },
+            timeout=60,
+        )
+        res.raise_for_status()
+        data = res.json()
+        texto = data["candidates"][0]["content"]["parts"][0]["text"]
+        import json as _json
+        return _json.loads(texto)
+    except requests.RequestException as e:
+        raise HTTPException(status_code=502, detail=f"Error llamando a Gemini: {str(e)}")
 
 
 if __name__ == "__main__":

@@ -1093,7 +1093,7 @@ async function doFit(){
   try{
     const r=S.curLic, p=S.profile;
 
-    const res=await fetch('/.netlify/functions/fit-analysis',{
+    const res=await fetch('/api/fit-analysis',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({ licitacion:r, perfil:p })
