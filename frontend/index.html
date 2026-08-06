@@ -1160,14 +1160,12 @@ async function doRegister(){
   const err=document.getElementById('r-err');
   err.style.display='none';
   if(!email||!pass||pass.length<8){err.textContent='Email y contraseña (mín. 8 caracteres) requeridos';err.style.display='block';return;}
-  const {data,error}=await sb.auth.signUp({email,password:pass});
+  const {data,error}=await sb.auth.signUp({
+    email, password:pass,
+    options:{ data:{ nombre:nom, empresa:emp } }
+  });
   if(error){err.textContent=error.message;err.style.display='block';return;}
-  if(data.user){
-    await sb.from('user_profiles').upsert({
-      id:data.user.id, email, nombre:nom, empresa:emp,
-      recibir_alertas:true, tecnologias_interes:[], palabras_clave:[], plan:'free'
-    });
-  }
+  // El perfil se crea solo via trigger de base de datos (on_auth_user_created)
   S.user=data.user; updateNav();
   toast('¡Cuenta creada! Configura tu perfil para alertas personalizadas.','ok');
   goto('profile-page');
