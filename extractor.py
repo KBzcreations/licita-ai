@@ -5,19 +5,17 @@ Extrae informacion de licitaciones publicas usando IA y las guarda en Supabase.
 
 import os
 import json
+import time
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
-# Cargar variables de entorno
 load_dotenv()
 
-# Configuracion
 SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-# Headers para Supabase
 SUPABASE_HEADERS = {
     "apikey": SUPABASE_KEY,
     "Authorization": f"Bearer {SUPABASE_KEY}",
@@ -29,30 +27,23 @@ GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini
 
 
 def extraer_contenido_url(url: str) -> str:
-    """Descarga y extrae el texto visible de una URL usando requests y BeautifulSoup."""
+    """Descarga y extrae el texto visible de una URL."""
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     }
-
     respuesta = requests.get(url, headers=headers, timeout=30)
     respuesta.raise_for_status()
-
     soup = BeautifulSoup(respuesta.text, "lxml")
-
-    # Eliminar scripts y estilos
     for elemento in soup(["script", "style", "meta", "link"]):
         elemento.decompose()
-
-    # Extraer texto limpio
     texto = soup.get_text(separator="\n", strip=True)
-
     return texto
 
 
-def extraer_datos_con_ia(texto: str) -> dict:
+def extraer_datos_con_ia(texto: str, reintentos: int = 3) -> dict:
     """
-    Envia el texto a Gemini API y extrae datos estructurados de la licitacion.
-    Retorna un diccionario con: titulo, organismo, presupuesto, tecnologias, resumen_comercial
+    Envia el texto a Gemini API y extrae datos estructurados.
+    Reintenta automaticamente si hay error 429 (rate limit).
     """
     prompt = """
 Eres un analista experto en licitaciones publicas para empresas tecnologicas.
@@ -89,58 +80,72 @@ Texto de la licitacion:
         }
     }
 
-    headers = {
-        "Content-Type": "application/json"
-    }
+    for intento in range(reintentos):
+        try:
+            respuesta = requests.post(
+                GEMINI_API_URL,
+                headers={"Content-Type": "application/json"},
+                params={"key": GEMINI_API_KEY},
+                json=payload,
+                timeout=60
+            )
 
-    params = {
-        "key": GEMINI_API_KEY
-    }
+            # Si hay rate limit, esperar y reintentar
+            if respuesta.status_code == 429:
+                espera = 60 * (intento + 1)  # 60s, 120s, 180s
+                print(f"   [RATE LIMIT] Esperando {espera}s antes de reintentar...")
+                time.sleep(espera)
+                continue
 
-    respuesta = requests.post(
-        GEMINI_API_URL,
-        headers=headers,
-        params=params,
-        json=payload,
-        timeout=60
-    )
-    respuesta.raise_for_status()
+            respuesta.raise_for_status()
+            resultado = respuesta.json()
 
-    resultado = respuesta.json()
+            if "candidates" in resultado and len(resultado["candidates"]) > 0:
+                contenido = resultado["candidates"][0]["content"]["parts"][0]["text"]
+                return json.loads(contenido)
+            else:
+                raise ValueError("Gemini no devolvio respuesta valida")
 
-    # Extraer el contenido generado
-    if "candidates" in resultado and len(resultado["candidates"]) > 0:
-        contenido = resultado["candidates"][0]["content"]["parts"][0]["text"]
-        return json.loads(contenido)
-    else:
-        raise ValueError("La API de Gemini no devolvio una respuesta valida")
+        except requests.exceptions.HTTPError as e:
+            if intento < reintentos - 1:
+                print(f"   [ERROR HTTP] Reintentando en 30s... ({intento + 1}/{reintentos})")
+                time.sleep(30)
+            else:
+                raise e
+
+    raise ValueError("Se agotaron los reintentos con Gemini API")
 
 
 def guardar_en_supabase(datos: dict, url_origen: str) -> dict:
-    """
-    Inserta los datos extraidos en la tabla 'licitaciones' de Supabase.
-    Usa la API REST directamente para evitar problemas de compatibilidad.
-    Retorna el registro creado.
-    """
+    """Inserta los datos en Supabase. Ignora duplicados por url_origen."""
     registro = {
-        "titulo": datos.get("titulo"),
-        "organismo": datos.get("organismo"),
+        "titulo": datos.get("titulo") or "Sin titulo",
+        "organismo": datos.get("organismo") or "Organismo desconocido",
         "presupuesto": datos.get("presupuesto"),
         "tecnologias": datos.get("tecnologias", []),
-        "resumen_comercial": datos.get("resumen_comercial"),
-        "url_origen": url_origen
+        "resumen_comercial": datos.get("resumen_comercial") or "Sin resumen disponible",
+        "url_origen": url_origen,
+        "estado": "activa"
     }
+
+    # Filtrar campos None para evitar errores
+    registro = {k: v for k, v in registro.items() if v is not None}
 
     url_insert = f"{SUPABASE_URL}/rest/v1/licitaciones"
 
     respuesta = requests.post(
         url_insert,
-        headers=SUPABASE_HEADERS,
+        headers={**SUPABASE_HEADERS, "Prefer": "return=representation,resolution=ignore-duplicates"},
         json=registro
     )
-    respuesta.raise_for_status()
 
-    return respuesta.json()[0] if respuesta.json() else None
+    if respuesta.status_code == 409:
+        print(f"   [SKIP] Ya existe en base de datos")
+        return None
+
+    respuesta.raise_for_status()
+    datos_resp = respuesta.json()
+    return datos_resp[0] if datos_resp else None
 
 
 def verificar_conexion_supabase() -> bool:
@@ -156,38 +161,37 @@ def verificar_conexion_supabase() -> bool:
 
 
 def procesar_licitacion_simple(url: str) -> dict:
-    """
-    Version simplificada sin prints - para uso en lote o API.
-    """
-    # Extraer contenido
+    """Procesa una URL: extrae contenido, analiza con IA y guarda en Supabase."""
     texto = extraer_contenido_url(url)
-
-    # Procesar con IA
     datos = extraer_datos_con_ia(texto)
-
-    # Guardar en Supabase
     registro = guardar_en_supabase(datos, url)
-
     return registro
 
 
-def procesar_lote_urls(urls: list[str]) -> list[dict]:
+def procesar_lote_urls(urls: list) -> list:
     """
-    Procesa multiples URLs en lote.
-    Retorna lista de registros procesados exitosamente.
+    Procesa multiples URLs con pausa entre cada una para evitar rate limits.
     """
     resultados = []
     errores = []
 
     for i, url in enumerate(urls, 1):
-        print(f"[{i}/{len(urls)}] Procesando: {url}")
+        print(f"[{i}/{len(urls)}] Procesando: {url[:80]}...")
         try:
             registro = procesar_licitacion_simple(url)
-            resultados.append(registro)
-            print(f"   [OK] Guardado")
+            if registro:
+                resultados.append(registro)
+                print(f"   [OK] Guardado: {registro.get('titulo', '')[:60]}")
+            else:
+                print(f"   [SKIP] Duplicado")
         except Exception as e:
             print(f"   [ERROR] {str(e)[:100]}")
             errores.append({"url": url, "error": str(e)})
+
+        # Pausa entre peticiones para evitar rate limit de Gemini
+        if i < len(urls):
+            print(f"   [PAUSA] Esperando 15s para evitar rate limit...")
+            time.sleep(15)
 
     print("=" * 60)
     print(f"[OK] {len(resultados)} procesadas correctamente")
@@ -197,11 +201,8 @@ def procesar_lote_urls(urls: list[str]) -> list[dict]:
     return resultados
 
 
-def cargar_urls_desde_archivo(archivo: str) -> list[str]:
-    """
-    Carga URLs desde un archivo generado por el scraper.
-    Formato esperado: url|titulo por linea
-    """
+def cargar_urls_desde_archivo(archivo: str) -> list:
+    """Carga URLs desde archivo generado por el scraper."""
     urls = []
     with open(archivo, "r", encoding="utf-8") as f:
         for linea in f:
@@ -219,57 +220,28 @@ if __name__ == "__main__":
     print("LICITA AI - Extractor de Licitaciones")
     print("=" * 60)
 
-    # Verificar conexion
     print("\n[INFO] Verificando conexion con Supabase...")
     if not verificar_conexion_supabase():
         print("[ERROR] No se pudo conectar a Supabase")
-        print("   Verifica las credenciales en el archivo .env")
         sys.exit(1)
     print("[OK] Conectado correctamente")
 
     if len(sys.argv) > 1:
-        # Modo 1: Procesar archivo del scraper
-        archivo = sys.argv[1]
-        if os.path.exists(archivo):
-            print(f"[INFO] Cargando URLs desde {archivo}...")
-            urls = cargar_urls_desde_archivo(archivo)
-            print(f"[INFO] Encontradas {len(urls)} URLs")
+        archivo_o_url = sys.argv[1]
+        if os.path.exists(archivo_o_url):
+            urls = cargar_urls_desde_archivo(archivo_o_url)
+            print(f"[INFO] {len(urls)} URLs encontradas")
             procesar_lote_urls(urls)
         else:
-            # Modo 2: URL directa como argumento
-            url = sys.argv[1]
-            print(f"[INFO] Procesando URL: {url}")
-            resultado = procesar_licitacion_simple(url)
+            resultado = procesar_licitacion_simple(archivo_o_url)
             print("[OK] Procesada exitosamente")
             print(json.dumps(resultado, indent=2, default=str))
     else:
-        # Modo 3: Interactivo
-        print("\nOpciones:")
-        print("  1. Procesar una URL manualmente")
-        print("  2. Procesar archivo del scraper (licitaciones_pendientes.txt)")
-        print()
-
-        opcion = input("Elige opcion (1/2): ").strip()
-
-        if opcion == "2":
-            archivo = "licitaciones_pendientes.txt"
-            if os.path.exists(archivo):
-                urls = cargar_urls_desde_archivo(archivo)
-                print(f"[INFO] {len(urls)} URLs encontradas")
-                procesar_lote_urls(urls)
-            else:
-                print(f"[ERROR] No existe {archivo}. Ejecuta primero scraper.py")
+        archivo = "licitaciones_pendientes.txt"
+        if os.path.exists(archivo):
+            urls = cargar_urls_desde_archivo(archivo)
+            print(f"[INFO] {len(urls)} URLs encontradas")
+            procesar_lote_urls(urls)
         else:
-            url = input("\nIntroduce la URL de la licitacion: ").strip()
-            if url:
-                try:
-                    resultado = procesar_licitacion_simple(url)
-                    print("\n" + "=" * 50)
-                    print("[OK] PROCESO COMPLETADO")
-                    print("=" * 50)
-                    print(json.dumps(resultado, indent=2, default=str))
-                except Exception as e:
-                    print(f"\n[ERROR] {str(e)}")
-                    raise
-            else:
-                print("No se proporciono una URL.")
+            print("[ERROR] No existe licitaciones_pendientes.txt")
+            print("        Ejecuta primero: python scraper.py")

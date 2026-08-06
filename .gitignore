@@ -1,1 +1,7 @@
 .vercel
+.env
+frontend/.env
+__pycache__/
+*.pyc
+pipeline_run.log
+licitaciones_pendientes.txt

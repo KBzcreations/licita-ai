@@ -44,8 +44,8 @@ CPV_TECH_PREFIJOS = [
 
 # Keywords para filtrar por texto
 KEYWORDS_TECH = [
-    "software", "tecnolog", "inform", "digital", "sistema inform",
-    "plataforma tecnol", "aplicacion", "aplicación", "cloud", "aws", "azure",
+    "software", "tecnolog", "informatic", "informátic", "sistema inform",
+    "plataforma tecnol", "cloud computing", "aws", "microsoft azure",
     "inteligencia artificial", "machine learning", "ciberseguridad",
     "telecomunicac", "base de datos", "desarrollo web", "mantenimiento inform",
     "infraestructura tecnol", "transformacion digital", "sede electronica",
@@ -53,12 +53,16 @@ KEYWORDS_TECH = [
     "erp", "crm", "business intelligence", "big data", "iot", "microservicio",
     "data center", "centro de proceso", "helpdesk", "service desk",
     "licencias software", "mantenimiento evolutivo", "app movil",
+    "desarrollo de software", "aplicacion informatica", "aplicación informática",
+    "aplicacion web", "aplicación web", "aplicacion movil", "aplicación móvil",
 ]
 
 EXCLUDE_KEYWORDS = [
-    "obra civil", "construccion", "jardineria", "limpieza urbana",
-    "catering", "transporte escolar", "combustible gasoil",
-    "mobiliario", "papeleria", "alimentacion", "residuos",
+    "obra civil", "construccion", "construcción", "jardineria", "jardinería",
+    "limpieza urbana", "catering", "transporte escolar", "combustible gasoil",
+    "mobiliario", "papeleria", "papelería", "alimentacion", "alimentación",
+    "residuos", "lodos", "compostaje", "agricultura", "obras de reforma",
+    "obra de reforma", "reforma de oficinas", "vehiculo", "vehículo",
 ]
 
 
@@ -138,13 +142,12 @@ def parsear_atom_licitaciones(contenido_xml: str) -> list[dict]:
                 
                 # CPV
                 cpv = ""
-                cpv_tags = entry.find_all(["cbc:ItemClassificationCode", "ItemClassificationCode"])
+                cpv_tags = entry.find_all(lambda t: t.name and t.name.endswith("ItemClassificationCode"))
                 if cpv_tags:
                     cpv = cpv_tags[0].get_text(strip=True)
                 
-                # Estado
-                estado_tag = entry.find(["cbc-place:ContractFolderStatusCode",
-                                          "ContractFolderStatusCode"])
+                # Estado (el feed usa el prefijo cbc-place-ext, no cbc-place)
+                estado_tag = entry.find(lambda t: t.name and t.name.endswith("ContractFolderStatusCode"))
                 estado = estado_tag.get_text(strip=True) if estado_tag else ""
                 
                 # Solo licitaciones abiertas (ADM = en plazo de admision)
@@ -172,66 +175,72 @@ def parsear_atom_licitaciones(contenido_xml: str) -> list[dict]:
     return licitaciones
 
 
-def descargar_feed_diario() -> list[dict]:
+def descargar_feed_diario(max_paginas: int = 8) -> list[dict]:
     """
-    Descarga el feed Atom diario directamente (sin ZIP).
-    Es el mas actualizado.
+    Descarga el feed Atom diario y sigue el enlace rel="next" para cubrir
+    varias paginas (el feed solo trae ~20 entradas por pagina).
     """
     url = obtener_url_atom_diario()
-    print(f"   Descargando feed diario: {url}")
-    
-    try:
-        r = requests.get(url, headers=HEADERS, timeout=60)
-        if r.status_code == 200:
-            licitaciones = parsear_atom_licitaciones(r.text)
-            print(f"   -> {len(licitaciones)} licitaciones tech en feed diario")
-            return licitaciones
-        else:
-            print(f"   [ERROR] Status {r.status_code}")
-    except Exception as e:
-        print(f"   [ERROR feed diario]: {e}")
-    
-    return []
+    todas = []
+    vistos = set()
+
+    for pagina in range(1, max_paginas + 1):
+        if not url or url in vistos:
+            break
+        vistos.add(url)
+        print(f"   [pagina {pagina}] Descargando: {url}")
+
+        try:
+            r = requests.get(url, headers=HEADERS, timeout=60)
+            if r.status_code != 200:
+                print(f"   [ERROR] Status {r.status_code}")
+                break
+
+            # El feed declara UTF-8 explicitamente en la cabecera XML
+            r.encoding = "utf-8"
+            contenido = r.text
+
+            licitaciones = parsear_atom_licitaciones(contenido)
+            todas.extend(licitaciones)
+
+            soup = BeautifulSoup(contenido, "xml")
+            next_link = soup.find("link", rel="next")
+            url = next_link.get("href", "") if next_link else ""
+        except Exception as e:
+            print(f"   [ERROR feed diario]: {e}")
+            break
+
+    print(f"   -> {len(todas)} licitaciones tech en {len(vistos)} pagina(s) del feed diario")
+    return todas
 
 
 def descargar_feed_mensual() -> list[dict]:
     """
-    Descarga el ZIP mensual y parsea el Atom.
-    Contiene mas datos pero es mas pesado.
+    Descarga el ZIP mensual completo (sin truncar) y parsea el Atom.
+    Fallback para cuando el feed diario no encuentra nada.
     """
     url = obtener_url_atom_mes_actual()
     print(f"   Descargando feed mensual: {url}")
-    
+
     try:
-        r = requests.get(url, headers=HEADERS, timeout=120, stream=True)
+        r = requests.get(url, headers=HEADERS, timeout=180)
         if r.status_code != 200:
             print(f"   [ERROR] Status {r.status_code}")
             return []
-        
-        # Leer el ZIP en memoria
-        contenido = b""
-        for chunk in r.iter_content(chunk_size=8192):
-            contenido += chunk
-            if len(contenido) > 10 * 1024 * 1024:  # Max 10MB
-                print("   [INFO] ZIP muy grande, usando solo primeros 10MB")
-                break
-        
-        # Descomprimir
-        with zipfile.ZipFile(io.BytesIO(contenido)) as z:
-            # Buscar el fichero .atom principal
+
+        with zipfile.ZipFile(io.BytesIO(r.content)) as z:
             atom_files = [f for f in z.namelist() if f.endswith(".atom")]
             if not atom_files:
                 print("   [ERROR] No se encontro fichero .atom en el ZIP")
                 return []
-            
-            # Parsear el primer fichero atom
+
             with z.open(atom_files[0]) as f:
                 xml_content = f.read().decode("utf-8", errors="ignore")
-            
+
             licitaciones = parsear_atom_licitaciones(xml_content)
             print(f"   -> {len(licitaciones)} licitaciones tech en feed mensual")
             return licitaciones
-            
+
     except Exception as e:
         print(f"   [ERROR feed mensual]: {e}")
         return []
