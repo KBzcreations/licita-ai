@@ -888,6 +888,60 @@ h1.ht .acc{
 </section>
 
 <!-- ═══════════════════════════════════════════════════
+     TERMINOS Y PRIVACIDAD
+══════════════════════════════════════════════════════ -->
+<section class="page" id="terms-page">
+  <div class="wrap" style="max-width:760px;margin:0 auto;padding:60px 20px;line-height:1.7">
+    <h1 style="font-size:28px;margin-bottom:8px">Términos de servicio</h1>
+    <p style="color:var(--chalk3);font-size:13px;margin-bottom:32px">Última actualización: agosto de 2026</p>
+
+    <h3 style="margin:24px 0 8px">1. Qué es Licita AI</h3>
+    <p>Licita AI es un servicio que recopila licitaciones públicas del sector tecnológico publicadas en fuentes oficiales (Plataforma de Contratación del Sector Público) y genera resúmenes con ayuda de inteligencia artificial para facilitar su consulta. No somos parte de ninguna licitación ni garantizamos la exactitud, actualidad o completitud de la información mostrada frente a la fuente oficial.</p>
+
+    <h3 style="margin:24px 0 8px">2. Cuenta de usuario</h3>
+    <p>Para usar ciertas funciones necesitas registrarte con un email válido. Eres responsable de mantener la confidencialidad de tu contraseña y de toda actividad realizada desde tu cuenta.</p>
+
+    <h3 style="margin:24px 0 8px">3. Planes y pagos</h3>
+    <p>Ofrecemos un plan gratuito con funcionalidad limitada y planes de pago (Pro, Enterprise) con facturación mensual recurrente gestionada por Stripe. Puedes cancelar tu suscripción en cualquier momento desde tu panel; la cancelación tiene efecto al final del periodo ya pagado. No ofrecemos reembolsos de periodos ya iniciados salvo obligación legal.</p>
+
+    <h3 style="margin:24px 0 8px">4. Uso aceptable</h3>
+    <p>No está permitido usar el servicio para scraping masivo automatizado no autorizado, revender el acceso a terceros sin plan Enterprise, ni intentar vulnerar la seguridad de la plataforma.</p>
+
+    <h3 style="margin:24px 0 8px">5. Limitación de responsabilidad</h3>
+    <p>La información se ofrece "tal cual". Las decisiones comerciales o de negocio que tomes basándote en los resúmenes o análisis generados por IA son tu responsabilidad — recomendamos siempre verificar los datos en la fuente oficial antes de presentarte a una licitación.</p>
+
+    <h3 style="margin:24px 0 8px">6. Contacto</h3>
+    <p>Para cualquier duda sobre estos términos, escríbenos a <a href="mailto:hola@licita-ai.com" style="color:var(--sky3)">hola@licita-ai.com</a>.</p>
+
+    <button class="nb" style="margin-top:32px" onclick="goto('home')">← Volver al inicio</button>
+  </div>
+</section>
+
+<section class="page" id="privacy-page">
+  <div class="wrap" style="max-width:760px;margin:0 auto;padding:60px 20px;line-height:1.7">
+    <h1 style="font-size:28px;margin-bottom:8px">Política de privacidad</h1>
+    <p style="color:var(--chalk3);font-size:13px;margin-bottom:32px">Última actualización: agosto de 2026</p>
+
+    <h3 style="margin:24px 0 8px">1. Qué datos recogemos</h3>
+    <p>Al registrarte guardamos tu email, nombre y empresa (si los facilitas), y tus preferencias de tecnologías de interés para personalizar alertas. Si contratas un plan de pago, Stripe procesa los datos de tu tarjeta directamente — nosotros nunca almacenamos números de tarjeta.</p>
+
+    <h3 style="margin:24px 0 8px">2. Para qué los usamos</h3>
+    <p>Para darte acceso al servicio, enviarte alertas de licitaciones si las activas, gestionar tu suscripción y responder a tus consultas de soporte. No vendemos ni cedemos tus datos a terceros con fines publicitarios.</p>
+
+    <h3 style="margin:24px 0 8px">3. Dónde se almacenan</h3>
+    <p>Tus datos se almacenan en Supabase (infraestructura en la UE/EE.UU. con cláusulas contractuales estándar) y el procesamiento de pagos lo realiza Stripe, ambos cumpliendo con RGPD.</p>
+
+    <h3 style="margin:24px 0 8px">4. Tus derechos</h3>
+    <p>Puedes acceder, rectificar o solicitar la eliminación de tus datos en cualquier momento escribiendo a <a href="mailto:hola@licita-ai.com" style="color:var(--sky3)">hola@licita-ai.com</a>. Eliminaremos tu cuenta y datos asociados en un plazo razonable, salvo obligación legal de conservación.</p>
+
+    <h3 style="margin:24px 0 8px">5. Cookies</h3>
+    <p>Usamos únicamente almacenamiento técnico necesario para mantener tu sesión iniciada (gestionado por Supabase Auth). No usamos cookies de rastreo publicitario.</p>
+
+    <button class="nb" style="margin-top:32px" onclick="goto('home')">← Volver al inicio</button>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════
      MODAL LICITACIÓN
 ══════════════════════════════════════════════════════ -->
 <div class="overlay" id="overlay" onclick="maybeClose(event)">
@@ -921,6 +975,19 @@ h1.ht .acc{
     </div>
   </div>
 </div>
+
+<!-- ═══════════════════════════════════════════════════
+     FOOTER (visible en todas las paginas)
+══════════════════════════════════════════════════════ -->
+<footer style="border-top:1px solid var(--line);padding:24px 20px;text-align:center;font-size:12px;color:var(--chalk3)">
+  <span>© 2026 Licita AI</span>
+  <span style="margin:0 8px">·</span>
+  <a href="#" onclick="goto('terms-page');return false" style="color:var(--chalk3);text-decoration:underline">Términos</a>
+  <span style="margin:0 8px">·</span>
+  <a href="#" onclick="goto('privacy-page');return false" style="color:var(--chalk3);text-decoration:underline">Privacidad</a>
+  <span style="margin:0 8px">·</span>
+  <a href="mailto:hola@licita-ai.com" style="color:var(--chalk3);text-decoration:underline">hola@licita-ai.com</a>
+</footer>
 
 <!-- ═══════════════════════════════════════════════════
      JAVASCRIPT
