@@ -995,7 +995,7 @@ async function load(reset=true){
   render(reset);
   const totalMostrable=Math.min(S.total, limitePlan);
   document.getElementById('res-info').innerHTML=
-    `<strong>${S.total}</strong> licitación${S.total!==1?'es':''} encontrada${S.total!==1?'s':''}`
+    `<strong>${S.total}</strong> ${S.total!==1?'licitaciones':'licitación'} encontrada${S.total!==1?'s':''}`
     + (!esPro() && S.total>LIMITE_FREE ? ` · plan Free limitado a ${LIMITE_FREE}` : '');
   document.getElementById('lm-wrap').classList.toggle('hidden', S.rows.length>=totalMostrable);
   S.busy=false;
