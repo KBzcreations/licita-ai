@@ -919,7 +919,7 @@ h1.ht .acc{
     <p>La información se ofrece "tal cual". Las decisiones comerciales o de negocio que tomes basándote en los resúmenes o análisis generados por IA son tu responsabilidad — recomendamos siempre verificar los datos en la fuente oficial antes de presentarte a una licitación.</p>
 
     <h3 style="margin:24px 0 8px">6. Contacto</h3>
-    <p>Para cualquier duda sobre estos términos, escríbenos a <a href="mailto:hola@licita-ai.com" style="color:var(--sky3)">hola@licita-ai.com</a>.</p>
+    <p>Para cualquier duda sobre estos términos, escríbenos a <a href="mailto:kbz.tube@gmail.com" style="color:var(--sky3)">kbz.tube@gmail.com</a>.</p>
 
     <button class="nb" style="margin-top:32px" onclick="goto('home')">← Volver al inicio</button>
   </div>
@@ -940,7 +940,7 @@ h1.ht .acc{
     <p>Tus datos se almacenan en Supabase (infraestructura en la UE/EE.UU. con cláusulas contractuales estándar) y el procesamiento de pagos lo realiza Stripe, ambos cumpliendo con RGPD.</p>
 
     <h3 style="margin:24px 0 8px">4. Tus derechos</h3>
-    <p>Puedes acceder, rectificar o solicitar la eliminación de tus datos en cualquier momento escribiendo a <a href="mailto:hola@licita-ai.com" style="color:var(--sky3)">hola@licita-ai.com</a>. Eliminaremos tu cuenta y datos asociados en un plazo razonable, salvo obligación legal de conservación.</p>
+    <p>Puedes acceder, rectificar o solicitar la eliminación de tus datos en cualquier momento escribiendo a <a href="mailto:kbz.tube@gmail.com" style="color:var(--sky3)">kbz.tube@gmail.com</a>. Eliminaremos tu cuenta y datos asociados en un plazo razonable, salvo obligación legal de conservación.</p>
 
     <h3 style="margin:24px 0 8px">5. Cookies</h3>
     <p>Usamos únicamente almacenamiento técnico necesario para mantener tu sesión iniciada (gestionado por Supabase Auth). No usamos cookies de rastreo publicitario.</p>
@@ -996,7 +996,7 @@ h1.ht .acc{
   <span style="margin:0 8px">·</span>
   <a href="#" onclick="goto('privacy-page');return false" style="color:var(--chalk3);text-decoration:underline">Privacidad</a>
   <span style="margin:0 8px">·</span>
-  <a href="mailto:hola@licita-ai.com" style="color:var(--chalk3);text-decoration:underline">hola@licita-ai.com</a>
+  <a href="mailto:kbz.tube@gmail.com" style="color:var(--chalk3);text-decoration:underline">kbz.tube@gmail.com</a>
 </footer>
 
 <!-- ═══════════════════════════════════════════════════
@@ -1017,6 +1017,16 @@ const S = {
   curLic:null
 };
 
+/* ─── TRACKING (para el informe diario de actividad) ─ */
+function sessionId(){
+  let id=sessionStorage.getItem('sid');
+  if(!id){ id=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random()); sessionStorage.setItem('sid',id); }
+  return id;
+}
+function track(tipo, pagina, metadata){
+  try{ sb.from('eventos').insert({tipo, pagina, user_id:S.user?.id||null, session_id:sessionId(), metadata:metadata||null}); }catch(e){}
+}
+
 /* ─── NAVIGATION ─────────────────────────────────── */
 function goto(pageId, sub){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -1026,6 +1036,7 @@ function goto(pageId, sub){
   if(pageId==='home') loadStats();
   if(pageId==='auth-page') switchAuth(sub||'login');
   if(pageId==='profile-page' && S.user) loadProfile();
+  track('pageview', pageId);
 }
 
 /* ─── AUTH SWITCH ────────────────────────────────── */
@@ -1267,6 +1278,7 @@ async function doLogin(){
   const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
   if(error){err.textContent='Credenciales incorrectas';err.style.display='block';return;}
   S.user=data.user; updateNav();
+  track('login','auth-page',{email});
   toast('¡Bienvenido!','ok');
   goto('app-page');
 }
@@ -1286,12 +1298,14 @@ async function doRegister(){
   if(error){err.textContent=error.message;err.style.display='block';return;}
   // El perfil se crea solo via trigger de base de datos (on_auth_user_created)
   S.user=data.user; updateNav();
+  track('registro','auth-page',{email,empresa:emp});
   toast('¡Cuenta creada! Configura tu perfil para alertas personalizadas.','ok');
   goto('profile-page');
 }
 
 async function suscribir(plan){
   if(!S.user){ toast('Inicia sesión primero para suscribirte','nf'); goto('auth-page','register'); return; }
+  track('suscripcion_iniciada','pricing-page',{plan,email:S.user.email});
   toast('Redirigiendo a pago seguro…','ok');
   try{
     const res=await fetch('/api/create-checkout-session',{

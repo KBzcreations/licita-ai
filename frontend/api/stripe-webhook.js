@@ -43,6 +43,21 @@ async function actualizarPlan(userId, plan) {
   });
 }
 
+async function registrarEvento(tipo, userId, metadata) {
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  await fetch(`${SUPABASE_URL}/rest/v1/eventos`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_SERVICE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify({ tipo, pagina: "stripe-webhook", user_id: userId, metadata }),
+  });
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).end();
@@ -76,13 +91,19 @@ export default async function handler(req, res) {
       const session = event.data.object;
       const userId = session.client_reference_id || session.metadata?.user_id;
       const plan = session.metadata?.plan;
-      if (userId && plan) await actualizarPlan(userId, plan);
+      if (userId && plan) {
+        await actualizarPlan(userId, plan);
+        await registrarEvento("suscripcion_completada", userId, { plan });
+      }
     }
 
     if (event.type === "customer.subscription.deleted") {
       const sub = event.data.object;
       const userId = sub.metadata?.user_id;
-      if (userId) await actualizarPlan(userId, "free");
+      if (userId) {
+        await actualizarPlan(userId, "free");
+        await registrarEvento("suscripcion_cancelada", userId, {});
+      }
     }
 
     res.status(200).json({ received: true });
