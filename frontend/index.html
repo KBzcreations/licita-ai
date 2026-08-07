@@ -676,6 +676,7 @@ h1.ht .acc{
           <button class="fchip" data-val="iot" onclick="applyChip(this,'cat-grp')">📡 IoT</button>
           <button class="fchip" data-val="backend" onclick="applyChip(this,'cat-grp')">⚙️ Backend / ERP</button>
           <button class="fchip" data-val="telecomunicaciones" onclick="applyChip(this,'cat-grp')">📶 Teleco</button>
+          <button class="fchip" data-val="construccion" onclick="applyChip(this,'cat-grp')">🏗️ Construcción</button>
         </div>
       </div>
       <div>
@@ -1027,7 +1028,7 @@ function switchAuth(mode){
 /* ─── CATEGORIAS (la tabla no tiene columna categoria, se
    deriva por keywords sobre titulo/resumen/tecnologias) ─ */
 const CATEGORIA_KEYWORDS = {
-  ia: ['inteligencia artificial','machine learning',' ia ','ia,',' ia)','ia.'],
+  ia: ['inteligencia artificial','machine learning','algoritmos'],
   cloud: ['cloud','aws','azure','nube'],
   ciberseguridad: ['ciberseguridad','seguridad informatica','seguridad inform'],
   datos: ['datos','business intelligence','big data','analitica'],
@@ -1036,14 +1037,18 @@ const CATEGORIA_KEYWORDS = {
   iot: ['iot','internet de las cosas','sensor'],
   backend: ['erp','crm','backend'],
   telecomunicaciones: ['telecomunicac','redes','fibra'],
+  construccion: ['obra','construccion','edificio','reforma','edificacion'],
 };
 function aplicarFiltroCategoria(q, cat){
   const kws = CATEGORIA_KEYWORDS[cat];
   if(!kws || !kws.length) return q;
   const partes=[];
   kws.forEach(k=>{
-    partes.push(`titulo.ilike.%${k}%`);
-    partes.push(`resumen_comercial.ilike.%${k}%`);
+    // Los caracteres , ( ) rompen la sintaxis or() de PostgREST -> se eliminan
+    const seguro = k.replace(/[,()]/g,'').trim();
+    if(!seguro) return;
+    partes.push(`titulo.ilike.%${seguro}%`);
+    partes.push(`resumen_comercial.ilike.%${seguro}%`);
   });
   return q.or(partes.join(','));
 }
@@ -1066,7 +1071,10 @@ async function load(reset=true){
   if(S.f.cat)    q=aplicarFiltroCategoria(q,S.f.cat);
   if(S.f.bMin!=null) q=q.gte('presupuesto',S.f.bMin);
   if(S.f.bMax!=null) q=q.lte('presupuesto',S.f.bMax);
-  if(S.q) q=q.or(`titulo.ilike.%${S.q}%,organismo.ilike.%${S.q}%,resumen_comercial.ilike.%${S.q}%`);
+  if(S.q){
+    const qs=S.q.replace(/[,()]/g,'').trim();
+    if(qs) q=q.or(`titulo.ilike.%${qs}%,organismo.ilike.%${qs}%,resumen_comercial.ilike.%${qs}%`);
+  }
 
   const [col,dir]=(S.ord||'created_at.desc').split('.');
   q=q.order(col,{ascending:dir==='asc'});
