@@ -1024,7 +1024,13 @@ function sessionId(){
   return id;
 }
 function track(tipo, pagina, metadata){
-  try{ sb.from('eventos').insert({tipo, pagina, user_id:S.user?.id||null, session_id:sessionId(), metadata:metadata||null}); }catch(e){}
+  try{
+    fetch('/api/track',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({tipo, pagina, user_id:S.user?.id||null, session_id:sessionId(), metadata:metadata||null})
+    });
+  }catch(e){}
 }
 
 /* ─── NAVIGATION ─────────────────────────────────── */
