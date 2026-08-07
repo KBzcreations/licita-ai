@@ -188,10 +188,10 @@ def procesar_lote_urls(urls: list) -> list:
             print(f"   [ERROR] {str(e)[:100]}")
             errores.append({"url": url, "error": str(e)})
 
-        # Pausa entre peticiones para evitar rate limit de Gemini
+        # Pausa entre peticiones para evitar rate limit de Groq (mucho mas
+        # generoso que el de Gemini, 2s es de sobra)
         if i < len(urls):
-            print(f"   [PAUSA] Esperando 15s para evitar rate limit...")
-            time.sleep(15)
+            time.sleep(2)
 
     print("=" * 60)
     print(f"[OK] {len(resultados)} procesadas correctamente")
