@@ -568,6 +568,17 @@ h1.ht .acc{
   .hero-nums{gap:24px}
   h1.ht{letter-spacing:-1.5px}
 }
+@media(max-width:640px){
+  #nav{padding:0 12px}
+  .logo{font-size:15px;gap:4px}
+  .logo sup{display:none}
+  .nav-r{gap:4px}
+  .nb{padding:6px 9px;font-size:12px}
+}
+@media(max-width:440px){
+  .nb-sec{display:none}
+  #nav{height:52px}
+}
 </style>
 </head>
 <body>
@@ -576,8 +587,8 @@ h1.ht .acc{
 <nav id="nav">
   <div class="logo" onclick="goto('home')">⚡Licita<em>AI</em><sup>beta</sup></div>
   <div class="nav-r">
-    <button class="nb" onclick="goto('app-page')">Licitaciones</button>
-    <button class="nb" onclick="goto('pricing-page')">Precios</button>
+    <button class="nb nb-sec" onclick="goto('app-page')">Licitaciones</button>
+    <button class="nb nb-sec" onclick="goto('pricing-page')">Precios</button>
     <span id="nav-anon">
       <button class="nb" onclick="goto('auth-page','login')">Entrar</button>
       <button class="nb solid" onclick="goto('auth-page','register')">Empezar gratis</button>
@@ -982,6 +993,8 @@ h1.ht .acc{
 ══════════════════════════════════════════════════════ -->
 <footer style="border-top:1px solid var(--line);padding:24px 20px;text-align:center;font-size:12px;color:var(--chalk3)">
   <span>© 2026 Licita AI</span>
+  <span style="margin:0 8px">·</span>
+  <a href="#" onclick="goto('pricing-page');return false" style="color:var(--chalk3);text-decoration:underline">Precios</a>
   <span style="margin:0 8px">·</span>
   <a href="#" onclick="goto('terms-page');return false" style="color:var(--chalk3);text-decoration:underline">Términos</a>
   <span style="margin:0 8px">·</span>
