@@ -802,6 +802,31 @@ h1.ht .acc{
     </div>
 
     <div class="pro-card">
+      <div class="pro-card-h">🏢 A qué se dedica tu empresa</div>
+      <div class="fg">
+        <label class="fl">Sector principal</label>
+        <select class="fi" id="p-sector">
+          <option value="">Selecciona…</option>
+          <option value="ia">IA &amp; Machine Learning</option>
+          <option value="cloud">Cloud / Infraestructura</option>
+          <option value="ciberseguridad">Ciberseguridad</option>
+          <option value="datos">Datos &amp; Business Intelligence</option>
+          <option value="mobile">Desarrollo Mobile</option>
+          <option value="web">Desarrollo Web</option>
+          <option value="iot">IoT</option>
+          <option value="backend">Backend / ERP / CRM</option>
+          <option value="telecomunicaciones">Telecomunicaciones</option>
+          <option value="consultoria">Consultoría tecnológica</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="fg" style="margin-top:10px">
+        <label class="fl">Descríbelo en una frase (opcional, afina las alertas)</label>
+        <input class="fi" id="p-sector-desc" placeholder="Ej: desarrollamos apps móviles para sanidad">
+      </div>
+    </div>
+
+    <div class="pro-card">
       <div class="pro-card-h">🔧 Tus tecnologías — filtra alertas por stack</div>
       <input class="tag-inp" id="tech-inp" placeholder="Escribe y Enter: Python, AWS, React Native…" onkeydown="addTag(event,'techs','tecnologias_interes')">
       <div class="tags" id="techs"></div>
@@ -1349,6 +1374,8 @@ async function loadProfile(){
   document.getElementById('p-emp').value=data.empresa||'';
   document.getElementById('p-car').value=data.cargo||'';
   document.getElementById('p-tel').value=data.telefono||'';
+  document.getElementById('p-sector').value=data.sector_actividad||'';
+  document.getElementById('p-sector-desc').value=data.sector_actividad_desc||'';
   document.getElementById('p-pmin').value=data.presupuesto_min_interes||'';
   document.getElementById('p-pmax').value=data.presupuesto_max_interes||'';
   document.getElementById('p-alerts').checked=data.recibir_alertas!==false;
@@ -1365,6 +1392,8 @@ async function saveProfile(){
     empresa:document.getElementById('p-emp').value,
     cargo:document.getElementById('p-car').value,
     telefono:document.getElementById('p-tel').value,
+    sector_actividad:document.getElementById('p-sector').value,
+    sector_actividad_desc:document.getElementById('p-sector-desc').value,
     presupuesto_min_interes:parseFloat(document.getElementById('p-pmin').value)||null,
     presupuesto_max_interes:parseFloat(document.getElementById('p-pmax').value)||null,
     recibir_alertas:document.getElementById('p-alerts').checked,

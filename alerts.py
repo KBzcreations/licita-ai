@@ -27,7 +27,8 @@ HEADERS = {
 def obtener_usuarios_con_alertas() -> list[dict]:
     url = f"{SUPABASE_URL}/rest/v1/user_profiles"
     params = {
-        "select": "id,email,nombre,tecnologias_interes,palabras_clave,plan",
+        "select": "id,email,nombre,tecnologias_interes,palabras_clave,plan,"
+                  "sector_actividad,presupuesto_min_interes,presupuesto_max_interes",
         "recibir_alertas": "eq.true",
         "plan": "in.(pro,enterprise)",
     }
@@ -50,10 +51,36 @@ def obtener_licitaciones_recientes(horas: int = 24) -> list[dict]:
     return r.json()
 
 
+SECTOR_KEYWORDS = {
+    "ia": ["inteligencia artificial", "machine learning", "algoritmos"],
+    "cloud": ["cloud", "aws", "azure", "nube"],
+    "ciberseguridad": ["ciberseguridad", "seguridad informatica"],
+    "datos": ["datos", "business intelligence", "big data", "analitica"],
+    "mobile": ["movil", "mobile", "app", "ios", "android"],
+    "web": ["web", "portal"],
+    "iot": ["iot", "internet de las cosas", "sensor"],
+    "backend": ["erp", "crm", "backend"],
+    "telecomunicaciones": ["telecomunicac", "redes", "fibra"],
+    "consultoria": ["consultoria", "asesoria"],
+}
+
+
 def coincide(licitacion: dict, usuario: dict) -> bool:
+    # Rango de presupuesto: si el usuario lo configuro, es un filtro duro
+    pmin = usuario.get("presupuesto_min_interes")
+    pmax = usuario.get("presupuesto_max_interes")
+    presupuesto_lic = licitacion.get("presupuesto")
+    if (pmin is not None or pmax is not None) and presupuesto_lic is not None:
+        if pmin is not None and presupuesto_lic < pmin:
+            return False
+        if pmax is not None and presupuesto_lic > pmax:
+            return False
+
     intereses = set(t.lower() for t in (usuario.get("tecnologias_interes") or []))
     palabras = set(p.lower() for p in (usuario.get("palabras_clave") or []))
-    if not intereses and not palabras:
+    sector_kws = SECTOR_KEYWORDS.get(usuario.get("sector_actividad") or "", [])
+
+    if not intereses and not palabras and not sector_kws:
         return True  # sin preferencias configuradas -> recibe todas
 
     techs_lic = set(t.lower() for t in (licitacion.get("tecnologias") or []))
@@ -62,6 +89,8 @@ def coincide(licitacion: dict, usuario: dict) -> bool:
     if intereses & techs_lic:
         return True
     if any(p in texto for p in palabras):
+        return True
+    if any(k in texto for k in sector_kws):
         return True
     return False
 
