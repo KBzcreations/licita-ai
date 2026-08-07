@@ -607,9 +607,9 @@ h1.ht .acc{
     <div class="hero-mesh"></div>
     <div class="grid-lines"></div>
     <div style="position:relative;z-index:1;max-width:820px">
-      <div class="pill"><span class="pill-dot"></span>Actualización automática diaria con IA</div>
-      <h1 class="ht">Encuentra licitaciones tech<br><span class="acc">antes que tu competencia</span></h1>
-      <p class="hero-p">Deja de buscar en portales públicos. Licita AI escanea cada día cientos de convocatorias, las filtra por tecnología y te manda solo lo que importa.</p>
+      <div class="pill"><span class="pill-dot"></span>El único buscador especializado en licitaciones tech</div>
+      <h1 class="ht">No es un buscador más<br><span class="acc">es el especialista en tech</span></h1>
+      <p class="hero-p">Los buscadores generalistas te enseñan 500 licitaciones de todo tipo al día: obra civil, catering, suministros… Licita AI solo te enseña las de tecnología, ya resumidas por IA y con un análisis de si encajan con tu empresa.</p>
       <div class="hero-btns">
         <button class="cta cta-main" onclick="goto('auth-page','register')">Empezar gratis — 0€ →</button>
         <button class="cta cta-ghost" onclick="goto('app-page')">Ver licitaciones ahora</button>
@@ -628,8 +628,8 @@ h1.ht .acc{
           <span class="hn-lbl">Actualización</span>
         </div>
         <div>
-          <span class="hn-val">Gemini</span>
-          <span class="hn-lbl">Motor IA</span>
+          <span class="hn-val">100%</span>
+          <span class="hn-lbl">Solo sector tech</span>
         </div>
       </div>
     </div>
@@ -640,7 +640,7 @@ h1.ht .acc{
     <div class="strip-item">
       <div class="strip-icon">🤖</div>
       <div class="strip-h">Resúmenes ejecutivos IA</div>
-      <div class="strip-p">Gemini analiza cada pliego y extrae lo que necesitas saber en 4 líneas: oportunidad, tecnologías, plazos y perfil ideal de empresa.</div>
+      <div class="strip-p">Nuestra IA analiza cada pliego y extrae lo que necesitas saber en 4 líneas: oportunidad, tecnologías, plazos y perfil ideal de empresa.</div>
     </div>
     <div class="strip-item">
       <div class="strip-icon">📧</div>
@@ -791,6 +791,14 @@ h1.ht .acc{
     <div class="pro-h">Mi Perfil</div>
     <div class="pro-sub">Personaliza tus alertas — solo recibirás lo que encaja con tu empresa</div>
 
+    <div id="onboard-banner" class="hidden" style="background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.25);border-radius:14px;padding:18px 20px;margin-bottom:20px">
+      <div style="font-weight:800;font-size:14px;margin-bottom:4px">👋 Un último paso para tus alertas</div>
+      <div style="font-size:13px;color:var(--chalk2);line-height:1.6">
+        Rellena <strong>sector de actividad</strong> y las <strong>tecnologías de tu empresa</strong> ahí abajo.
+        Sin esto, si activas alertas Pro recibirás todas las licitaciones sin filtrar — con esto, solo las que de verdad encajan contigo.
+      </div>
+    </div>
+
     <div class="pro-card">
       <div class="pro-card-h">👤 Datos personales</div>
       <div class="g2">
@@ -915,6 +923,17 @@ h1.ht .acc{
           <li>Soporte dedicado</li>
         </ul>
         <button class="nb" style="width:100%;padding:11px" onclick="suscribir('enterprise')">Contactar →</button>
+      </div>
+    </div>
+
+    <div style="margin-top:56px;max-width:640px;margin-left:auto;margin-right:auto">
+      <div style="font-size:14px;font-weight:700;color:var(--chalk3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px">Licita AI vs. buscadores genéricos</div>
+      <div style="background:var(--ink2);border:1px solid var(--line);border-radius:14px;padding:22px;text-align:left">
+        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span>❌</span><span style="color:var(--chalk2);font-size:13.5px">Ellos: 500 licitaciones al día de todo tipo — obra civil, catering, suministros, tecnología, todo mezclado</span></div>
+        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span>✅</span><span style="color:var(--chalk2);font-size:13.5px">Licita AI: solo licitaciones tech, filtradas antes de que las veas</span></div>
+        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span>❌</span><span style="color:var(--chalk2);font-size:13.5px">Ellos: tienes que abrir el pliego y leerlo tú para saber si merece la pena</span></div>
+        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span>✅</span><span style="color:var(--chalk2);font-size:13.5px">Licita AI: resumen ejecutivo con IA en 4 líneas, ya hecho</span></div>
+        <div style="display:flex;gap:10px;padding:8px 0"><span>✅</span><span style="color:var(--chalk2);font-size:13.5px">Licita AI: análisis de encaje — la IA te dice si esa licitación es para ti antes de que pierdas tiempo</span></div>
       </div>
     </div>
   </div>
@@ -1382,6 +1401,9 @@ async function loadProfile(){
   document.getElementById('p-freq').value=data.frecuencia_alertas||'diaria';
   renderTags('techs',data.tecnologias_interes||[],'tecnologias_interes');
   renderTags('kws',data.palabras_clave||[],'palabras_clave');
+
+  const incompleto=!data.sector_actividad && !(data.tecnologias_interes||[]).length;
+  document.getElementById('onboard-banner').classList.toggle('hidden',!incompleto);
 }
 
 async function saveProfile(){
@@ -1403,7 +1425,11 @@ async function saveProfile(){
   };
   const {error}=await sb.from('user_profiles').upsert(pd);
   if(error){toast('Error al guardar','er');}
-  else{S.profile=pd;toast('✓ Perfil guardado. Alertas personalizadas activadas.','ok');}
+  else{
+    S.profile=pd;
+    toast('✓ Perfil guardado. Alertas personalizadas activadas.','ok');
+    if(pd.sector_actividad || (pd.tecnologias_interes||[]).length) document.getElementById('onboard-banner').classList.add('hidden');
+  }
 }
 
 function addTag(e,elId,field){
