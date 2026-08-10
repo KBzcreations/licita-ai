@@ -80,8 +80,10 @@ def coincide(licitacion: dict, usuario: dict) -> bool:
     palabras = set(p.lower() for p in (usuario.get("palabras_clave") or []))
     sector_kws = SECTOR_KEYWORDS.get(usuario.get("sector_actividad") or "", [])
 
-    if not intereses and not palabras and not sector_kws:
-        return True  # sin preferencias configuradas -> recibe todas
+    if not intereses and not palabras:
+        return True  # sin tecnologias/palabras propias -> recibe todas
+        # (el sector por si solo es una pista demasiado amplia/estrecha
+        # segun el caso para usarlo como filtro duro en solitario)
 
     techs_lic = set(t.lower() for t in (licitacion.get("tecnologias") or []))
     texto = f"{licitacion.get('titulo', '')} {licitacion.get('resumen_comercial', '')}".lower()
