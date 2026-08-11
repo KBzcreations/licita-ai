@@ -9,6 +9,14 @@
 <meta property="og:description" content="Las mejores oportunidades de licitación tech, filtradas y resumidas por IA cada día.">
 <meta property="og:type" content="website">
 <meta name="google-site-verification" content="zpfeElNl-RcdBw_7WQJyonmHhDw6w9tqMTWv_-akWy0" />
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-VKWQR5H9MB"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-VKWQR5H9MB');
+</script>
 <meta property="og:url" content="https://www.licita-ai.com/">
 <link rel="canonical" href="https://www.licita-ai.com/">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
@@ -1098,6 +1106,7 @@ function track(tipo, pagina, metadata){
       body:JSON.stringify({tipo, pagina, user_id:S.user?.id||null, session_id:sessionId(), metadata:metadata||null})
     });
   }catch(e){}
+  try{ if(window.gtag) gtag('event', tipo, {page:pagina, ...(metadata||{})}); }catch(e){}
 }
 
 /* ─── NAVIGATION ─────────────────────────────────── */
