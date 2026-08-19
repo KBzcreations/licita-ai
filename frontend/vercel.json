@@ -1,5 +1,7 @@
 {
   "routes": [
+    { "src": "/mapscore", "dest": "/mapscore.html" },
+    { "src": "/mapscore.html", "dest": "/mapscore.html" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
