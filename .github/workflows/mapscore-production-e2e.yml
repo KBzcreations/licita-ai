@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   statuses: write
 
 jobs:
@@ -58,9 +58,9 @@ jobs:
             assert(report.mapscore>=0&&report.mapscore<=100,'MAPSCORE inválido');assert(report.resumen_ejecutivo?.trim(),'Resumen vacío');assert(report.hallazgos?.length>=6,'Hallazgos incompletos');assert(report.prioridades?.length>=5,'Prioridades incompletas');assert(Object.values(report.plan30||{}).every(x=>Array.isArray(x)&&x.length>=2),'Plan30 incompleto');assert(report.checklist?.length>=8,'Checklist incompleto');assert(report.kpis?.length>=5,'KPIs incompletos');assert(report.resultado_objetivo_90_dias?.trim(),'Objetivo90 vacío');
             const full=JSON.stringify(report).toLowerCase();assert(!/no hay fotos|sin fotos|carece de fotos|no tiene fotos/.test(full),'Informe afirma que no hay fotos');assert(!/no tiene web|carece de web|sin web/.test(full),'Informe afirma que no hay web');assert(/sí; google devolvió/i.test(String(report.datos_verificados?.fotos||'')),'Fotos verificadas no reflejadas');assert(/deoga\.es/i.test(String(report.datos_verificados?.web||'')),'Web verificada no reflejada');
             const recipient=`delivered+mapscore-${Date.now()}@resend.dev`;const delivery=await json('/api/mapscore-deliver',{email:recipient,business:p.name,result:report,access_token:access.token});assert(delivery.accepted===true&&delivery.id,'Resend no aceptó');assert(delivery.ok===true&&delivery.delivered===true,`Entrega no confirmada (${delivery.state||'sin estado'})`);assert(['delivered','opened','clicked'].includes(delivery.state),'Estado email no confirmado');
-            console.log(JSON.stringify({business:p.name,rating:p.rating,reviews:p.reviews,website:p.website,photos:p.photo_sample_count,mapscore:report.mapscore,email_state:delivery.state},null,2));
+            fs.writeFileSync('e2e-summary.json',JSON.stringify({business:p.name,rating:p.rating,reviews:p.reviews,website:p.website,photos:p.photo_sample_count,mapscore:report.mapscore,email_state:delivery.state},null,2));
           }
-          main().catch(e=>{fs.writeFileSync('e2e-error.txt',String(e.message||e).slice(0,120));console.error(e);process.exit(1)});
+          main().catch(e=>{fs.writeFileSync('e2e-error.txt',String(e.message||e).slice(0,200));console.error(e);process.exit(1)});
           NODE
       - name: Publish E2E result
         if: always()
@@ -72,6 +72,11 @@ jobs:
             let description=ok?'Flujo de producción verificado':'Falló producción';
             if(!ok&&fs.existsSync('e2e-error.txt')) description=fs.readFileSync('e2e-error.txt','utf8').slice(0,135);
             await github.rest.repos.createCommitStatus({owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: ok ? 'success' : 'failure', context: 'MAPSCORE Production E2E', description});
+            let existing;
+            try{existing=await github.rest.repos.getContent({owner:context.repo.owner,repo:context.repo.repo,path:'.mapscore-e2e-status.json',ref:'master'})}catch{}
+            const summary=fs.existsSync('e2e-summary.json')?JSON.parse(fs.readFileSync('e2e-summary.json','utf8')):null;
+            const body={sha:context.sha,ok,description,summary,checked_at:new Date().toISOString()};
+            await github.rest.repos.createOrUpdateFileContents({owner:context.repo.owner,repo:context.repo.repo,path:'.mapscore-e2e-status.json',message:'chore: record MAPSCORE E2E status',content:Buffer.from(JSON.stringify(body,null,2)+'\n').toString('base64'),sha:existing?.data?.sha,branch:'master'});
       - name: Fail job if production failed
         if: steps.prod.outcome == 'failure'
         run: exit 1
