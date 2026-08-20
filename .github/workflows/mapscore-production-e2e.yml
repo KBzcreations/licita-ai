@@ -1,0 +1,73 @@
+name: MAPSCORE Production E2E
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'frontend/api/mapscore-*.js'
+      - 'frontend/api/_mapscore-report.js'
+      - 'frontend/public/mapscore/**'
+      - 'frontend/tests/**'
+      - '.github/workflows/mapscore-production-e2e.yml'
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Unit tests
+        working-directory: frontend
+        run: npm ci && npm test
+      - name: Production flow
+        env:
+          BASE_URL: https://www.licita-ai.com
+        run: |
+          node <<'NODE'
+          const assert=(c,m)=>{if(!c)throw new Error(m)};
+          const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+          async function json(path,body){const r=await fetch(process.env.BASE_URL+path,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});const t=await r.text();let j;try{j=JSON.parse(t)}catch{j={raw:t}};if(!r.ok)throw new Error(`${path} ${r.status}: ${t.slice(0,800)}`);return j}
+          let html='';
+          for(let i=0;i<20;i++){try{const r=await fetch(process.env.BASE_URL+'/mapscore/');html=await r.text();if(r.ok&&html.includes('Nosotros localizamos el negocio'))break}catch{}await sleep(3000)}
+          assert(html.includes('Ciudad o código postal'),'La UI no acepta ciudad/código postal');
+          assert(html.includes('Dirección (opcional)'),'La dirección no es opcional en la UI');
+          assert(!html.includes('URL de Google Maps</label><input'),'La UI sigue exigiendo URL de Google Maps');
+
+          const access=await json('/api/mapscore-private-access',{code:'NEXUS7K'});
+          assert(access.ok&&access.token,'No se obtuvo acceso de prueba');
+          const found=await json('/api/mapscore-business',{business:'Deoga Desarrollo y Ejecucion de Obra SL',city:'Granada',address:''});
+          assert(found.source==='google','La búsqueda no está usando Google Places en producción');
+          assert(found.places?.length,'No se encontró DEOGA');
+          const p=found.places.find(x=>/deoga/i.test(x.name))||found.places[0];
+          assert(/granada/i.test(p.address||''),'Dirección de DEOGA no localizada en Granada');
+          assert(/deoga\.es/i.test(p.website||''),'No se detectó la web real de DEOGA');
+          assert(p.phone,'No se detectó teléfono');
+          assert(Number.isFinite(p.rating)&&Number.isFinite(p.reviews),'No se obtuvieron valoración/reseñas reales');
+          assert(p.has_photos===true,'Google Places no confirmó fotos para DEOGA');
+
+          const report=await json('/api/mapscore-analysis',{email:'delivered+mapscore-e2e@resend.dev',business_data:p,notes:'mejorar captación local',access_token:access.token});
+          assert(report.mapscore>=0&&report.mapscore<=100,'MAPSCORE inválido');
+          assert(report.resumen_ejecutivo?.trim(),'Resumen vacío');
+          assert(report.hallazgos?.length>=6,'Hallazgos incompletos');
+          assert(report.prioridades?.length>=5,'Prioridades incompletas');
+          assert(Object.values(report.plan30||{}).every(x=>Array.isArray(x)&&x.length>=2),'Plan 30 días incompleto');
+          assert(report.checklist?.length>=8,'Checklist incompleto');
+          assert(report.kpis?.length>=5,'KPIs incompletos');
+          assert(report.resultado_objetivo_90_dias?.trim(),'Objetivo 90 días vacío');
+          const full=JSON.stringify(report).toLowerCase();
+          assert(!/no hay fotos|sin fotos|carece de fotos|no tiene fotos/.test(full),'El informe afirma falsamente que no hay fotos');
+          assert(!/no tiene web|carece de web|sin web/.test(full),'El informe afirma falsamente que no hay web');
+          assert(/sí; google devolvió/i.test(String(report.datos_verificados?.fotos||'')),'Las fotos verificadas no figuran en datos verificados');
+          assert(/deoga\.es/i.test(String(report.datos_verificados?.web||'')),'La web real no figura en datos verificados');
+
+          const recipient=`delivered+mapscore-${Date.now()}@resend.dev`;
+          const delivery=await json('/api/mapscore-deliver',{email:recipient,business:p.name,result:report,access_token:access.token});
+          assert(delivery.accepted===true&&delivery.id,'Resend no aceptó el informe');
+          assert(delivery.ok===true&&delivery.delivered===true,'Resend no confirmó entrega real');
+          assert(['delivered','opened','clicked'].includes(delivery.state),'Estado de entrega no confirmado');
+          console.log(JSON.stringify({business:p.name,rating:p.rating,reviews:p.reviews,website:p.website,photos:p.photo_sample_count,mapscore:report.mapscore,email_state:delivery.state},null,2));
+          NODE
