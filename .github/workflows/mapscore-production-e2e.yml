@@ -11,11 +11,20 @@ on:
       - '.github/workflows/mapscore-production-e2e.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+  statuses: write
+
 jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Mark E2E pending
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: 'pending', context: 'MAPSCORE Production E2E', description: 'Verificando producción'});
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
@@ -71,3 +80,10 @@ jobs:
           assert(['delivered','opened','clicked'].includes(delivery.state),'Estado de entrega no confirmado');
           console.log(JSON.stringify({business:p.name,rating:p.rating,reviews:p.reviews,website:p.website,photos:p.photo_sample_count,mapscore:report.mapscore,email_state:delivery.state},null,2));
           NODE
+      - name: Publish E2E result
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const ok='${{ job.status }}' === 'success';
+            await github.rest.repos.createCommitStatus({owner: context.repo.owner, repo: context.repo.repo, sha: context.sha, state: ok ? 'success' : 'failure', context: 'MAPSCORE Production E2E', description: ok ? 'Flujo de producción verificado' : 'Falló la verificación de producción'});
