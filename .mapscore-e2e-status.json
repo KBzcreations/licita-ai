@@ -1,7 +1,7 @@
 {
-  "sha": "a7b1f32265bf28f8f135a1235504d2c4dfa46baa",
+  "sha": "083732d6f774d6d228b8eefe1c31307316457480",
   "ok": false,
-  "description": "Falló producción",
+  "description": "/api/mapscore-deliver 500: {\"error\":\"RESEND_API_KEY no configurada\"}",
   "summary": null,
-  "checked_at": "2026-08-20T17:30:47.932Z"
+  "checked_at": "2026-08-20T17:31:46.793Z"
 }
