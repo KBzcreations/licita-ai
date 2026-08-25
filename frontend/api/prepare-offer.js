@@ -1,9 +1,24 @@
 import { deterministicOfferPack } from './_offer-pack.js';
+import { analyzeTenderPages } from './_tender-document.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
   const { action, licitacion, perfil = {}, sessionId, tenderId = '', title = '' } = req.body || {};
   const key = process.env.STRIPE_SECRET_KEY;
+  if (action === 'analyze-document') {
+    const encoded = String(req.body?.documentBase64 || ''), bytes = Buffer.from(encoded, 'base64');
+    if (!encoded || bytes.length < 5 || bytes.length > 4_500_000 || bytes.subarray(0, 4).toString() !== '%PDF') return res.status(400).json({ error: 'Adjunta un PDF válido de hasta 4,5 MB' });
+    try {
+      const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+      const pdf = await pdfjs.getDocument({ data: new Uint8Array(bytes), disableWorker: true }).promise;
+      const pages = [];
+      for (let n = 1; n <= Math.min(pdf.numPages, 80); n++) {
+        const page = await pdf.getPage(n), content = await page.getTextContent();
+        pages.push({ page: n, text: content.items.map(x => x.str || '').join(' ') });
+      }
+      return res.status(200).json({ file_name: String(req.body?.fileName || 'pliego.pdf').slice(0, 180), truncated: pdf.numPages > 80, ...analyzeTenderPages(pages) });
+    } catch { return res.status(422).json({ error: 'No se pudo leer el PDF; puede estar protegido o ser una imagen escaneada' }); }
+  }
   if (action === 'checkout') {
     if (!key) return res.status(500).json({ error: 'Pago no configurado' });
     const origin = `https://${req.headers.host}`, params = new URLSearchParams();
