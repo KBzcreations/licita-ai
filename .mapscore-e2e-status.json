@@ -1,7 +1,15 @@
 {
-  "sha": "fbed9096141f36ff3ab82502745459a5d0e20ebf",
-  "ok": false,
-  "description": "Entrega no confirmada (queued)",
-  "summary": null,
-  "checked_at": "2026-08-25T11:46:59.920Z"
+  "sha": "1178d47a1b2e8f834aac5b80c8bc1c018a43bfc8",
+  "ok": true,
+  "description": "Flujo de producción verificado",
+  "summary": {
+    "business": "Deoga Desarrollo Y Ejecucion de Obra SL",
+    "rating": 4.4,
+    "reviews": 10,
+    "website": "http://www.deoga.es/",
+    "photos": 10,
+    "mapscore": 84,
+    "email_state": "delivered"
+  },
+  "checked_at": "2026-08-25T11:49:47.479Z"
 }
