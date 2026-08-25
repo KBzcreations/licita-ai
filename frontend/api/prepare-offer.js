@@ -14,6 +14,7 @@ export default async function handler(req, res) {
       globalThis.ImageData ||= canvas.ImageData;
       globalThis.Path2D ||= canvas.Path2D;
       const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
+      await import('pdfjs-dist/legacy/build/pdf.worker.mjs');
       const pdf = await pdfjs.getDocument({ data: new Uint8Array(bytes), disableWorker: true }).promise;
       const pages = [];
       for (let n = 1; n <= Math.min(pdf.numPages, 80); n++) {
