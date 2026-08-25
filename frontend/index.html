@@ -1074,6 +1074,7 @@ h1.ht .acc{
 
     <div class="fit-box hidden" id="fit-box">
       <div id="fit-inner"></div>
+      <div id="offer-pack"></div>
     </div>
   </div>
 </div>
@@ -1296,6 +1297,7 @@ function openModal(r){
   const pa=document.getElementById('m-pli');
   if(r.url_pliegos){pa.href=r.url_pliegos;pa.style.display='';}else{pa.style.display='none';}
   document.getElementById('fit-box').classList.add('hidden');
+  document.getElementById('offer-pack').innerHTML='';
   document.getElementById('overlay').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -1366,6 +1368,7 @@ async function doFit(refinedProfile=null){
       ${fit.explanation?`<div class="fit-col-lbl" style="margin-top:14px">Lectura del resultado</div><div class="fit-row">${fit.explanation}</div>`:''}
       <div class="fit-col-lbl" style="margin-top:14px">Siguiente decisión</div>${(fit.next_actions||[]).map((a,i)=>`<div class="fit-row">${i+1}. ${a}</div>`).join('')}
       ${!refinedProfile?renderQuickQuestions(r):''}
+      <button class="mabtn mabtn-p" style="width:100%;margin-top:16px" onclick="prepareOffer()">Crear dossier de preparación →</button>
       <div style="font-size:11px;color:var(--chalk3);margin-top:14px;line-height:1.5">${fit.disclaimer||''}</div>`;
   }catch(e){
     document.getElementById('fit-inner').innerHTML='<div style="color:var(--rose);font-size:13px">Error en análisis IA. Verifica tu conexión.</div>';
@@ -1393,6 +1396,29 @@ function refineFit(){
   if(r.presupuesto&&capacity==='si') p.contrato_maximo=Number(r.presupuesto);
   if(r.presupuesto&&capacity==='no') p.contrato_maximo=Math.max(1,Number(r.presupuesto)/3);
   doFit(p);
+}
+
+const offerEsc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let currentOfferPack=null;
+async function prepareOffer(){
+  const target=document.getElementById('offer-pack');
+  target.innerHTML='<div class="spin-wrap"><div class="spin"></div></div>';
+  try{
+    const res=await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({licitacion:S.curLic,perfil:S.profile||{}})});
+    const pack=await res.json(); if(!res.ok) throw Error(pack.error||'No se pudo preparar el dossier');
+    currentOfferPack=pack;
+    const facts=pack.facts.map(x=>`<div class="fit-row">✓ <strong>${offerEsc(x.label)}:</strong> ${offerEsc(x.value)}</div>`).join('');
+    const blockers=pack.blockers.length?pack.blockers.map(x=>`<div class="fit-row" style="color:var(--rose)">⛔ ${offerEsc(x)}</div>`).join(''):'<div class="fit-row" style="color:var(--lime)">✓ Sin bloqueos objetivos detectados con los datos disponibles.</div>';
+    const tasks=pack.checklist.map(x=>`<div class="fit-row"><span style="color:${x.status==='pendiente'?'var(--amber)':'var(--sky3)'}">${x.status==='pendiente'?'□':'◫'}</span> <strong>${offerEsc(x.area)}:</strong> ${offerEsc(x.task)}${x.evidence?` · ${offerEsc(x.evidence)}`:''}</div>`).join('');
+    target.innerHTML=`<div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--line2)"><div class="fit-num" style="font-size:22px;color:var(--sky3)">DOSSIER PREPARADO</div><h3 style="margin:8px 0 14px">${offerEsc(pack.title)}</h3><div class="fit-cols"><div><div class="fit-col-lbl" style="color:var(--lime)">Datos publicados</div>${facts}</div><div><div class="fit-col-lbl" style="color:var(--rose)">Alertas</div>${blockers}</div></div><div class="fit-col-lbl" style="margin-top:16px;color:var(--amber)">Checklist antes de firmar</div>${tasks}<div class="fit-col-lbl" style="margin-top:16px">Estructura de carpeta</div><div class="fit-row">${pack.folder_structure.map(offerEsc).join(' · ')}</div><div class="fit-col-lbl" style="margin-top:16px">Índice base de memoria técnica</div>${pack.draft_sections.map((x,i)=>`<div class="fit-row">${i+1}. ${offerEsc(x)}</div>`).join('')}<button class="mabtn mabtn-p" style="margin-top:16px" onclick="downloadOfferPack()">Descargar dossier HTML</button><div style="font-size:11px;color:var(--chalk3);margin-top:12px">${offerEsc(pack.limitations)}</div></div>`;
+  }catch(e){target.innerHTML=`<div style="color:var(--rose);margin-top:16px">${offerEsc(e.message)}</div>`;}
+}
+
+function downloadOfferPack(){
+  if(!currentOfferPack)return;
+  const p=currentOfferPack, rows=p.checklist.map(x=>`<tr><td>${offerEsc(x.area)}</td><td>${offerEsc(x.task)}</td><td>${offerEsc(x.status)}</td><td>${offerEsc(x.evidence||'Por verificar')}</td></tr>`).join('');
+  const html=`<!doctype html><html lang="es"><meta charset="utf-8"><title>${offerEsc(p.title)}</title><style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;color:#172033;line-height:1.5}h1{color:#174ea6}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccd4df;padding:9px;text-align:left}small{color:#667}</style><h1>${offerEsc(p.title)}</h1><p><b>Generado:</b> ${new Date(p.generated_at).toLocaleString('es-ES')}</p><h2>Datos publicados</h2><ul>${p.facts.map(x=>`<li><b>${offerEsc(x.label)}:</b> ${offerEsc(x.value)}</li>`).join('')}</ul><h2>Alertas</h2><ul>${(p.blockers.length?p.blockers:['No se han detectado bloqueos con los datos disponibles.']).map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ul><h2>Checklist de verificación</h2><table><tr><th>Área</th><th>Tarea</th><th>Estado</th><th>Evidencia</th></tr>${rows}</table><h2>Carpetas recomendadas</h2><ol>${p.folder_structure.map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ol><h2>Índice base de memoria</h2><ol>${p.draft_sections.map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ol><p><small>${offerEsc(p.limitations)}</small></p></html>`;
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));a.download='dossier-licitacion.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 
 /* ─── STATS ──────────────────────────────────────── */
