@@ -1,7 +1,7 @@
 {
-  "sha": "2ec42de7d0364ddce8befd55cd8eaea52e4ae0eb",
+  "sha": "fbed9096141f36ff3ab82502745459a5d0e20ebf",
   "ok": false,
-  "description": "Falló producción",
+  "description": "Entrega no confirmada (queued)",
   "summary": null,
-  "checked_at": "2026-08-25T10:40:22.002Z"
+  "checked_at": "2026-08-25T11:46:59.920Z"
 }
