@@ -1647,6 +1647,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
     }
   });
   loadStats();
+  if(location.hash==='#licitaciones')goto('app-page');
   resumePaidDossier();
 })();
 </script>
