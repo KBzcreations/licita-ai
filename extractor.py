@@ -116,16 +116,23 @@ Texto de la licitacion:
     raise ValueError("Se agotaron los reintentos con Groq API")
 
 
-def guardar_en_supabase(datos: dict, url_origen: str) -> dict:
+def guardar_en_supabase(datos: dict, url_origen: str, fuente: dict = None) -> dict:
     """Inserta los datos en Supabase. Ignora duplicados por url_origen."""
+    fuente = fuente or {}
     registro = {
-        "titulo": datos.get("titulo") or "Sin titulo",
-        "organismo": datos.get("organismo") or "Organismo desconocido",
-        "presupuesto": datos.get("presupuesto"),
+        "titulo": fuente.get("titulo") or datos.get("titulo") or "Sin titulo",
+        "organismo": fuente.get("organismo") or datos.get("organismo") or "Organismo desconocido",
+        "presupuesto": fuente.get("presupuesto") or datos.get("presupuesto"),
         "tecnologias": datos.get("tecnologias", []),
         "resumen_comercial": datos.get("resumen_comercial") or "Sin resumen disponible",
         "url_origen": url_origen,
-        "estado": "activa"
+        "estado": "activa",
+        "cpv": fuente.get("cpv") or None,
+        "expediente": fuente.get("expediente") or None,
+        "fecha_publicacion": fuente.get("fecha_publicacion") or None,
+        "fecha_limite": fuente.get("fecha_limite") or None,
+        "hora_limite": fuente.get("hora_limite") or None,
+        "fuente_datos": "PLACSP Atom"
     }
 
     # Filtrar campos None para evitar errores
@@ -138,6 +145,18 @@ def guardar_en_supabase(datos: dict, url_origen: str) -> dict:
         headers={**SUPABASE_HEADERS, "Prefer": "return=representation,resolution=ignore-duplicates"},
         json=registro
     )
+
+    # Despliegue compatible: si la migracion de evidencias aun no se ha
+    # aplicado, conservar el pipeline usando el esquema anterior.
+    if respuesta.status_code == 400 and "column" in respuesta.text.lower():
+        compatibles = dict(registro)
+        for campo in ("cpv", "expediente", "fecha_limite", "hora_limite", "fuente_datos"):
+            compatibles.pop(campo, None)
+        respuesta = requests.post(
+            url_insert,
+            headers={**SUPABASE_HEADERS, "Prefer": "return=representation,resolution=ignore-duplicates"},
+            json=compatibles
+        )
 
     if respuesta.status_code == 409:
         print(f"   [SKIP] Ya existe en base de datos")
@@ -160,11 +179,13 @@ def verificar_conexion_supabase() -> bool:
         return False
 
 
-def procesar_licitacion_simple(url: str) -> dict:
+def procesar_licitacion_simple(item) -> dict:
     """Procesa una URL: extrae contenido, analiza con IA y guarda en Supabase."""
+    fuente = item if isinstance(item, dict) else {}
+    url = fuente.get("url") if fuente else item
     texto = extraer_contenido_url(url)
     datos = extraer_datos_con_ia(texto)
-    registro = guardar_en_supabase(datos, url)
+    registro = guardar_en_supabase(datos, url, fuente)
     return registro
 
 
@@ -175,10 +196,11 @@ def procesar_lote_urls(urls: list) -> list:
     resultados = []
     errores = []
 
-    for i, url in enumerate(urls, 1):
+    for i, item in enumerate(urls, 1):
+        url = item.get("url") if isinstance(item, dict) else item
         print(f"[{i}/{len(urls)}] Procesando: {url[:80]}...")
         try:
-            registro = procesar_licitacion_simple(url)
+            registro = procesar_licitacion_simple(item)
             if registro:
                 resultados.append(registro)
                 print(f"   [OK] Guardado: {registro.get('titulo', '')[:60]}")

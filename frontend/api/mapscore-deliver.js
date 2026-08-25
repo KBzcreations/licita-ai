@@ -28,8 +28,13 @@ export default async function handler(req,res){
     const r=await fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json','Idempotency-Key':idempotencyKey},body:JSON.stringify({from:process.env.MAPSCORE_FROM_EMAIL||'MAPSCORE AI <alertas@licita-ai.com>',to:[email],subject:`Auditoría profesional MAPSCORE — ${business}`,html})});
     const body=await r.text();let raw;try{raw=JSON.parse(body)}catch{raw={message:body}}
     if(!r.ok)return res.status(r.status).json({error:'Error de email',detalle:raw});
-    if(!raw.id)return res.status(502).json({error:'Resend no confirmó el envío',detalle:raw});
-    return res.status(200).json({ok:true,id:raw.id});
+    if(!raw.id)return res.status(502).json({error:'Resend no aceptó el envío',detalle:raw});
+    let state='accepted',delivered=false;
+    try{
+      const check=await fetch(`https://api.resend.com/emails/${encodeURIComponent(raw.id)}`,{headers:{Authorization:`Bearer ${key}`}}),status=await check.json();
+      if(check.ok){state=status.last_event||state;delivered=['delivered','opened','clicked'].includes(state)}
+    }catch{}
+    return res.status(200).json({ok:true,accepted:true,id:raw.id,state,delivered});
   }catch(e){return res.status(500).json({error:'No se pudo enviar el informe',detalle:String(e)})}
 }
 

@@ -149,6 +149,17 @@ def parsear_atom_licitaciones(contenido_xml: str) -> list[dict]:
                 # Estado (el feed usa el prefijo cbc-place-ext, no cbc-place)
                 estado_tag = entry.find(lambda t: t.name and t.name.endswith("ContractFolderStatusCode"))
                 estado = estado_tag.get_text(strip=True) if estado_tag else ""
+
+                # Datos estructurados del feed oficial. Estos valores tienen
+                # prioridad sobre cualquier interpretación posterior de IA.
+                expediente_tag = entry.find(lambda t: t.name and t.name.endswith("ContractFolderID"))
+                expediente = expediente_tag.get_text(strip=True) if expediente_tag else ""
+                limite_fecha_tag = entry.find(lambda t: t.name and t.name.endswith("EndDate"))
+                limite_hora_tag = entry.find(lambda t: t.name and t.name.endswith("EndTime"))
+                fecha_limite = limite_fecha_tag.get_text(strip=True) if limite_fecha_tag else None
+                hora_limite = limite_hora_tag.get_text(strip=True) if limite_hora_tag else None
+                publicado_tag = entry.find("published") or entry.find("updated")
+                fecha_publicacion = publicado_tag.get_text(strip=True)[:10] if publicado_tag else None
                 
                 # Solo licitaciones abiertas (ADM = en plazo de admision)
                 estados_abiertos = ["ADM", "PUB", ""]
@@ -165,6 +176,10 @@ def parsear_atom_licitaciones(contenido_xml: str) -> list[dict]:
                             "presupuesto": presupuesto,
                             "descripcion": titulo,
                             "cpv": cpv,
+                            "expediente": expediente,
+                            "fecha_limite": fecha_limite,
+                            "hora_limite": hora_limite,
+                            "fecha_publicacion": fecha_publicacion,
                         })
             except Exception:
                 continue

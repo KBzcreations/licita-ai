@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Licita AI — Licitaciones Tech con IA</title>
-<meta name="description" content="Descubre licitaciones públicas tecnológicas analizadas con IA. Alertas diarias personalizadas. Ahorra horas de búsqueda.">
+<title>Licita AI — Decide antes de licitar</title>
+<meta name="description" content="Descubre si una licitación encaja con tu empresa, qué puede excluirte y qué falta comprobar antes de invertir horas en preparar la oferta.">
 <meta property="og:title" content="Licita AI — Licitaciones Tech con IA">
 <meta property="og:description" content="Las mejores oportunidades de licitación tech, filtradas y resumidas por IA cada día.">
 <meta property="og:type" content="website">
@@ -468,7 +468,7 @@ h1.ht .acc{
   display:flex;align-items:center;gap:16px;margin-bottom:14px;
 }
 .fit-num{
-  font-family:var(--mono);font-size:44px;font-weight:500;line-height:1;
+  font-family:var(--mono);font-size:24px;font-weight:700;line-height:1;letter-spacing:-.5px;
 }
 .fit-sub{font-size:12px;color:var(--chalk3);margin-top:4px}
 .fit-cols{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
@@ -643,12 +643,12 @@ h1.ht .acc{
     <div class="hero-mesh"></div>
     <div class="grid-lines"></div>
     <div style="position:relative;z-index:1;max-width:820px">
-      <div class="pill"><span class="pill-dot"></span>El único buscador especializado en licitaciones tech</div>
-      <h1 class="ht">No es un buscador más<br><span class="acc">es el especialista en tech</span></h1>
-      <p class="hero-p">Los buscadores generalistas te enseñan 500 licitaciones de todo tipo al día: obra civil, catering, suministros… Licita AI solo te enseña las de tecnología, ya resumidas por IA y con un análisis de si encajan con tu empresa.</p>
+      <div class="pill"><span class="pill-dot"></span>Decisiones verificables · sin requisitos inventados</div>
+      <h1 class="ht">Antes de preparar una oferta,<br><span class="acc">descubre si debes presentarte</span></h1>
+      <p class="hero-p">Licita AI cruza cada oportunidad con la capacidad real de tu empresa. Te muestra bloqueos, datos pendientes, encaje y próximos pasos para que no desperdicies días en una licitación inviable.</p>
       <div class="hero-btns">
-        <button class="cta cta-main" onclick="goto('auth-page','register')">Empezar gratis — 0€ →</button>
-        <button class="cta cta-ghost" onclick="goto('app-page')">Ver licitaciones ahora</button>
+        <button class="cta cta-main" onclick="goto('auth-page','register')">Crear perfil de decisión gratis →</button>
+        <button class="cta cta-ghost" onclick="goto('app-page')">Explorar oportunidades reales</button>
       </div>
       <div class="hero-nums">
         <div>
@@ -665,7 +665,7 @@ h1.ht .acc{
         </div>
         <div>
           <span class="hn-val">100%</span>
-          <span class="hn-lbl">Solo sector tech</span>
+          <span class="hn-lbl">Fuente pública</span>
         </div>
       </div>
     </div>
@@ -674,19 +674,19 @@ h1.ht .acc{
   <!-- value props -->
   <div class="strip">
     <div class="strip-item">
-      <div class="strip-icon">🤖</div>
-      <div class="strip-h">Resúmenes ejecutivos IA</div>
-      <div class="strip-p">Nuestra IA analiza cada pliego y extrae lo que necesitas saber en 4 líneas: oportunidad, tecnologías, plazos y perfil ideal de empresa.</div>
+      <div class="strip-icon">🚦</div>
+      <div class="strip-h">Presentar, revisar o descartar</div>
+      <div class="strip-p">Una recomendación comprensible apoyada en señales objetivas. Si falta información crítica, se marca como desconocida y no como cumplida.</div>
     </div>
     <div class="strip-item">
-      <div class="strip-icon">📧</div>
-      <div class="strip-h">Alertas personalizadas</div>
-      <div class="strip-p">Configura tu stack tecnológico y presupuesto mínimo. Recibes cada mañana solo las licitaciones que encajan contigo. Sin ruido.</div>
+      <div class="strip-icon">⛔</div>
+      <div class="strip-h">Bloqueos antes que resúmenes</div>
+      <div class="strip-p">Plazo vencido, contrato fuera de capacidad o perfil incompleto: primero detectamos por qué no debes invertir horas.</div>
     </div>
     <div class="strip-item">
-      <div class="strip-icon">🎯</div>
-      <div class="strip-h">Análisis de fit empresa</div>
-      <div class="strip-p">¿Vale la pena presentarse? La IA compara tus capacidades con los requisitos y te da un % de encaje con puntos fuertes y débiles.</div>
+      <div class="strip-icon">🔎</div>
+      <div class="strip-h">Evidencia separada de incógnitas</div>
+      <div class="strip-p">Verás qué está publicado, qué ha declarado tu empresa y qué debe comprobarse todavía en el expediente oficial.</div>
     </div>
   </div>
 </section>
@@ -883,6 +883,18 @@ h1.ht .acc{
     </div>
 
     <div class="pro-card">
+      <div class="pro-card-h">📐 Capacidad real para decidir</div>
+      <div style="font-size:12px;color:var(--chalk3);line-height:1.6;margin-bottom:14px">Estos datos no se usan para venderte más oportunidades, sino para descartar las que no son razonables. Si un dato no se aporta, el análisis lo mostrará como pendiente.</div>
+      <div class="g2">
+        <div class="fg"><label class="fl">Facturación anual (€)</label><input class="fi" id="p-fact" type="number" min="0" placeholder="Ej: 500000"></div>
+        <div class="fg"><label class="fl">Personas en el equipo</label><input class="fi" id="p-empl" type="number" min="0" placeholder="Ej: 12"></div>
+        <div class="fg"><label class="fl">Mayor contrato ejecutado (€)</label><input class="fi" id="p-cmax" type="number" min="0" placeholder="Ej: 150000"></div>
+        <div class="fg"><label class="fl">¿Ha contratado con el sector público?</label><select class="fi" id="p-expub"><option value="">Sin indicar</option><option value="Sí">Sí</option><option value="No">No</option></select></div>
+      </div>
+      <div class="fg" style="margin-top:10px"><label class="fl">Contratos similares demostrables</label><textarea class="fi" id="p-refs" rows="3" placeholder="Ej: portal web para cliente X, 95.000 €, finalizado en 2025"></textarea></div>
+    </div>
+
+    <div class="pro-card">
       <div class="pro-card-h">💰 Rango de presupuesto</div>
       <div class="g2">
         <div class="fg"><label class="fl">Mínimo (€)</label><input class="fi" id="p-pmin" type="number" placeholder="50000"></div>
@@ -1055,7 +1067,7 @@ h1.ht .acc{
     <div class="modal-acts">
       <a class="mabtn mabtn-p" id="m-url" href="#" target="_blank" rel="noopener">Ver licitación oficial →</a>
       <a class="mabtn mabtn-g" id="m-pli" href="#" target="_blank" rel="noopener" style="display:none">📄 Pliegos</a>
-      <button class="mabtn mabtn-g" style="margin-left:auto" onclick="doFit()">🤖 Análisis de fit</button>
+      <button class="mabtn mabtn-g" style="margin-left:auto" onclick="doFit()">🚦 ¿Debo presentarme?</button>
     </div>
 
     <div class="fit-box hidden" id="fit-box">
@@ -1166,6 +1178,14 @@ function aplicarFiltroCategoria(q, cat){
 const LIMITE_FREE=10;
 function planActual(){ return (S.user && S.profile && S.profile.plan) || 'free'; }
 function esPro(){ return planActual()==='pro' || planActual()==='enterprise'; }
+function localDecisionProfile(){
+  try{return JSON.parse(localStorage.getItem(`decision-profile:${S.user?.id||'anon'}`)||'{}')}catch(e){return{}}
+}
+function saveLocalDecisionProfile(profile){
+  const fields=['facturacion_anual','empleados','contrato_maximo','experiencia_publica','referencias_similares'];
+  const safe=Object.fromEntries(fields.map(k=>[k,profile[k]??null]));
+  localStorage.setItem(`decision-profile:${S.user?.id||'anon'}`,JSON.stringify(safe));
+}
 
 /* ─── SUPABASE QUERY ─────────────────────────────── */
 async function load(reset=true){
@@ -1304,7 +1324,6 @@ function changeSort(v){ S.ord=v; load(); }
 /* ─── FIT ANALYSIS ───────────────────────────────── */
 async function doFit(){
   if(!S.user){ toast('Inicia sesión para usar el análisis de fit','nf'); goto('auth-page','login'); return; }
-  if(!esPro()){ toast('El análisis de fit con IA es solo para planes Pro y Enterprise','nf'); goto('pricing-page'); return; }
   const box=document.getElementById('fit-box');
   box.classList.remove('hidden');
   document.getElementById('fit-inner').innerHTML='<div class="spin-wrap"><div class="spin"></div></div>';
@@ -1319,27 +1338,33 @@ async function doFit(){
     });
     const fit=await res.json();
     if(!res.ok) throw new Error(fit.error||'Error al analizar el encaje');
-    const col=fit.puntuacion>=70?'var(--lime)':fit.puntuacion>=50?'var(--amber)':'var(--rose)';
+    const col=fit.verdict==='PRESENTAR'?'var(--lime)':fit.verdict==='DESCARTAR'?'var(--rose)':'var(--amber)';
+    const verified=(fit.verified||[]).map(x=>`<div class="fit-row">✓ <strong>${x.label}:</strong> ${x.value}</div>`).join('')||'<div class="fit-row">Ninguna evidencia suficiente cargada todavía.</div>';
+    const blockers=(fit.blockers||[]).map(x=>`<div class="fit-row" style="color:var(--rose)">⛔ ${x.label}${x.evidence?` · ${x.evidence}`:''}</div>`).join('')||'<div class="fit-row" style="color:var(--lime)">✓ No se ha detectado un bloqueo objetivo con los datos disponibles.</div>';
+    const unknowns=(fit.unknowns||[]).map(x=>`<div class="fit-row">? ${x}</div>`).join('');
 
     document.getElementById('fit-inner').innerHTML=`
       <div class="fit-score">
-        <div class="fit-num" style="color:${col}">${fit.puntuacion}%</div>
+        <div class="fit-num" style="color:${col}">${fit.verdict}</div>
         <div>
-          <div style="font-weight:800;font-size:16px">${fit.nivel||'—'}</div>
-          <div class="fit-sub">${fit.recomendacion||''}</div>
+          <div style="font-weight:800;font-size:16px">${fit.score}% de encaje preliminar</div>
+          <div class="fit-sub">${fit.verdict_label||''}</div>
         </div>
       </div>
       <div class="fit-cols">
         <div>
-          <div class="fit-col-lbl" style="color:var(--lime)">Fortalezas</div>
-          ${(fit.fortalezas||[]).map(f=>`<div class="fit-row">✓ ${f}</div>`).join('')}
+          <div class="fit-col-lbl" style="color:var(--lime)">Evidencia disponible</div>
+          ${verified}
         </div>
         <div>
-          <div class="fit-col-lbl" style="color:var(--amber)">A reforzar</div>
-          ${(fit.debilidades||[]).map(d=>`<div class="fit-row">△ ${d}</div>`).join('')}
+          <div class="fit-col-lbl" style="color:var(--rose)">Bloqueos objetivos</div>
+          ${blockers}
         </div>
       </div>
-      ${fit.acciones?`<div class="fit-col-lbl">Próximos pasos</div>${fit.acciones.map((a,i)=>`<div class="fit-row">${i+1}. ${a}</div>`).join('')}`:''}`;
+      <div class="fit-col-lbl" style="color:var(--amber);margin-top:14px">No comprobado todavía</div>${unknowns}
+      ${fit.explanation?`<div class="fit-col-lbl" style="margin-top:14px">Lectura del resultado</div><div class="fit-row">${fit.explanation}</div>`:''}
+      <div class="fit-col-lbl" style="margin-top:14px">Siguiente decisión</div>${(fit.next_actions||[]).map((a,i)=>`<div class="fit-row">${i+1}. ${a}</div>`).join('')}
+      <div style="font-size:11px;color:var(--chalk3);margin-top:14px;line-height:1.5">${fit.disclaimer||''}</div>`;
   }catch(e){
     document.getElementById('fit-inner').innerHTML='<div style="color:var(--rose);font-size:13px">Error en análisis IA. Verifica tu conexión.</div>';
   }
@@ -1427,6 +1452,7 @@ async function loadProfile(){
   if(!S.user) return;
   const {data}=await sb.from('user_profiles').select('*').eq('id',S.user.id).single();
   if(!data) return;
+  data=Object.assign({},data,localDecisionProfile());
   S.profile=data;
   document.getElementById('p-nom').value=data.nombre||'';
   document.getElementById('p-emp').value=data.empresa||'';
@@ -1434,6 +1460,11 @@ async function loadProfile(){
   document.getElementById('p-tel').value=data.telefono||'';
   document.getElementById('p-sector').value=data.sector_actividad||'';
   document.getElementById('p-sector-desc').value=data.sector_actividad_desc||'';
+  document.getElementById('p-fact').value=data.facturacion_anual||'';
+  document.getElementById('p-empl').value=data.empleados||'';
+  document.getElementById('p-cmax').value=data.contrato_maximo||'';
+  document.getElementById('p-expub').value=data.experiencia_publica||'';
+  document.getElementById('p-refs').value=data.referencias_similares||'';
   document.getElementById('p-pmin').value=data.presupuesto_min_interes||'';
   document.getElementById('p-pmax').value=data.presupuesto_max_interes||'';
   document.getElementById('p-alerts').checked=data.recibir_alertas!==false;
@@ -1455,6 +1486,11 @@ async function saveProfile(){
     telefono:document.getElementById('p-tel').value,
     sector_actividad:document.getElementById('p-sector').value,
     sector_actividad_desc:document.getElementById('p-sector-desc').value,
+    facturacion_anual:parseFloat(document.getElementById('p-fact').value)||null,
+    empleados:parseInt(document.getElementById('p-empl').value,10)||null,
+    contrato_maximo:parseFloat(document.getElementById('p-cmax').value)||null,
+    experiencia_publica:document.getElementById('p-expub').value||null,
+    referencias_similares:document.getElementById('p-refs').value.trim()||null,
     presupuesto_min_interes:parseFloat(document.getElementById('p-pmin').value)||null,
     presupuesto_max_interes:parseFloat(document.getElementById('p-pmax').value)||null,
     recibir_alertas:document.getElementById('p-alerts').checked,
@@ -1462,7 +1498,13 @@ async function saveProfile(){
     tecnologias_interes:S.profile.tecnologias_interes||[],
     palabras_clave:S.profile.palabras_clave||[]
   };
-  const {error}=await sb.from('user_profiles').upsert(pd);
+  saveLocalDecisionProfile(pd);
+  let {error}=await sb.from('user_profiles').upsert(pd);
+  if(error && /column|schema cache/i.test(error.message||'')){
+    const compatible={...pd};
+    ['facturacion_anual','empleados','contrato_maximo','experiencia_publica','referencias_similares'].forEach(k=>delete compatible[k]);
+    ({error}=await sb.from('user_profiles').upsert(compatible));
+  }
   if(error){toast('Error al guardar','er');}
   else{
     S.profile=pd;
@@ -1522,13 +1564,13 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
     S.user=session.user;
     updateNav();
     const {data}=await sb.from('user_profiles').select('*').eq('id',session.user.id).single();
-    if(data) S.profile=data;
+    if(data) S.profile=Object.assign({},data,localDecisionProfile());
   }
   sb.auth.onAuthStateChange(async(_e,s)=>{
     S.user=s?.user||null; updateNav();
     if(S.user){
       const {data}=await sb.from('user_profiles').select('*').eq('id',S.user.id).single();
-      if(data) S.profile=data;
+      if(data) S.profile=Object.assign({},data,localDecisionProfile());
     }
   });
   loadStats();

@@ -44,8 +44,6 @@ def ejecutar_pipeline_completo():
     # Guardar temporalmente
     guardar_enlaces_temporal(licitaciones)
 
-    urls = [lic["url"] for lic in licitaciones]
-
     print()
 
     # ========================================
@@ -57,9 +55,9 @@ def ejecutar_pipeline_completo():
     # Verificar conexión
     if not verificar_conexion_supabase():
         print("[ERROR] No se pudo conectar a Supabase")
-        return {"scrapeadas": len(licitaciones), "procesadas": 0, "errores": len(urls)}
+        return {"scrapeadas": len(licitaciones), "procesadas": 0, "errores": len(licitaciones)}
 
-    resultados = procesar_lote_urls(urls)
+    resultados = procesar_lote_urls(licitaciones)
 
     # ========================================
     # RESUMEN FINAL
