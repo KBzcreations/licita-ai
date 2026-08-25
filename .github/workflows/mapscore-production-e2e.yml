@@ -57,8 +57,14 @@ jobs:
             const report=await json('/api/mapscore-analysis',{email:'delivered+mapscore-e2e@resend.dev',business_data:p,notes:'mejorar captación local',access_token:access.token});
             assert(report.mapscore>=0&&report.mapscore<=100,'MAPSCORE inválido');assert(report.resumen_ejecutivo?.trim(),'Resumen vacío');assert(report.hallazgos?.length>=6,'Hallazgos incompletos');assert(report.prioridades?.length>=5,'Prioridades incompletas');assert(Object.values(report.plan30||{}).every(x=>Array.isArray(x)&&x.length>=2),'Plan30 incompleto');assert(report.checklist?.length>=8,'Checklist incompleto');assert(report.kpis?.length>=5,'KPIs incompletos');assert(report.resultado_objetivo_90_dias?.trim(),'Objetivo90 vacío');
             const full=JSON.stringify(report).toLowerCase();assert(!/no hay fotos|sin fotos|carece de fotos|no tiene fotos/.test(full),'Informe afirma que no hay fotos');assert(!/no tiene web|carece de web|sin web/.test(full),'Informe afirma que no hay web');assert(/sí; google devolvió/i.test(String(report.datos_verificados?.fotos||'')),'Fotos verificadas no reflejadas');assert(/deoga\.es/i.test(String(report.datos_verificados?.web||'')),'Web verificada no reflejada');
-            const recipient=`delivered+mapscore-${Date.now()}@resend.dev`;const delivery=await json('/api/mapscore-deliver',{email:recipient,business:p.name,result:report,access_token:access.token});assert(delivery.accepted===true&&delivery.id,'Resend no aceptó');assert(delivery.ok===true&&delivery.delivered===true,`Entrega no confirmada (${delivery.state||'sin estado'})`);assert(['delivered','opened','clicked'].includes(delivery.state),'Estado email no confirmado');
-            fs.writeFileSync('e2e-summary.json',JSON.stringify({business:p.name,rating:p.rating,reviews:p.reviews,website:p.website,photos:p.photo_sample_count,mapscore:report.mapscore,email_state:delivery.state},null,2));
+            const recipient=`delivered+mapscore-${Date.now()}@resend.dev`;const delivery=await json('/api/mapscore-deliver',{email:recipient,business:p.name,result:report,access_token:access.token});assert(delivery.accepted===true&&delivery.id,'Resend no aceptó');
+            let emailState={state:delivery.state,delivered:delivery.delivered};
+            for(let i=0;i<12&&!emailState.delivered;i++){
+              await sleep(5000);
+              emailState=await json('/api/mapscore-email-status',{id:delivery.id,email:recipient,access_token:access.token});
+            }
+            assert(emailState.delivered===true,`Entrega no confirmada (${emailState.state||'sin estado'})`);assert(['delivered','opened','clicked'].includes(emailState.state),'Estado email no confirmado');
+            fs.writeFileSync('e2e-summary.json',JSON.stringify({business:p.name,rating:p.rating,reviews:p.reviews,website:p.website,photos:p.photo_sample_count,mapscore:report.mapscore,email_state:emailState.state},null,2));
           }
           main().catch(e=>{fs.writeFileSync('e2e-error.txt',String(e.message||e).slice(0,200));console.error(e);process.exit(1)});
           NODE
