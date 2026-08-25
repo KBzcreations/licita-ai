@@ -17,7 +17,7 @@ export default async function handler(req, res) {
         pages.push({ page: n, text: content.items.map(x => x.str || '').join(' ') });
       }
       return res.status(200).json({ file_name: String(req.body?.fileName || 'pliego.pdf').slice(0, 180), truncated: pdf.numPages > 80, ...analyzeTenderPages(pages) });
-    } catch { return res.status(422).json({ error: 'No se pudo leer el PDF; puede estar protegido o ser una imagen escaneada' }); }
+    } catch (error) { return res.status(422).json({ error: 'No se pudo leer el PDF; puede estar protegido o ser una imagen escaneada', detail: String(error?.message || error).slice(0, 240) }); }
   }
   if (action === 'checkout') {
     if (!key) return res.status(500).json({ error: 'Pago no configurado' });
