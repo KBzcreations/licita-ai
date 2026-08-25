@@ -1,5 +1,5 @@
 {
-  "sha": "1178d47a1b2e8f834aac5b80c8bc1c018a43bfc8",
+  "sha": "35384c5fd387207b66e62cf267b94e181787c7fb",
   "ok": true,
   "description": "Flujo de producción verificado",
   "summary": {
@@ -11,5 +11,5 @@
     "mapscore": 84,
     "email_state": "delivered"
   },
-  "checked_at": "2026-08-25T11:49:47.479Z"
+  "checked_at": "2026-08-25T12:54:29.283Z"
 }
