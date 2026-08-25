@@ -38,8 +38,7 @@
   "operatingSystem": "Web",
   "offers": [
     {"@type":"Offer","name":"Free","price":"0","priceCurrency":"EUR"},
-    {"@type":"Offer","name":"Pro","price":"49","priceCurrency":"EUR"},
-    {"@type":"Offer","name":"Enterprise","price":"199","priceCurrency":"EUR"}
+    {"@type":"Offer","name":"Dossier de preparación","price":"19.90","priceCurrency":"EUR"}
   ]
 }
 </script>
@@ -543,7 +542,7 @@ h1.ht .acc{
 .price-h{font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-1.5px;margin-bottom:10px}
 .price-sub{font-size:16px;color:var(--chalk2);margin-bottom:48px}
 
-.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;text-align:left}
+.plans{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;text-align:left}
 .plan{
   background:var(--ink2);border:1px solid var(--line);
   border-radius:16px;padding:26px;position:relative;transition:.18s;
@@ -925,13 +924,13 @@ h1.ht .acc{
 ══════════════════════════════════════════════════════ -->
 <section class="page" id="pricing-page">
   <div style="padding:90px 24px 60px;max-width:940px;margin:0 auto;text-align:center">
-    <div class="price-h">Planes simples y transparentes</div>
-    <div class="price-sub">Empieza gratis. Escala cuando el negocio lo pida.</div>
+    <div class="price-h">Prueba gratis. Paga solo por lo que necesitas.</div>
+    <div class="price-sub">Sin suscripción: decide gratis y compra únicamente el dossier de la licitación que vas a trabajar.</div>
     <div class="plans">
 
       <div class="plan">
         <div class="plan-name">Free</div>
-        <div class="plan-price">0€ <small>/mes</small></div>
+        <div class="plan-price">0€</div>
         <div class="plan-desc">Para explorar sin compromiso</div>
         <ul class="plan-feats">
           <li>10 licitaciones/día</li>
@@ -941,38 +940,23 @@ h1.ht .acc{
           <li>Diagnóstico público inicial</li>
           <li class="no">API access</li>
         </ul>
-        <button class="nb solid" style="width:100%;padding:11px" onclick="goto('auth-page','register')">Empezar gratis</button>
+        <button class="nb solid" style="width:100%;padding:11px" onclick="goto('app-page')">Explorar y decidir gratis</button>
       </div>
 
       <div class="plan hot">
         <div class="hot-badge">⭐ Más popular</div>
-        <div class="plan-name">Pro</div>
-        <div class="plan-price">49€ <small>/mes</small></div>
-        <div class="plan-desc">Para equipos comerciales activos</div>
+        <div class="plan-name">Dossier por expediente</div>
+        <div class="plan-price">19,90€ <small>pago único</small></div>
+        <div class="plan-desc">Para la oportunidad que has decidido preparar</div>
         <ul class="plan-feats">
-          <li>Licitaciones ilimitadas</li>
-          <li>Todos los filtros</li>
-          <li>Alertas email diarias</li>
-          <li>Análisis de fit IA</li>
-          <li>Prioridad en soporte</li>
-          <li class="no">API access</li>
+          <li>Datos publicados y alertas</li>
+          <li>Checklist de siete áreas</li>
+          <li>Carpetas recomendadas</li>
+          <li>Índice base de memoria técnica</li>
+          <li>Descarga para trabajar o imprimir</li>
+          <li>Sin permanencia ni renovación</li>
         </ul>
-        <button class="nb solid" style="width:100%;padding:11px" onclick="suscribir('pro')">Empezar Pro →</button>
-      </div>
-
-      <div class="plan">
-        <div class="plan-name">Enterprise</div>
-        <div class="plan-price">199€ <small>/mes</small></div>
-        <div class="plan-desc">Para consultoras y grandes equipos</div>
-        <ul class="plan-feats">
-          <li>Todo de Pro</li>
-          <li>Hasta 10 usuarios</li>
-          <li>API REST acceso completo</li>
-          <li>Webhooks personalizados</li>
-          <li>SLA 99.9% uptime</li>
-          <li>Soporte dedicado</li>
-        </ul>
-        <button class="nb" style="width:100%;padding:11px" onclick="suscribir('enterprise')">Contactar →</button>
+        <button class="nb solid" style="width:100%;padding:11px" onclick="goto('app-page')">Elegir una licitación →</button>
       </div>
     </div>
 
@@ -1004,7 +988,7 @@ h1.ht .acc{
     <p>Para usar ciertas funciones necesitas registrarte con un email válido. Eres responsable de mantener la confidencialidad de tu contraseña y de toda actividad realizada desde tu cuenta.</p>
 
     <h3 style="margin:24px 0 8px">3. Planes y pagos</h3>
-    <p>Ofrecemos un plan gratuito con funcionalidad limitada y planes de pago (Pro, Enterprise) con facturación mensual recurrente gestionada por Stripe. Puedes cancelar tu suscripción en cualquier momento desde tu panel; la cancelación tiene efecto al final del periodo ya pagado. No ofrecemos reembolsos de periodos ya iniciados salvo obligación legal.</p>
+    <p>La exploración y el diagnóstico inicial son gratuitos. Los dossiers de preparación se venden mediante pago único gestionado por Stripe, sin renovación automática. No ofrecemos reembolsos una vez generado o descargado el dossier, salvo obligación legal.</p>
 
     <h3 style="margin:24px 0 8px">4. Uso aceptable</h3>
     <p>No está permitido usar el servicio para scraping masivo automatizado no autorizado, revender el acceso a terceros sin plan Enterprise, ni intentar vulnerar la seguridad de la plataforma.</p>
@@ -1410,7 +1394,7 @@ async function prepareOffer(){
     const facts=pack.facts.map(x=>`<div class="fit-row">✓ <strong>${offerEsc(x.label)}:</strong> ${offerEsc(x.value)}</div>`).join('');
     const blockers=pack.blockers.length?pack.blockers.map(x=>`<div class="fit-row" style="color:var(--rose)">⛔ ${offerEsc(x)}</div>`).join(''):'<div class="fit-row" style="color:var(--lime)">✓ Sin bloqueos objetivos detectados con los datos disponibles.</div>';
     const tasks=pack.checklist.map(x=>`<div class="fit-row"><span style="color:${x.status==='pendiente'?'var(--amber)':'var(--sky3)'}">${x.status==='pendiente'?'□':'◫'}</span> <strong>${offerEsc(x.area)}:</strong> ${offerEsc(x.task)}${x.evidence?` · ${offerEsc(x.evidence)}`:''}</div>`).join('');
-    target.innerHTML=`<div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--line2)"><div class="fit-num" style="font-size:22px;color:var(--sky3)">DOSSIER PREPARADO</div><h3 style="margin:8px 0 14px">${offerEsc(pack.title)}</h3><div class="fit-cols"><div><div class="fit-col-lbl" style="color:var(--lime)">Datos publicados</div>${facts}</div><div><div class="fit-col-lbl" style="color:var(--rose)">Alertas</div>${blockers}</div></div><div class="fit-col-lbl" style="margin-top:16px;color:var(--amber)">Checklist antes de firmar</div>${tasks}<div class="fit-col-lbl" style="margin-top:16px">Estructura de carpeta</div><div class="fit-row">${pack.folder_structure.map(offerEsc).join(' · ')}</div><div class="fit-col-lbl" style="margin-top:16px">Índice base de memoria técnica</div>${pack.draft_sections.map((x,i)=>`<div class="fit-row">${i+1}. ${offerEsc(x)}</div>`).join('')}<button class="mabtn mabtn-p" style="margin-top:16px" onclick="downloadOfferPack()">Descargar dossier HTML</button><div style="font-size:11px;color:var(--chalk3);margin-top:12px">${offerEsc(pack.limitations)}</div></div>`;
+    target.innerHTML=`<div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--line2)"><div class="fit-num" style="font-size:22px;color:var(--sky3)">DOSSIER PREPARADO</div><h3 style="margin:8px 0 14px">${offerEsc(pack.title)}</h3><div class="fit-cols"><div><div class="fit-col-lbl" style="color:var(--lime)">Datos publicados</div>${facts}</div><div><div class="fit-col-lbl" style="color:var(--rose)">Alertas</div>${blockers}</div></div><div class="fit-col-lbl" style="margin-top:16px;color:var(--amber)">Checklist antes de firmar</div>${tasks}<div class="fit-col-lbl" style="margin-top:16px">Estructura de carpeta</div><div class="fit-row">${pack.folder_structure.map(offerEsc).join(' · ')}</div><div class="fit-col-lbl" style="margin-top:16px">Índice base de memoria técnica</div>${pack.draft_sections.map((x,i)=>`<div class="fit-row">${i+1}. ${offerEsc(x)}</div>`).join('')}<button class="mabtn mabtn-p" style="margin-top:16px" onclick="buyDossier()">Descargar dossier completo · 19,90 €</button><div style="font-size:11px;color:var(--chalk3);margin-top:12px">Vista previa gratuita. Pago único, sin suscripción. ${offerEsc(pack.limitations)}</div></div>`;
   }catch(e){target.innerHTML=`<div style="color:var(--rose);margin-top:16px">${offerEsc(e.message)}</div>`;}
 }
 
@@ -1419,6 +1403,29 @@ function downloadOfferPack(){
   const p=currentOfferPack, rows=p.checklist.map(x=>`<tr><td>${offerEsc(x.area)}</td><td>${offerEsc(x.task)}</td><td>${offerEsc(x.status)}</td><td>${offerEsc(x.evidence||'Por verificar')}</td></tr>`).join('');
   const html=`<!doctype html><html lang="es"><meta charset="utf-8"><title>${offerEsc(p.title)}</title><style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;color:#172033;line-height:1.5}h1{color:#174ea6}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccd4df;padding:9px;text-align:left}small{color:#667}</style><h1>${offerEsc(p.title)}</h1><p><b>Generado:</b> ${new Date(p.generated_at).toLocaleString('es-ES')}</p><h2>Datos publicados</h2><ul>${p.facts.map(x=>`<li><b>${offerEsc(x.label)}:</b> ${offerEsc(x.value)}</li>`).join('')}</ul><h2>Alertas</h2><ul>${(p.blockers.length?p.blockers:['No se han detectado bloqueos con los datos disponibles.']).map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ul><h2>Checklist de verificación</h2><table><tr><th>Área</th><th>Tarea</th><th>Estado</th><th>Evidencia</th></tr>${rows}</table><h2>Carpetas recomendadas</h2><ol>${p.folder_structure.map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ol><h2>Índice base de memoria</h2><ol>${p.draft_sections.map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ol><p><small>${offerEsc(p.limitations)}</small></p></html>`;
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));a.download='dossier-licitacion.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+async function buyDossier(){
+  if(!S.curLic||!currentOfferPack)return;
+  sessionStorage.setItem('paid-dossier-tender',JSON.stringify(S.curLic));
+  try{
+    const res=await fetch('/api/create-dossier-checkout',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tenderId:S.curLic.id||S.curLic.expediente||'',title:S.curLic.titulo})});
+    const data=await res.json();if(!res.ok||!data.url)throw Error(data.error||'No se pudo iniciar el pago');
+    location.href=data.url;
+  }catch(e){toast(e.message,'err');}
+}
+
+async function resumePaidDossier(){
+  const q=new URLSearchParams(location.search),sessionId=q.get('dossier_session');
+  if(q.get('dossier')!=='ok'||!sessionId)return;
+  const saved=sessionStorage.getItem('paid-dossier-tender');
+  if(!saved){toast('Pago recibido. Vuelve a abrir la licitación para descargar el dossier.','ok');return;}
+  try{
+    const verify=await fetch('/api/verify-dossier-payment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId})});
+    if(!verify.ok)throw Error('No se pudo confirmar el pago');
+    S.curLic=JSON.parse(saved);currentOfferPack=(await (await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({licitacion:S.curLic,perfil:S.profile||{}})})).json());
+    downloadOfferPack();sessionStorage.removeItem('paid-dossier-tender');history.replaceState({},'',location.pathname);toast('Pago confirmado. Dossier descargado.','ok');
+  }catch(e){toast(e.message,'err');}
 }
 
 /* ─── STATS ──────────────────────────────────────── */
@@ -1625,6 +1632,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
     }
   });
   loadStats();
+  resumePaidDossier();
 })();
 </script>
 </body>
