@@ -1,7 +1,15 @@
 {
-  "sha": "083732d6f774d6d228b8eefe1c31307316457480",
-  "ok": false,
-  "description": "/api/mapscore-deliver 500: {\"error\":\"RESEND_API_KEY no configurada\"}",
-  "summary": null,
-  "checked_at": "2026-08-20T17:31:46.793Z"
+  "sha": "73ed7b19d2446cd912c4c8b372d5eb1e7737f4a6",
+  "ok": true,
+  "description": "Flujo de producción verificado",
+  "summary": {
+    "business": "Deoga Desarrollo Y Ejecucion de Obra SL",
+    "rating": 4.4,
+    "reviews": 10,
+    "website": "http://www.deoga.es/",
+    "photos": 10,
+    "mapscore": 87,
+    "email_state": "delivered"
+  },
+  "checked_at": "2026-08-25T10:28:39.384Z"
 }
