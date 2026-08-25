@@ -8,7 +8,7 @@ export function deterministicScores(b,web={}){
   let reputation=50;
   if(Number.isFinite(b.rating)) reputation=clamp((b.rating/5)*70+Math.min(Math.log10((b.reviews||0)+1)/2,1)*30);
   const visual=b.has_photos===true?75:50;
-  const conversion=clamp(35+(b.phone?30:0)+(b.website?30:0)+(b.address?5:0));
+  const conversion=clamp(25+(b.phone?20:0)+(b.website?20:0)+(b.address?5:0)+(web.reachable?10:0));
   const webLocal=!b.website?45:clamp(55+(web.reachable?10:0)+(web.title?5:0)+(web.meta_description?5:0)+(web.has_h1?5:0)+(web.has_localbusiness_schema?10:0));
   const values=[profile,relevance,reputation,visual,conversion,webLocal];
   return {perfil:profile,relevancia:relevance,reputacion:reputation,contenido_visual:visual,conversion,web_local:webLocal,mapscore:clamp(values.reduce((a,v)=>a+v,0)/values.length)};
@@ -26,11 +26,12 @@ function evidenceData(b){
 
 export function deterministicReport(b,web={},notes=''){
   const s=deterministicScores(b,web), place=b.name||'El negocio', rating=Number.isFinite(b.rating)?`${b.rating}/5 con ${b.reviews??'un número no devuelto de'} reseñas`:'valoración no devuelta';
+  const samples=array(b.review_samples),criticalSamples=samples.filter(x=>Number(x?.rating)<=3),sampleEvidence=criticalSamples.length?`La muestra contiene ${criticalSamples.length} reseña${criticalSamples.length===1?'':'s'} de 3 estrellas o menos.`:samples.length?`Google devolvió ${samples.length} textos de muestra y ninguno tiene 3 estrellas o menos.`:'Google no devolvió textos de reseñas en esta ejecución.';
   const findings=[
     {area:'Perfil',evidencia:'verificada',hallazgo:`La ficha identificada incluye nombre y dirección${b.category?', con la categoría '+b.category:''}.`,solucion:'Mantener estos datos idénticos en la web y en los directorios principales.'},
     {area:'Conversión',evidencia:b.phone?'verificada':'dato no devuelto',hallazgo:b.phone?`Google devuelve el teléfono ${b.phone}.`:'Google Places no devolvió teléfono; esto no demuestra que falte en la ficha.',solucion:b.phone?'Comprobar periódicamente que conecta con el canal comercial correcto.':'Verificar el teléfono directamente en el Perfil de Empresa antes de recomendar cambios.'},
     {area:'Web',evidencia:b.website?'verificada':'dato no devuelto',hallazgo:b.website?`Google enlaza a ${b.website}.`:'Google Places no devolvió una web; no se afirma que el negocio carezca de ella.',solucion:b.website?'Mantener una página de contacto clara y coherente con los datos del perfil.':'Verificar manualmente la ficha y los canales oficiales.'},
-    {area:'Reputación',evidencia:'verificada',hallazgo:`La reputación disponible es ${rating}.`,solucion:'Responder de forma profesional y solicitar reseñas auténticas tras trabajos finalizados.'},
+    {area:'Reputación',evidencia:samples.length?'verificada y muestra analizada':'valoración verificada; textos no devueltos',hallazgo:`La reputación disponible es ${rating}. ${sampleEvidence}`,solucion:criticalSamples.length?'Responder primero las críticas de la muestra, sin asumir que representan todas las reseñas.':'Mantener la respuesta a nuevas reseñas y solicitar opiniones auténticas tras trabajos finalizados.'},
     {area:'Contenido visual',evidencia:b.has_photos===true?'verificada':'dato no concluyente',hallazgo:b.has_photos===true?`Google devolvió ${b.photo_sample_count||'varias'} referencias de fotos; el perfil sí tiene contenido visual.`:'La consulta no permite concluir que falten fotos.',solucion:b.has_photos===true?'Revisar actualidad, variedad y capacidad comercial de las imágenes, sin sustituir material que ya funciona.':'Revisar visualmente el perfil antes de proponer nuevas fotografías.'},
     {area:'Horarios',evidencia:b.hours?.length?'verificada':'dato no devuelto',hallazgo:b.hours?.length?'Google Places devolvió horarios publicados.':'Google Places no devolvió horarios; no se interpreta como ausencia.',solucion:b.hours?.length?'Comprobar festivos y excepciones.':'Verificar el perfil directamente y publicar o corregir horarios solo si realmente faltan.'},
     {area:'Web local',evidencia:web.reachable?'verificada por análisis web':b.website?'comprobación no disponible':'dato no disponible',hallazgo:web.reachable?`La web respondió correctamente${web.title?` y tiene título “${web.title}”`:''}.`:b.website?'La web figura en Google, pero no pudo analizarse en esta ejecución.':'No había URL oficial verificable para analizar.',solucion:web.reachable?(web.has_localbusiness_schema?'Conservar el marcado local y validar que los datos sigan vigentes.':'Valorar marcado LocalBusiness solo tras revisar técnicamente la página y los datos publicados.'):'Reintentar la comprobación técnica antes de afirmar carencias.'},
@@ -39,7 +40,7 @@ export function deterministicReport(b,web={},notes=''){
   const hallazgos=findings;
   const prioridades=[
     {prioridad:1,accion:'Validar coherencia de datos de contacto',por_que:'Evita fricción entre Google y la web.',como_hacerlo:'Comparar nombre, dirección, teléfono y web con los datos verificados del informe.',impacto:'alto'},
-    {prioridad:2,accion:'Revisar la muestra de reseñas y responder',por_que:'La calidad de respuesta influye en la confianza del cliente.',como_hacerlo:'Responder primero a críticas recientes y agradecer las valoraciones positivas.',impacto:'alto'},
+    {prioridad:2,accion:criticalSamples.length?'Responder las críticas detectadas en la muestra':'Mantener el seguimiento de reseñas',por_que:criticalSamples.length?sampleEvidence:'No se detectó una crítica en la muestra disponible; conviene vigilar nuevas opiniones.',como_hacerlo:criticalSamples.length?'Preparar una respuesta individual para cada crítica de la muestra, sin revelar datos privados.':'Revisar periódicamente nuevas reseñas y responder con contexto real.',impacto:criticalSamples.length?'alto':'medio'},
     {prioridad:3,accion:'Auditar la calidad de las fotos existentes',por_que:b.has_photos===true?'Ya hay fotos; la mejora está en su calidad y variedad, no en afirmar que faltan.':'La fuente no permite asegurar si existen.',como_hacerlo:'Revisar portada, equipo, trabajos, acceso y actualidad; añadir solo las categorías que falten.',impacto:'medio'},
     {prioridad:4,accion:'Comprobar horarios directamente',por_que:b.hours?.length?'Conviene mantener excepciones actualizadas.':'El dato no fue devuelto y requiere confirmación.',como_hacerlo:'Abrir el Perfil de Empresa y contrastarlo con la web antes de editar.',impacto:'medio'},
     {prioridad:5,accion:'Mejorar la ruta de contacto de la web',por_que:'Convierte visitas locales en llamadas o solicitudes.',como_hacerlo:'Probar en móvil teléfono, formulario y llamada a la acción, corrigiendo solo fallos observados.',impacto:'alto'},
@@ -64,3 +65,4 @@ export function mergeAi(base,ai){
 }
 
 export function reportIsComplete(r){return Boolean(r&&text(r.resumen_ejecutivo)&&r.hallazgos?.length>=6&&r.prioridades?.length>=5&&Object.values(r.plan30||{}).every(v=>v?.length>=2)&&r.checklist?.length>=8&&r.kpis?.length>=5&&text(r.resultado_objetivo_90_dias));}
+
