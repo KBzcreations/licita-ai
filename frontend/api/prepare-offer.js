@@ -9,6 +9,10 @@ export default async function handler(req, res) {
     const encoded = String(req.body?.documentBase64 || ''), bytes = Buffer.from(encoded, 'base64');
     if (!encoded || bytes.length < 5 || bytes.length > 4_500_000 || bytes.subarray(0, 4).toString() !== '%PDF') return res.status(400).json({ error: 'Adjunta un PDF válido de hasta 4,5 MB' });
     try {
+      const canvas = await import('@napi-rs/canvas');
+      globalThis.DOMMatrix ||= canvas.DOMMatrix;
+      globalThis.ImageData ||= canvas.ImageData;
+      globalThis.Path2D ||= canvas.Path2D;
       const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
       const pdf = await pdfjs.getDocument({ data: new Uint8Array(bytes), disableWorker: true }).promise;
       const pages = [];
