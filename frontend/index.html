@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Licita AI — Decide antes de licitar</title>
-<meta name="description" content="Descubre si una licitación encaja con tu empresa, qué puede excluirte y qué falta comprobar antes de invertir horas en preparar la oferta.">
-<meta property="og:title" content="Licita AI — Licitaciones Tech con IA">
-<meta property="og:description" content="Las mejores oportunidades de licitación tech, filtradas y resumidas por IA cada día.">
+<title>Licita AI — Analiza pliegos y prepara tu expediente</title>
+<meta name="description" content="Sube un PCAP o PPT y obtén riesgos, requisitos con evidencia por página, matriz de cumplimiento y checklist para preparar una licitación pública.">
+<meta property="og:title" content="Licita AI — Del pliego al expediente de oferta">
+<meta property="og:description" content="Decide si licitar y convierte el pliego en requisitos, tareas y documentos verificables.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://www.licita-ai.com/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="627">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Licita AI — Licitaciones Tech con IA">
-<meta name="twitter:description" content="Las mejores oportunidades de licitación tech, filtradas y resumidas por IA cada día.">
+<meta name="twitter:title" content="Licita AI — Del pliego al expediente de oferta">
+<meta name="twitter:description" content="Analiza requisitos con evidencia por página y prepara un expediente verificable.">
 <meta name="twitter:image" content="https://www.licita-ai.com/og-image.png">
 <meta name="google-site-verification" content="zpfeElNl-RcdBw_7WQJyonmHhDw6w9tqMTWv_-akWy0" />
 <!-- Google tag (gtag.js) -->
@@ -33,12 +33,12 @@
   "@type": "SoftwareApplication",
   "name": "Licita AI",
   "url": "https://www.licita-ai.com/",
-  "description": "Buscador especializado en licitaciones públicas del sector tecnológico en España, con resúmenes y análisis de encaje generados por IA.",
+  "description": "Software para analizar pliegos de contratación pública y convertirlos en una decisión, matriz de cumplimiento y expediente de preparación.",
   "applicationCategory": "BusinessApplication",
   "operatingSystem": "Web",
   "offers": [
     {"@type":"Offer","name":"Free","price":"0","priceCurrency":"EUR"},
-    {"@type":"Offer","name":"Dossier de preparación","price":"19.90","priceCurrency":"EUR"}
+    {"@type":"Offer","name":"Expediente de preparación","price":"49.00","priceCurrency":"EUR"}
   ]
 }
 </script>
@@ -570,6 +570,15 @@ h1.ht .acc{
 .plan-feats li::before{content:'✓';color:var(--lime);font-weight:700;flex-shrink:0}
 .plan-feats li.no::before{content:'×';color:var(--chalk3)}
 .plan-feats li.no{color:var(--chalk3)}
+.pliego-cta{max-width:940px;margin:0 auto 70px;padding:0 24px}
+.pliego-box{background:linear-gradient(135deg,rgba(37,99,235,.13),var(--ink2));border:1px solid rgba(96,165,250,.32);border-radius:20px;padding:clamp(22px,5vw,42px);display:grid;grid-template-columns:1.25fr .75fr;gap:30px;align-items:center}
+.pliego-box h2{font-size:clamp(25px,4vw,38px);line-height:1.08;letter-spacing:-1px;margin-bottom:12px}
+.pliego-box p{color:var(--chalk2);font-size:15px}
+.pliego-steps{display:grid;gap:9px;margin-top:20px}
+.pliego-step{display:flex;gap:9px;color:var(--chalk2);font-size:13px}.pliego-step b{color:var(--lime)}
+.upload-panel{background:var(--ink);border:1px solid var(--line2);border-radius:14px;padding:18px}
+.upload-panel .fi{margin:10px 0}
+.trustline{font-size:11px!important;color:var(--chalk3)!important;margin-top:10px}
 
 /* ─── TOAST ─────────────────────────────────────────── */
 #toasts{
@@ -596,6 +605,7 @@ h1.ht .acc{
   .plans{grid-template-columns:1fr}
   .strip{grid-template-columns:1fr}
   .hero-nums{gap:24px}
+  .pliego-box{grid-template-columns:1fr}
   h1.ht{letter-spacing:-1.5px}
 }
 @media(max-width:640px){
@@ -617,7 +627,7 @@ h1.ht .acc{
 <nav id="nav">
   <div class="logo" onclick="goto('home')">⚡Licita<em>AI</em><sup>beta</sup></div>
   <div class="nav-r">
-    <button class="nb nb-sec" onclick="goto('app-page')">Licitaciones</button>
+    <button class="nb nb-sec" onclick="goto('app-page')">Oportunidades</button>
     <button class="nb nb-sec" onclick="goto('pricing-page')">Precios</button>
     <a class="nb nb-sec" href="/mapscore/" style="display:inline-block;text-decoration:none;line-height:1.4">MAPSCORE</a>
     <a class="nb nb-sec" href="/blog/" style="display:inline-block;text-decoration:none;line-height:1.4">Blog</a>
@@ -644,13 +654,13 @@ h1.ht .acc{
     <div class="grid-lines"></div>
     <div style="position:relative;z-index:1;max-width:820px">
       <div class="pill"><span class="pill-dot"></span>Decisiones verificables · sin requisitos inventados</div>
-      <h1 class="ht">Antes de preparar una oferta,<br><span class="acc">descubre si debes presentarte</span></h1>
-      <p class="hero-p">Licita AI cruza cada oportunidad con la capacidad real de tu empresa. Te muestra bloqueos, datos pendientes, encaje y próximos pasos para que no desperdicies días en una licitación inviable.</p>
+      <h1 class="ht">Sube el pliego. Decide si licitar.<br><span class="acc">Prepara el expediente sin empezar de cero.</span></h1>
+      <p class="hero-p">Licita AI localiza requisitos con su página, separa bloqueos de incógnitas y convierte el PCAP/PPT en una matriz de cumplimiento, checklist documental e índice de memoria listo para trabajar.</p>
       <div class="hero-btns">
-        <button class="cta cta-main" onclick="goto('auth-page','register')">Crear perfil de decisión gratis →</button>
-        <button class="cta cta-ghost" onclick="goto('app-page')">Explorar oportunidades reales</button>
+        <button class="cta cta-main" onclick="document.getElementById('pliego-directo').scrollIntoView({behavior:'smooth'})">Analizar un pliego gratis →</button>
+        <button class="cta cta-ghost" onclick="goto('app-page')">Buscar una oportunidad</button>
       </div>
-      <p style="margin:18px 0 0;color:var(--muted);font-size:14px">¿Quieres mejorar la presencia local de tu negocio? <a href="/mapscore/" style="color:var(--sky2);font-weight:700">Abrir MAPSCORE AI →</a></p>
+      <p style="margin:18px 0 0;color:var(--muted);font-size:13px">Sin registro para la primera lectura · No afirmamos que un requisito no existe si no lo localizamos</p>
       <div class="hero-nums">
         <div>
           <span class="hn-val" id="stat-total">—</span>
@@ -688,6 +698,28 @@ h1.ht .acc{
       <div class="strip-icon">🔎</div>
       <div class="strip-h">Evidencia separada de incógnitas</div>
       <div class="strip-p">Verás qué está publicado, qué ha declarado tu empresa y qué debe comprobarse todavía en el expediente oficial.</div>
+    </div>
+  </div>
+
+  <div class="pliego-cta" id="pliego-directo">
+    <div class="pliego-box">
+      <div>
+        <div class="pill"><span class="pill-dot"></span>Tu pliego es el punto de partida</div>
+        <h2>Descubre los riesgos antes de dedicar días a la oferta</h2>
+        <p>Adjunta un PCAP o PPT. La vista previa identifica áreas críticas. Si decides continuar, generamos el expediente de preparación completo por un único pago.</p>
+        <div class="pliego-steps">
+          <div class="pliego-step"><b>01</b><span>Requisitos y evidencias enlazados a su página.</span></div>
+          <div class="pliego-step"><b>02</b><span>Matriz de cumplimiento, responsables y pendientes.</span></div>
+          <div class="pliego-step"><b>03</b><span>Carpetas, índice de memoria y control final.</span></div>
+        </div>
+      </div>
+      <div class="upload-panel">
+        <label class="fl">PCAP o PPT en PDF</label>
+        <input id="direct-pdf" type="file" accept="application/pdf" class="fi">
+        <button class="nb solid" style="width:100%;padding:12px" onclick="analyzeDirectPdf()">Analizar riesgos gratis →</button>
+        <p class="trustline">PDF de hasta 4,5 MB · No necesitas crear una cuenta</p>
+        <div id="direct-result"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -945,18 +977,18 @@ h1.ht .acc{
 
       <div class="plan hot">
         <div class="hot-badge">⭐ Más popular</div>
-        <div class="plan-name">Dossier por expediente</div>
-        <div class="plan-price">19,90€ <small>pago único</small></div>
-        <div class="plan-desc">Para la oportunidad que has decidido preparar</div>
+        <div class="plan-name">Expediente de preparación</div>
+        <div class="plan-price">49€ <small>pago único</small></div>
+        <div class="plan-desc">Para convertir un pliego real en un plan de entrega</div>
         <ul class="plan-feats">
-          <li>Datos publicados y alertas</li>
-          <li>Checklist de siete áreas</li>
-          <li>Carpetas recomendadas</li>
-          <li>Índice base de memoria técnica</li>
-          <li>Descarga para trabajar o imprimir</li>
+          <li>Evidencias y requisitos por página</li>
+          <li>Matriz de cumplimiento</li>
+          <li>Checklist documental y de firma</li>
+          <li>Alertas, carpetas e índice de memoria</li>
+          <li>Control final antes de presentar</li>
           <li>Sin permanencia ni renovación</li>
         </ul>
-        <button class="nb solid" style="width:100%;padding:11px" onclick="goto('app-page')">Elegir una licitación →</button>
+        <button class="nb solid" style="width:100%;padding:11px" onclick="goto('home');setTimeout(()=>document.getElementById('pliego-directo').scrollIntoView({behavior:'smooth'}),50)">Analizar mi pliego →</button>
       </div>
     </div>
 
@@ -966,8 +998,8 @@ h1.ht .acc{
         <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span>❌</span><span style="color:var(--chalk2);font-size:13.5px">Ellos: 500 licitaciones al día de todo tipo — obra civil, catering, suministros, tecnología, todo mezclado</span></div>
         <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span>✅</span><span style="color:var(--chalk2);font-size:13.5px">Licita AI: solo licitaciones tech, filtradas antes de que las veas</span></div>
         <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span>❌</span><span style="color:var(--chalk2);font-size:13.5px">Ellos: tienes que abrir el pliego y leerlo tú para saber si merece la pena</span></div>
-        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span>✅</span><span style="color:var(--chalk2);font-size:13.5px">Licita AI: resumen ejecutivo con IA en 4 líneas, ya hecho</span></div>
-        <div style="display:flex;gap:10px;padding:8px 0"><span>✅</span><span style="color:var(--chalk2);font-size:13.5px">Licita AI: análisis de encaje — la IA te dice si esa licitación es para ti antes de que pierdas tiempo</span></div>
+        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span>✅</span><span style="color:var(--chalk2);font-size:13.5px">Licita AI: localiza requisitos y conserva la página como evidencia</span></div>
+        <div style="display:flex;gap:10px;padding:8px 0"><span>✅</span><span style="color:var(--chalk2);font-size:13.5px">Licita AI: convierte el pliego en tareas, documentos y controles concretos</span></div>
       </div>
     </div>
   </div>
@@ -1009,7 +1041,7 @@ h1.ht .acc{
     <p style="color:var(--chalk3);font-size:13px;margin-bottom:32px">Última actualización: agosto de 2026</p>
 
     <h3 style="margin:24px 0 8px">1. Qué datos recogemos</h3>
-    <p>Al registrarte guardamos tu email, nombre y empresa (si los facilitas), y tus preferencias de tecnologías de interés para personalizar alertas. Si contratas un plan de pago, Stripe procesa los datos de tu tarjeta directamente — nosotros nunca almacenamos números de tarjeta.</p>
+    <p>Al registrarte guardamos tu email, nombre y empresa (si los facilitas), y tus preferencias de tecnologías de interés para personalizar alertas. Los PDF que adjuntas se procesan para extraer texto y generar el análisis solicitado; evita incluir datos personales que no sean necesarios. Si contratas un producto, Stripe procesa los datos de tu tarjeta directamente — nosotros nunca almacenamos números de tarjeta.</p>
 
     <h3 style="margin:24px 0 8px">2. Para qué los usamos</h3>
     <p>Para darte acceso al servicio, enviarte alertas de licitaciones si las activas, gestionar tu suscripción y responder a tus consultas de soporte. No vendemos ni cedemos tus datos a terceros con fines publicitarios.</p>
@@ -1234,8 +1266,9 @@ function makeCard(r){
   d.className='card';
   d.onclick=()=>openModal(r);
 
-  const pres = r.presupuesto
-    ? (r.presupuesto>=1e6 ? `${(r.presupuesto/1e6).toFixed(1)}M€` : `${Math.round(r.presupuesto/1000)}K€`)
+  const amount=Number(r.presupuesto);
+  const pres = Number.isFinite(amount)&&amount>0
+    ? (amount>=1e6 ? `${(amount/1e6).toFixed(1)}M€` : `${Math.round(amount/1000)}K€`)
     : null;
 
   let urgTag='';
@@ -1272,7 +1305,8 @@ function openModal(r){
   S.curLic=r;
   document.getElementById('m-title').textContent=r.titulo;
   document.getElementById('m-org').textContent=r.organismo;
-  document.getElementById('m-pres').textContent=r.presupuesto?`${r.presupuesto.toLocaleString('es-ES')} €`:'No especificado';
+  const amount=Number(r.presupuesto);
+  document.getElementById('m-pres').textContent=Number.isFinite(amount)&&amount>0?`${amount.toLocaleString('es-ES')} €`:'No especificado';
   document.getElementById('m-fpub').textContent=r.fecha_publicacion?fmtDate(r.fecha_publicacion):'—';
   document.getElementById('m-flim').textContent=r.fecha_limite?fmtDate(r.fecha_limite):'—';
   document.getElementById('m-res').textContent=r.resumen_comercial;
@@ -1384,18 +1418,39 @@ function refineFit(){
 
 const offerEsc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let currentOfferPack=null;
+let currentDocumentAnalysis=null;
 async function prepareOffer(){
   const target=document.getElementById('offer-pack');
   target.innerHTML='<div class="spin-wrap"><div class="spin"></div></div>';
   try{
-    const res=await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({licitacion:S.curLic,perfil:S.profile||{}})});
+    const res=await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({licitacion:S.curLic,perfil:S.profile||{},documentAnalysis:currentDocumentAnalysis})});
     const pack=await res.json(); if(!res.ok) throw Error(pack.error||'No se pudo preparar el dossier');
     currentOfferPack=pack;
     const facts=pack.facts.map(x=>`<div class="fit-row">✓ <strong>${offerEsc(x.label)}:</strong> ${offerEsc(x.value)}</div>`).join('');
     const blockers=pack.blockers.length?pack.blockers.map(x=>`<div class="fit-row" style="color:var(--rose)">⛔ ${offerEsc(x)}</div>`).join(''):'<div class="fit-row" style="color:var(--lime)">✓ Sin bloqueos objetivos detectados con los datos disponibles.</div>';
     const tasks=pack.checklist.map(x=>`<div class="fit-row"><span style="color:${x.status==='pendiente'?'var(--amber)':'var(--sky3)'}">${x.status==='pendiente'?'□':'◫'}</span> <strong>${offerEsc(x.area)}:</strong> ${offerEsc(x.task)}${x.evidence?` · ${offerEsc(x.evidence)}`:''}</div>`).join('');
-    target.innerHTML=`<div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--line2)"><div class="fit-num" style="font-size:22px;color:var(--sky3)">DOSSIER PREPARADO</div><h3 style="margin:8px 0 14px">${offerEsc(pack.title)}</h3><div class="fit-cols"><div><div class="fit-col-lbl" style="color:var(--lime)">Datos publicados</div>${facts}</div><div><div class="fit-col-lbl" style="color:var(--rose)">Alertas</div>${blockers}</div></div><div class="fit-col-lbl" style="margin-top:16px;color:var(--amber)">Checklist antes de firmar</div>${tasks}<div class="fit-col-lbl" style="margin-top:16px">Estructura de carpeta</div><div class="fit-row">${pack.folder_structure.map(offerEsc).join(' · ')}</div><div class="fit-col-lbl" style="margin-top:16px">Índice base de memoria técnica</div>${pack.draft_sections.map((x,i)=>`<div class="fit-row">${i+1}. ${offerEsc(x)}</div>`).join('')}<div style="margin-top:18px;padding:16px;border:1px solid var(--line2);border-radius:10px"><div style="font-weight:800">Analizar el pliego real</div><div style="font-size:12px;color:var(--chalk3);margin:5px 0 10px">Adjunta PCAP o PPT en PDF (máx. 4,5 MB). Localizaremos pasajes y su página; “no localizado” nunca significa “no exigido”.</div><input id="tender-pdf" type="file" accept="application/pdf" class="fi"><button class="mabtn mabtn-g" onclick="analyzeTenderPdf()">Leer PDF y localizar requisitos</button><div id="pdf-analysis"></div></div><button class="mabtn mabtn-p" style="margin-top:16px" onclick="buyDossier()">Descargar dossier completo · 19,90 €</button><div style="font-size:11px;color:var(--chalk3);margin-top:12px">Vista previa gratuita. Pago único, sin suscripción. ${offerEsc(pack.limitations)}</div></div>`;
+    target.innerHTML=`<div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--line2)"><div class="fit-num" style="font-size:22px;color:var(--sky3)">VISTA PREVIA PREPARADA</div><h3 style="margin:8px 0 14px">${offerEsc(pack.title)}</h3><div class="fit-cols"><div><div class="fit-col-lbl" style="color:var(--lime)">Datos publicados</div>${facts}</div><div><div class="fit-col-lbl" style="color:var(--rose)">Alertas</div>${blockers}</div></div><div class="fit-col-lbl" style="margin-top:16px;color:var(--amber)">Checklist inicial</div>${tasks}<div style="margin-top:18px;padding:16px;border:1px solid var(--line2);border-radius:10px"><div style="font-weight:800">Analizar el pliego real</div><div style="font-size:12px;color:var(--chalk3);margin:5px 0 10px">Adjunta PCAP o PPT en PDF (máx. 4,5 MB). Localizaremos pasajes y su página; “no localizado” nunca significa “no exigido”.</div><input id="tender-pdf" type="file" accept="application/pdf" class="fi"><button class="mabtn mabtn-g" onclick="analyzeTenderPdf()">Leer PDF y localizar requisitos</button><div id="pdf-analysis"></div></div><button class="mabtn mabtn-p" style="margin-top:16px" onclick="buyDossier()">Crear expediente completo · 49 €</button><div style="font-size:11px;color:var(--chalk3);margin-top:12px">Pago único, sin suscripción. Incluye matriz con evidencias, checklist, estructura de entrega, índice de memoria y control final. ${offerEsc(pack.limitations)}</div></div>`;
   }catch(e){target.innerHTML=`<div style="color:var(--rose);margin-top:16px">${offerEsc(e.message)}</div>`;}
+}
+
+async function analyzeDirectPdf(){
+  const file=document.getElementById('direct-pdf')?.files?.[0], out=document.getElementById('direct-result');
+  if(!file){out.innerHTML='<div style="color:var(--amber);margin-top:10px">Selecciona primero un PDF.</div>';return;}
+  if(file.size>4500000){out.innerHTML='<div style="color:var(--rose);margin-top:10px">El PDF supera 4,5 MB.</div>';return;}
+  out.innerHTML='<div class="spin-wrap"><div class="spin"></div></div><div style="font-size:12px;color:var(--chalk3);text-align:center">Leyendo requisitos y páginas…</div>';
+  try{
+    const documentBase64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(file)});
+    const res=await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'analyze-document',fileName:file.name,documentBase64})}),data=await res.json();
+    if(!res.ok)throw Error(data.error||'No se pudo analizar');
+    currentDocumentAnalysis=data;
+    S.curLic={titulo:file.name.replace(/\.pdf$/i,''),organismo:'Pendiente de identificar',url_origen:null,fuente_datos:'PDF aportado por el usuario'};
+    const packRes=await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({licitacion:S.curLic,perfil:{},documentAnalysis:data})});
+    currentOfferPack=await packRes.json();
+    const located=(data.coverage||[]).filter(x=>x.status==='pasajes localizados').map(x=>x.area);
+    const sample=(data.findings||[]).slice(0,2).map(x=>`<div class="fit-row"><strong>${offerEsc(x.area)} · pág. ${offerEsc(x.page)}</strong><br>${offerEsc(x.evidence)}</div>`).join('');
+    out.innerHTML=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line2)"><div style="color:var(--lime);font-weight:800">✓ ${data.page_count} páginas leídas</div><div style="font-size:12px;color:var(--chalk2);margin:7px 0">Áreas localizadas: ${located.length?located.map(offerEsc).join(', '):'ninguna automáticamente'}</div>${sample}<div style="font-size:11px;color:var(--chalk3);margin:9px 0">La vista previa muestra solo una muestra. “No localizado” no significa “no exigido”.</div><button class="nb solid" style="width:100%;padding:12px" onclick="buyDossier()">Crear expediente completo · 49 €</button></div>`;
+    track('pliego_analizado','home',{pages:data.page_count,areas:(data.findings||[]).length});
+  }catch(e){out.innerHTML=`<div style="color:var(--rose);margin-top:10px">${offerEsc(e.message)}</div>`;}
 }
 
 async function analyzeTenderPdf(){
@@ -1407,22 +1462,26 @@ async function analyzeTenderPdf(){
     const documentBase64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=reject;reader.readAsDataURL(file)});
     const res=await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'analyze-document',fileName:file.name,documentBase64})}),data=await res.json();
     if(!res.ok)throw Error(data.error||'No se pudo analizar');
+    currentDocumentAnalysis=data;
     const findings=(data.findings||[]).map(x=>`<div class="fit-row" style="margin-top:7px"><strong>${offerEsc(x.area)} · pág. ${offerEsc(x.page)}:</strong> ${offerEsc(x.evidence)}</div>`).join('')||'<div class="fit-row">No se localizaron pasajes automáticamente.</div>';
     const coverage=(data.coverage||[]).map(x=>`<span class="tag" style="display:inline-block;margin:3px">${offerEsc(x.area)}: ${offerEsc(x.status)}</span>`).join('');
     out.innerHTML=`<div style="margin-top:14px"><div class="fit-col-lbl" style="color:var(--sky3)">${offerEsc(file.name)} · ${data.page_count} páginas analizadas</div>${coverage}<div style="margin-top:10px">${findings}</div>${(data.warnings||[]).map(x=>`<div class="fit-row" style="color:var(--amber)">⚠ ${offerEsc(x)}</div>`).join('')}</div>`;
+    track('pliego_analizado','licitacion',{pages:data.page_count,areas:(data.findings||[]).length});
   }catch(e){out.innerHTML=`<div style="color:var(--rose);margin-top:10px">${offerEsc(e.message)}</div>`;}
 }
 
 function downloadOfferPack(){
   if(!currentOfferPack)return;
   const p=currentOfferPack, rows=p.checklist.map(x=>`<tr><td>${offerEsc(x.area)}</td><td>${offerEsc(x.task)}</td><td>${offerEsc(x.status)}</td><td>${offerEsc(x.evidence||'Por verificar')}</td></tr>`).join('');
-  const html=`<!doctype html><html lang="es"><meta charset="utf-8"><title>${offerEsc(p.title)}</title><style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;color:#172033;line-height:1.5}h1{color:#174ea6}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccd4df;padding:9px;text-align:left}small{color:#667}</style><h1>${offerEsc(p.title)}</h1><p><b>Generado:</b> ${new Date(p.generated_at).toLocaleString('es-ES')}</p><h2>Datos publicados</h2><ul>${p.facts.map(x=>`<li><b>${offerEsc(x.label)}:</b> ${offerEsc(x.value)}</li>`).join('')}</ul><h2>Alertas</h2><ul>${(p.blockers.length?p.blockers:['No se han detectado bloqueos con los datos disponibles.']).map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ul><h2>Checklist de verificación</h2><table><tr><th>Área</th><th>Tarea</th><th>Estado</th><th>Evidencia</th></tr>${rows}</table><h2>Carpetas recomendadas</h2><ol>${p.folder_structure.map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ol><h2>Índice base de memoria</h2><ol>${p.draft_sections.map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ol><p><small>${offerEsc(p.limitations)}</small></p></html>`;
+  const evidenceRows=(p.document_analysis?.findings||[]).map(x=>`<tr><td>${offerEsc(x.area)}</td><td>${offerEsc(x.page)}</td><td>${offerEsc(x.evidence)}</td><td>Revisar en contexto</td></tr>`).join('');
+  const html=`<!doctype html><html lang="es"><meta charset="utf-8"><title>${offerEsc(p.title)}</title><style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;color:#172033;line-height:1.5}h1{color:#174ea6}h2{margin-top:30px;border-bottom:2px solid #e5eaf0;padding-bottom:6px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #ccd4df;padding:9px;text-align:left;vertical-align:top}th{background:#eef4ff}small{color:#667}.notice{background:#fff7df;border:1px solid #eed38a;padding:12px}</style><h1>${offerEsc(p.title)}</h1><p><b>Generado:</b> ${new Date(p.generated_at).toLocaleString('es-ES')}</p><p class="notice">Documento de preparación y control. Verifica siempre cada requisito en el expediente oficial antes de firmar o presentar.</p><h2>1. Datos publicados</h2><ul>${p.facts.map(x=>`<li><b>${offerEsc(x.label)}:</b> ${offerEsc(x.value)}</li>`).join('')}</ul><h2>2. Alertas y bloqueos</h2><ul>${(p.blockers.length?p.blockers:['No se han detectado bloqueos objetivos con los datos disponibles; esto no equivale a cumplimiento.']).map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ul><h2>3. Matriz de cumplimiento</h2><table><tr><th>Área</th><th>Tarea</th><th>Estado</th><th>Evidencia</th></tr>${rows}</table>${evidenceRows?`<h2>4. Evidencias localizadas en el pliego</h2><table><tr><th>Área</th><th>Página</th><th>Pasaje</th><th>Acción</th></tr>${evidenceRows}</table>`:''}<h2>5. Estructura de entrega</h2><ol>${p.folder_structure.map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ol><h2>6. Índice base de memoria técnica</h2><ol>${p.draft_sections.map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ol><h2>7. Control final</h2><ul>${(p.final_control||[]).map(x=>`<li>□ ${offerEsc(x)}</li>`).join('')}</ul><p><small>${offerEsc(p.limitations)}</small></p></html>`;
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));a.download='dossier-licitacion.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 
 async function buyDossier(){
   if(!S.curLic||!currentOfferPack)return;
   sessionStorage.setItem('paid-dossier-tender',JSON.stringify(S.curLic));
+  sessionStorage.setItem('paid-dossier-analysis',JSON.stringify(currentDocumentAnalysis));
   try{
     const res=await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'checkout',tenderId:S.curLic.id||S.curLic.expediente||'',title:S.curLic.titulo})});
     const data=await res.json();if(!res.ok||!data.url)throw Error(data.error||'No se pudo iniciar el pago');
@@ -1438,8 +1497,8 @@ async function resumePaidDossier(){
   try{
     const verify=await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'verify',sessionId})});
     if(!verify.ok)throw Error('No se pudo confirmar el pago');
-    S.curLic=JSON.parse(saved);currentOfferPack=(await (await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({licitacion:S.curLic,perfil:S.profile||{}})})).json());
-    downloadOfferPack();sessionStorage.removeItem('paid-dossier-tender');history.replaceState({},'',location.pathname);toast('Pago confirmado. Dossier descargado.','ok');
+    S.curLic=JSON.parse(saved);currentDocumentAnalysis=JSON.parse(sessionStorage.getItem('paid-dossier-analysis')||'null');currentOfferPack=(await (await fetch('/api/prepare-offer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({licitacion:S.curLic,perfil:S.profile||{},documentAnalysis:currentDocumentAnalysis})})).json());
+    downloadOfferPack();sessionStorage.removeItem('paid-dossier-tender');sessionStorage.removeItem('paid-dossier-analysis');history.replaceState({},'',location.pathname);track('expediente_comprado','checkout',{tender:S.curLic.id||S.curLic.titulo});toast('Pago confirmado. Expediente descargado.','ok');
   }catch(e){toast(e.message,'err');}
 }
 
