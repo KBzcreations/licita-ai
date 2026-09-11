@@ -48,8 +48,17 @@ jobs:
 
           webhook_http="$(curl --silent --show-error --output /tmp/webhooks.json             --write-out '%{http_code}'             --header "Authorization: Bearer $RESEND_API_KEY"             https://api.resend.com/webhooks || true)"
 
+          if ! command -v dig >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y -qq dnsutils
+          fi
+          dig +short NS licita-ai.com | sed 's/\.$//' > /tmp/ns.txt
+          dig +short MX licita-ai.com > /tmp/mx.txt
+          jq -Rn '[inputs | select(length > 0)]' < /tmp/ns.txt > /tmp/ns.json
+          jq -Rn '[inputs | select(length > 0)]' < /tmp/mx.txt > /tmp/mx.json
+
           if [ "$detail_http" = "200" ]; then
-            jq --arg checked_at "$checked_at" --arg enable_http "$enable_http" --arg webhook_http "$webhook_http" '
+            jq --arg checked_at "$checked_at" --arg enable_http "$enable_http" --arg webhook_http "$webhook_http"               --slurpfile dns_ns /tmp/ns.json --slurpfile dns_mx /tmp/mx.json '
               {
                 checked_at: $checked_at,
                 api_ok: true,
@@ -67,6 +76,10 @@ jobs:
                   | select(.type == "MX" and .name != "send")
                   | {record, name, type, status, value, priority}
                 ],
+                public_dns: {
+                  nameservers: $dns_ns[0],
+                  mx: $dns_mx[0]
+                },
                 webhooks_api_ok: ($webhook_http == "200"),
                 received_webhook_configured: (
                   if $webhook_http == "200"
