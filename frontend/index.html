@@ -734,9 +734,9 @@ h1.ht .acc{
     <aside class="sb">
       <div>
         <div class="sb-sec-lbl">Estado</div>
-        <div class="fc">
-          <button class="fchip on" data-filter="estado" data-val="" onclick="applyChip(this,'estado-grp')">📋 Todas</button>
-          <button class="fchip" data-filter="estado" data-val="activa" onclick="applyChip(this,'estado-grp')">🟢 Activas</button>
+        <div class="fc" id="estado-grp">
+          <button class="fchip on" data-filter="estado" data-val="activa" onclick="applyChip(this,'estado-grp')">🟢 Activas verificables</button>
+          <button class="fchip" data-filter="estado" data-val="" onclick="applyChip(this,'estado-grp')">📋 Historial completo</button>
         </div>
       </div>
       <div>
@@ -1125,11 +1125,18 @@ const sb = window.supabase.createClient(SB_URL, SB_ANON);
 /* ─── STATE ──────────────────────────────────────── */
 const S = {
   pg:1, lim:15, total:0, rows:[], busy:false,
-  f:{ estado:'', cat:'', bMin:null, bMax:null },
+  f:{ estado:'activa', cat:'', bMin:null, bMax:null },
   q:'', ord:'created_at.desc',
   user:null, profile:{ tecnologias_interes:[], palabras_clave:[] },
   curLic:null
 };
+
+function todayInSpain(now=new Date()){
+  const parts=new Intl.DateTimeFormat('en-GB',{
+    timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'
+  }).formatToParts(now).reduce((acc,part)=>{acc[part.type]=part.value;return acc;},{});
+  return `${parts.year}-${parts.month}-${parts.day}`;
+}
 
 /* ─── TRACKING (para el informe diario de actividad) ─ */
 function sessionId(){
@@ -1216,7 +1223,11 @@ async function load(reset=true){
 
   let q = sb.from('licitaciones').select('*',{count:'exact'});
 
-  if(S.f.estado) q=q.eq('estado',S.f.estado);
+  if(S.f.estado==='activa'){
+    q=q.eq('estado','activa').not('fecha_limite','is',null).gte('fecha_limite',todayInSpain());
+  }else if(S.f.estado){
+    q=q.eq('estado',S.f.estado);
+  }
   if(S.f.cat)    q=aplicarFiltroCategoria(q,S.f.cat);
   if(S.f.bMin!=null) q=q.gte('presupuesto',S.f.bMin);
   if(S.f.bMax!=null) q=q.lte('presupuesto',S.f.bMax);
@@ -1506,8 +1517,9 @@ async function resumePaidDossier(){
 /* ─── STATS ──────────────────────────────────────── */
 async function loadStats(){
   try{
-    const {count}=await sb.from('licitaciones').select('*',{count:'exact',head:true}).eq('estado','activa');
-    const {data}=await sb.from('licitaciones').select('presupuesto').not('presupuesto','is',null).limit(500);
+    const cutoff=todayInSpain();
+    const {count}=await sb.from('licitaciones').select('*',{count:'exact',head:true}).eq('estado','activa').not('fecha_limite','is',null).gte('fecha_limite',cutoff);
+    const {data}=await sb.from('licitaciones').select('presupuesto').eq('estado','activa').not('fecha_limite','is',null).gte('fecha_limite',cutoff).not('presupuesto','is',null).limit(500);
     const tot=data?.reduce((s,l)=>s+(l.presupuesto||0),0)||0;
     const totStr=tot>=1e9?`${(tot/1e9).toFixed(1)}B€`:tot>=1e6?`${(tot/1e6).toFixed(0)}M€`:`${Math.round(tot/1000)}K€`;
     document.getElementById('stat-total').textContent=count||0;
