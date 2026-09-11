@@ -1,0 +1,65 @@
+name: Resend domain audit
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/resend-domain-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inspect Resend safely
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: |
+          set -euo pipefail
+          checked_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [ -z "${RESEND_API_KEY:-}" ]; then
+            jq -n --arg checked_at "$checked_at"               '{checked_at:$checked_at,api_ok:false,error:"RESEND_API_KEY secret is missing"}'               > .resend-domain-status.json
+            exit 0
+          fi
+
+          domain_http="$(curl --silent --show-error --output /tmp/resend-domains.json             --write-out '%{http_code}'             --header "Authorization: Bearer $RESEND_API_KEY"             https://api.resend.com/domains || true)"
+
+          webhook_http="$(curl --silent --show-error --output /tmp/resend-webhooks.json             --write-out '%{http_code}'             --header "Authorization: Bearer $RESEND_API_KEY"             https://api.resend.com/webhooks || true)"
+
+          if [ "$domain_http" = "200" ]; then
+            jq --arg checked_at "$checked_at" --arg webhook_http "$webhook_http" '
+              (.data // [] | map(select(.name == "licita-ai.com")) | first) as $domain |
+              {
+                checked_at: $checked_at,
+                api_ok: true,
+                target_found: ($domain != null),
+                domain: (if $domain == null then null else {
+                  name: $domain.name,
+                  status: $domain.status,
+                  region: $domain.region,
+                  sending: ($domain.capabilities.sending // "unknown"),
+                  receiving: ($domain.capabilities.receiving // "unknown")
+                } end),
+                webhooks_api_ok: ($webhook_http == "200")
+              }
+            ' /tmp/resend-domains.json > .resend-domain-status.json
+          else
+            jq -n --arg checked_at "$checked_at" --arg http "$domain_http"               '{checked_at:$checked_at,api_ok:false,http_status:$http,error:"The configured key cannot inspect Resend domains"}'               > .resend-domain-status.json
+          fi
+
+      - name: Publish sanitized result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .resend-domain-status.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "chore: record Resend domain status"
+          git push
