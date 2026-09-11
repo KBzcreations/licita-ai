@@ -25,6 +25,9 @@ export default async function handler(req, res) {
     } catch (error) { return res.status(422).json({ error: 'No se pudo leer el PDF; puede estar protegido o ser una imagen escaneada', detail: String(error?.message || error).slice(0, 240) }); }
   }
   if (action === 'checkout') {
+    if (process.env.PAYMENTS_ENABLED !== 'true') {
+      return res.status(200).json({ validation_only: true });
+    }
     if (!key) return res.status(500).json({ error: 'Pago no configurado' });
     const origin = `https://${req.headers.host}`, params = new URLSearchParams();
     params.append('mode', 'payment');

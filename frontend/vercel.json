@@ -1,7 +1,6 @@
 {
   "routes": [
-    { "src": "/mapscore", "dest": "/mapscore/index.html" },
-    { "src": "/mapscore/", "dest": "/mapscore/index.html" },
+    { "src": "/mapscore(?:/.*)?", "dest": "/mapscore-disabled.html" },
     { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]

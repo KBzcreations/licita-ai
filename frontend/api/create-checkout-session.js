@@ -12,6 +12,11 @@ export default async function handler(req, res) {
     return;
   }
 
+  if (process.env.PAYMENTS_ENABLED !== "true") {
+    res.status(503).json({ error: "Los pagos están temporalmente desactivados" });
+    return;
+  }
+
   const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
   if (!STRIPE_SECRET_KEY) {
     res.status(500).json({ error: "STRIPE_SECRET_KEY no configurada" });

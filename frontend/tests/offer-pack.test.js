@@ -34,10 +34,21 @@ test('incorpora evidencias del PDF a la matriz sin inventar cumplimiento', () =>
   assert.equal(pack.final_control.length, 6);
 });
 
-test('checkout cobra 49 euros, pago único y conserva el alcance del expediente', async () => {
+test('checkout queda bloqueado durante la validación legal', async () => {
+  const previous = process.env.PAYMENTS_ENABLED;
+  delete process.env.PAYMENTS_ENABLED;
+  const res = response();
+  await prepareOffer({ method: 'POST', headers: { host: 'www.licita-ai.com' }, body: { action: 'checkout', tenderId: 'EXP-1', title: 'Servicio cloud' } }, res);
+  assert.deepEqual(res.body, { validation_only: true });
+  if (previous === undefined) delete process.env.PAYMENTS_ENABLED; else process.env.PAYMENTS_ENABLED = previous;
+});
+
+test('checkout habilitado cobra 49 euros, pago único y conserva el alcance', async () => {
   const previousKey = process.env.STRIPE_SECRET_KEY;
+  const previousEnabled = process.env.PAYMENTS_ENABLED;
   const previousFetch = global.fetch;
   process.env.STRIPE_SECRET_KEY = 'sk_test_unit';
+  process.env.PAYMENTS_ENABLED = 'true';
   let request;
   global.fetch = async (url, options) => { request = { url, options }; return { ok: true, status: 200, json: async () => ({ url: 'https://checkout.stripe.test/session' }) }; };
   const res = response();
@@ -49,4 +60,5 @@ test('checkout cobra 49 euros, pago único y conserva el alcance del expediente'
   assert.equal(request.options.headers['Stripe-Version'], '2026-07-29.dahlia');
   global.fetch = previousFetch;
   if (previousKey === undefined) delete process.env.STRIPE_SECRET_KEY; else process.env.STRIPE_SECRET_KEY = previousKey;
+  if (previousEnabled === undefined) delete process.env.PAYMENTS_ENABLED; else process.env.PAYMENTS_ENABLED = previousEnabled;
 });
