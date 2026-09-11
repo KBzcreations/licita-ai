@@ -1,4 +1,4 @@
-name: Resend domain audit
+name: Resend receiving setup
 
 on:
   push:
@@ -11,46 +11,73 @@ permissions:
   contents: write
 
 jobs:
-  audit:
+  configure:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
 
-      - name: Inspect Resend safely
+      - name: Enable and inspect Resend receiving
         env:
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
         run: |
           set -euo pipefail
           checked_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
           if [ -z "${RESEND_API_KEY:-}" ]; then
             jq -n --arg checked_at "$checked_at"               '{checked_at:$checked_at,api_ok:false,error:"RESEND_API_KEY secret is missing"}'               > .resend-domain-status.json
             exit 0
           fi
 
-          domain_http="$(curl --silent --show-error --output /tmp/resend-domains.json             --write-out '%{http_code}'             --header "Authorization: Bearer $RESEND_API_KEY"             https://api.resend.com/domains || true)"
+          list_http="$(curl --silent --show-error --output /tmp/domains.json             --write-out '%{http_code}'             --header "Authorization: Bearer $RESEND_API_KEY"             https://api.resend.com/domains || true)"
 
-          webhook_http="$(curl --silent --show-error --output /tmp/resend-webhooks.json             --write-out '%{http_code}'             --header "Authorization: Bearer $RESEND_API_KEY"             https://api.resend.com/webhooks || true)"
+          if [ "$list_http" != "200" ]; then
+            jq -n --arg checked_at "$checked_at" --arg http "$list_http"               '{checked_at:$checked_at,api_ok:false,http_status:$http,error:"Cannot inspect Resend domains"}'               > .resend-domain-status.json
+            exit 0
+          fi
 
-          if [ "$domain_http" = "200" ]; then
-            jq --arg checked_at "$checked_at" --arg webhook_http "$webhook_http" '
-              (.data // [] | map(select(.name == "licita-ai.com")) | first) as $domain |
+          domain_id="$(jq -r '.data[] | select(.name == "licita-ai.com") | .id' /tmp/domains.json | head -n1)"
+          if [ -z "$domain_id" ]; then
+            jq -n --arg checked_at "$checked_at"               '{checked_at:$checked_at,api_ok:true,target_found:false}'               > .resend-domain-status.json
+            exit 0
+          fi
+
+          enable_http="$(curl --silent --show-error --output /tmp/enable.json             --write-out '%{http_code}'             --request PATCH             --header "Authorization: Bearer $RESEND_API_KEY"             --header "Content-Type: application/json"             --data '{"capabilities":{"receiving":"enabled"}}'             "https://api.resend.com/domains/$domain_id" || true)"
+
+          detail_http="$(curl --silent --show-error --output /tmp/domain.json             --write-out '%{http_code}'             --header "Authorization: Bearer $RESEND_API_KEY"             "https://api.resend.com/domains/$domain_id" || true)"
+
+          webhook_http="$(curl --silent --show-error --output /tmp/webhooks.json             --write-out '%{http_code}'             --header "Authorization: Bearer $RESEND_API_KEY"             https://api.resend.com/webhooks || true)"
+
+          if [ "$detail_http" = "200" ]; then
+            jq --arg checked_at "$checked_at" --arg enable_http "$enable_http" --arg webhook_http "$webhook_http" '
               {
                 checked_at: $checked_at,
                 api_ok: true,
-                target_found: ($domain != null),
-                domain: (if $domain == null then null else {
-                  name: $domain.name,
-                  status: $domain.status,
-                  region: $domain.region,
-                  sending: ($domain.capabilities.sending // "unknown"),
-                  receiving: ($domain.capabilities.receiving // "unknown")
-                } end),
-                webhooks_api_ok: ($webhook_http == "200")
+                target_found: true,
+                enable_request_ok: (($enable_http | tonumber) >= 200 and ($enable_http | tonumber) < 300),
+                domain: {
+                  name: .name,
+                  status: .status,
+                  region: .region,
+                  sending: (.capabilities.sending // "unknown"),
+                  receiving: (.capabilities.receiving // "unknown")
+                },
+                receiving_mx: [
+                  (.records // [])[]
+                  | select(.type == "MX" and .name != "send")
+                  | {record, name, type, status, value, priority}
+                ],
+                webhooks_api_ok: ($webhook_http == "200"),
+                received_webhook_configured: (
+                  if $webhook_http == "200"
+                  then ([input.data[]? | select((.events // []) | index("email.received"))] | length > 0)
+                  else false
+                  end
+                )
               }
-            ' /tmp/resend-domains.json > .resend-domain-status.json
+            ' /tmp/domain.json /tmp/webhooks.json > .resend-domain-status.json
           else
-            jq -n --arg checked_at "$checked_at" --arg http "$domain_http"               '{checked_at:$checked_at,api_ok:false,http_status:$http,error:"The configured key cannot inspect Resend domains"}'               > .resend-domain-status.json
+            jq -n --arg checked_at "$checked_at" --arg enable_http "$enable_http" --arg detail_http "$detail_http"               '{checked_at:$checked_at,api_ok:false,enable_http:$enable_http,detail_http:$detail_http}'               > .resend-domain-status.json
           fi
 
       - name: Publish sanitized result
@@ -61,5 +88,5 @@ jobs:
           if git diff --cached --quiet; then
             exit 0
           fi
-          git commit -m "chore: record Resend domain status"
+          git commit -m "chore: record Resend receiving status"
           git push
