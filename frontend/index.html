@@ -579,6 +579,16 @@ h1.ht .acc{
 .upload-panel{background:var(--ink);border:1px solid var(--line2);border-radius:14px;padding:18px}
 .upload-panel .fi{margin:10px 0}
 .trustline{font-size:11px!important;color:var(--chalk3)!important;margin-top:10px}
+.alert-box{max-width:1000px;margin:0 auto 70px;padding:0 24px}
+.alert-inner{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center;padding:30px;background:var(--ink2);border:1px solid var(--line2);border-radius:var(--r2)}
+.alert-inner h2{font-size:clamp(24px,4vw,38px);line-height:1.08;margin:8px 0 12px}
+.alert-inner p{color:var(--chalk2)}
+.alert-form{display:grid;gap:10px}
+.alert-form input{width:100%;padding:12px 13px;border-radius:8px;border:1px solid var(--line2);background:var(--ink);color:var(--chalk)}
+.alert-consent{display:flex;gap:9px;align-items:flex-start;color:var(--chalk2);font-size:12px;line-height:1.45}
+.alert-consent input{width:auto;margin-top:3px}
+.alert-status{min-height:20px;font-size:13px;color:var(--chalk2)}
+.alert-status.ok{color:#86efac}.alert-status.err{color:#fda4af}
 
 /* ─── TOAST ─────────────────────────────────────────── */
 #toasts{
@@ -606,6 +616,7 @@ h1.ht .acc{
   .strip{grid-template-columns:1fr}
   .hero-nums{gap:24px}
   .pliego-box{grid-template-columns:1fr}
+  .alert-inner{grid-template-columns:1fr;padding:22px}
   h1.ht{letter-spacing:-1.5px}
 }
 @media(max-width:640px){
@@ -722,6 +733,24 @@ h1.ht .acc{
       </div>
     </div>
   </div>
+
+  <section class="alert-box hidden" id="alertas">
+    <div class="alert-inner">
+      <div>
+        <div class="pill"><span class="pill-dot"></span>Alerta gratuita y bajo solicitud</div>
+        <h2>Recibe solo licitaciones que encajen con tu actividad</h2>
+        <p>Indica qué vende tu empresa. Confirmarás el alta por email y podrás cancelarla con un clic.</p>
+      </div>
+      <form class="alert-form" id="alert-form">
+        <input id="alert-email" name="email" type="email" autocomplete="email" required placeholder="Email profesional">
+        <input id="alert-sector" name="sector" type="text" maxlength="180" required placeholder="Ej.: digitalización documental, ciberseguridad, SaaS">
+        <input name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px">
+        <label class="alert-consent"><input id="alert-consent" name="consent" type="checkbox" required><span>Solicito recibir por email alertas de licitaciones y comunicaciones relacionadas de Lícita AI. Puedo darme de baja con un clic. He leído la <a href="#" onclick="goto('privacy-page');return false" style="color:var(--sky3)">política de privacidad</a>.</span></label>
+        <button class="nb solid" type="submit" style="padding:12px">Solicitar alerta gratuita →</button>
+        <div class="alert-status" id="alert-status" aria-live="polite"></div>
+      </form>
+    </div>
+  </section>
 </section>
 
 <!-- ═══════════════════════════════════════════════════
@@ -1154,6 +1183,39 @@ function track(tipo, pagina, metadata){
   }catch(e){}
   try{ if(window.gtag) gtag('event', tipo, {page:pagina, ...(metadata||{})}); }catch(e){}
 }
+
+document.getElementById('alert-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.getElementById('alert-status');
+  const button = form.querySelector('button[type="submit"]');
+  status.className = 'alert-status';
+  status.textContent = 'Enviando confirmación…';
+  button.disabled = true;
+  try {
+    const response = await fetch('/api/subscribe-alerts', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        email: form.email.value,
+        sector: form.sector.value,
+        website: form.website.value,
+        consent: form.consent.checked,
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || 'No se pudo solicitar la alerta');
+    status.className = 'alert-status ok';
+    status.textContent = 'Revisa tu email y confirma el alta. No recibirás alertas hasta hacerlo.';
+    track('alerta_solicitada','home',{sector:form.sector.value});
+    form.reset();
+  } catch (error) {
+    status.className = 'alert-status err';
+    status.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
 
 /* ─── NAVIGATION ─────────────────────────────────── */
 function goto(pageId, sub){
