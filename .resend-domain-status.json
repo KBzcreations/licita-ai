@@ -1,25 +1,16 @@
 {
-  "checked_at": "2026-09-11T11:14:18Z",
+  "checked_at": "2026-09-11T11:46:06Z",
   "api_ok": true,
   "target_found": true,
   "enable_request_ok": true,
   "domain": {
     "name": "licita-ai.com",
-    "status": "partially_verified",
+    "status": "verified",
     "region": "eu-west-1",
     "sending": "enabled",
-    "receiving": "enabled"
+    "receiving": "disabled"
   },
-  "receiving_mx": [
-    {
-      "record": "Receiving",
-      "name": "",
-      "type": "MX",
-      "status": "pending",
-      "value": "inbound-smtp.eu-west-1.amazonaws.com",
-      "priority": 9
-    }
-  ],
+  "receiving_mx": [],
   "public_dns": {
     "nameservers": [
       "dns1.registrar-servers.com",
