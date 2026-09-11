@@ -1,13 +1,25 @@
 {
-  "checked_at": "2026-09-11T11:11:46Z",
+  "checked_at": "2026-09-11T11:12:56Z",
   "api_ok": true,
   "target_found": true,
+  "enable_request_ok": true,
   "domain": {
     "name": "licita-ai.com",
-    "status": "verified",
+    "status": "partially_verified",
     "region": "eu-west-1",
     "sending": "enabled",
-    "receiving": "disabled"
+    "receiving": "enabled"
   },
-  "webhooks_api_ok": true
+  "receiving_mx": [
+    {
+      "record": "Receiving",
+      "name": "",
+      "type": "MX",
+      "status": "pending",
+      "value": "inbound-smtp.eu-west-1.amazonaws.com",
+      "priority": 9
+    }
+  ],
+  "webhooks_api_ok": true,
+  "received_webhook_configured": false
 }
