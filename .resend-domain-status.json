@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-11T11:12:56Z",
+  "checked_at": "2026-09-11T11:14:18Z",
   "api_ok": true,
   "target_found": true,
   "enable_request_ok": true,
@@ -20,6 +20,16 @@
       "priority": 9
     }
   ],
+  "public_dns": {
+    "nameservers": [
+      "dns1.registrar-servers.com",
+      "dns2.registrar-servers.com"
+    ],
+    "mx": [
+      "10 mx1.improvmx.com.",
+      "20 mx2.improvmx.com."
+    ]
+  },
   "webhooks_api_ok": true,
   "received_webhook_configured": false
 }
