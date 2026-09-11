@@ -183,6 +183,13 @@ h1.ht .acc{
   display:flex;gap:10px;justify-content:center;flex-wrap:wrap;
   animation:up .55s ease .26s both;
 }
+.beta-offer{
+  display:none;max-width:720px;margin:0 auto 22px;padding:14px 18px;
+  border:1px solid rgba(34,197,94,.35);border-radius:12px;
+  background:rgba(34,197,94,.09);color:#bbf7d0;font-size:14px;font-weight:650;
+}
+.beta-offer.on{display:block}
+.beta-offer strong{color:#fff}
 .cta{
   display:inline-flex;align-items:center;gap:8px;
   padding:13px 26px;border-radius:10px;font-size:15px;font-weight:700;
@@ -663,6 +670,7 @@ h1.ht .acc{
     <div class="hero-mesh"></div>
     <div class="grid-lines"></div>
     <div style="position:relative;z-index:1;max-width:820px">
+      <div class="beta-offer" id="beta-offer"><strong>Beta de lanzamiento:</strong> analiza tu pliego y descarga tu primer expediente completo gratis. Sin tarjeta y sin suscripción.</div>
       <div class="pill"><span class="pill-dot"></span>Decisiones verificables · sin requisitos inventados</div>
       <h1 class="ht">Sube el pliego. Decide si licitar.<br><span class="acc">Prepara el expediente sin empezar de cero.</span></h1>
       <p class="hero-p">Licita AI localiza requisitos con su página, separa bloqueos de incógnitas y convierte el PCAP/PPT en una matriz de cumplimiento, checklist documental e índice de memoria listo para trabajar.</p>
@@ -717,7 +725,7 @@ h1.ht .acc{
       <div>
         <div class="pill"><span class="pill-dot"></span>Tu pliego es el punto de partida</div>
         <h2>Descubre los riesgos antes de dedicar días a la oferta</h2>
-        <p>Adjunta un PCAP o PPT. La vista previa identifica áreas críticas. Si decides continuar, generamos el expediente de preparación completo por un único pago.</p>
+        <p id="pliego-offer-copy">Adjunta un PCAP o PPT. La vista previa identifica áreas críticas. Si decides continuar, generamos el expediente de preparación completo por un único pago.</p>
         <div class="pliego-steps">
           <div class="pliego-step"><b>01</b><span>Requisitos y evidencias enlazados a su página.</span></div>
           <div class="pliego-step"><b>02</b><span>Matriz de cumplimiento, responsables y pendientes.</span></div>
@@ -985,8 +993,8 @@ h1.ht .acc{
 ══════════════════════════════════════════════════════ -->
 <section class="page" id="pricing-page">
   <div style="padding:90px 24px 60px;max-width:940px;margin:0 auto;text-align:center">
-    <div class="price-h">Prueba gratis. Paga solo por lo que necesitas.</div>
-    <div class="price-sub">Sin suscripción: decide gratis y compra únicamente el dossier de la licitación que vas a trabajar.</div>
+    <div class="price-h" id="pricing-title">Prueba gratis. Paga solo por lo que necesitas.</div>
+    <div class="price-sub" id="pricing-subtitle">Sin suscripción: decide gratis y compra únicamente el dossier de la licitación que vas a trabajar.</div>
     <div class="plans">
 
       <div class="plan">
@@ -1150,6 +1158,8 @@ h1.ht .acc{
 const SB_URL  = 'https://ainldfadnebxwkfzzajp.supabase.co';
 const SB_ANON = 'sb_publishable_LydGj5vbZxcmlF8f5C6MPQ_9CZI-JDx';
 const sb = window.supabase.createClient(SB_URL, SB_ANON);
+const FREE_DOSSIER_CAMPAIGN = location.pathname.replace(/\/$/,'') === '/prueba-gratis';
+const FREE_DOSSIER_KEY = 'licita_ai_free_dossier_v1';
 
 /* ─── STATE ──────────────────────────────────────── */
 const S = {
@@ -1174,14 +1184,48 @@ function sessionId(){
   return id;
 }
 function track(tipo, pagina, metadata){
+  const query=new URLSearchParams(location.search);
+  const attribution={
+    source:query.get('utm_source')||undefined,
+    medium:query.get('utm_medium')||undefined,
+    campaign:query.get('utm_campaign')||undefined,
+  };
+  const eventMetadata={...attribution,...(metadata||{})};
   try{
     fetch('/api/track',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({tipo, pagina, user_id:S.user?.id||null, session_id:sessionId(), metadata:metadata||null})
+      body:JSON.stringify({tipo, pagina, user_id:S.user?.id||null, session_id:sessionId(), metadata:eventMetadata})
     });
   }catch(e){}
-  try{ if(window.gtag) gtag('event', tipo, {page:pagina, ...(metadata||{})}); }catch(e){}
+  try{ if(window.gtag) gtag('event', tipo, {page:pagina, ...eventMetadata}); }catch(e){}
+}
+
+function freeDossierAvailable(){
+  return FREE_DOSSIER_CAMPAIGN && !localStorage.getItem(FREE_DOSSIER_KEY);
+}
+
+function dossierActionLabel(){
+  return freeDossierAvailable() ? 'Descargar mi primer expediente gratis' : 'Crear expediente completo · 49 €';
+}
+
+function refreshDossierButtons(){
+  document.querySelectorAll('button').forEach(button=>{
+    if(button.textContent.includes('primer expediente gratis'))button.textContent=dossierActionLabel();
+  });
+}
+
+function setupFreeDossierCampaign(){
+  if(!FREE_DOSSIER_CAMPAIGN)return;
+  document.title='Primer expediente gratis — Licita AI';
+  document.getElementById('beta-offer')?.classList.add('on');
+  const copy=document.getElementById('pliego-offer-copy');
+  if(copy)copy.textContent='Adjunta un PCAP o PPT. Durante la beta de lanzamiento puedes descargar el primer expediente de preparación completo gratis, sin tarjeta y sin suscripción.';
+  const title=document.getElementById('pricing-title');
+  const subtitle=document.getElementById('pricing-subtitle');
+  if(title)title.textContent='Tu primer expediente completo es gratuito.';
+  if(subtitle)subtitle.textContent='Pruébalo con un pliego real, sin tarjeta. Los siguientes expedientes tendrán un precio único de 49 €.';
+  track('campana_visitada','prueba-gratis',{oferta:'primer_expediente_gratis'});
 }
 
 document.getElementById('alert-form').addEventListener('submit', async (event) => {
@@ -1503,7 +1547,7 @@ async function prepareOffer(){
     const facts=pack.facts.map(x=>`<div class="fit-row">✓ <strong>${offerEsc(x.label)}:</strong> ${offerEsc(x.value)}</div>`).join('');
     const blockers=pack.blockers.length?pack.blockers.map(x=>`<div class="fit-row" style="color:var(--rose)">⛔ ${offerEsc(x)}</div>`).join(''):'<div class="fit-row" style="color:var(--lime)">✓ Sin bloqueos objetivos detectados con los datos disponibles.</div>';
     const tasks=pack.checklist.map(x=>`<div class="fit-row"><span style="color:${x.status==='pendiente'?'var(--amber)':'var(--sky3)'}">${x.status==='pendiente'?'□':'◫'}</span> <strong>${offerEsc(x.area)}:</strong> ${offerEsc(x.task)}${x.evidence?` · ${offerEsc(x.evidence)}`:''}</div>`).join('');
-    target.innerHTML=`<div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--line2)"><div class="fit-num" style="font-size:22px;color:var(--sky3)">VISTA PREVIA PREPARADA</div><h3 style="margin:8px 0 14px">${offerEsc(pack.title)}</h3><div class="fit-cols"><div><div class="fit-col-lbl" style="color:var(--lime)">Datos publicados</div>${facts}</div><div><div class="fit-col-lbl" style="color:var(--rose)">Alertas</div>${blockers}</div></div><div class="fit-col-lbl" style="margin-top:16px;color:var(--amber)">Checklist inicial</div>${tasks}<div style="margin-top:18px;padding:16px;border:1px solid var(--line2);border-radius:10px"><div style="font-weight:800">Analizar el pliego real</div><div style="font-size:12px;color:var(--chalk3);margin:5px 0 10px">Adjunta PCAP o PPT en PDF (máx. 4,5 MB). Localizaremos pasajes y su página; “no localizado” nunca significa “no exigido”.</div><input id="tender-pdf" type="file" accept="application/pdf" class="fi"><button class="mabtn mabtn-g" onclick="analyzeTenderPdf()">Leer PDF y localizar requisitos</button><div id="pdf-analysis"></div></div><button class="mabtn mabtn-p" style="margin-top:16px" onclick="buyDossier()">Crear expediente completo · 49 €</button><div style="font-size:11px;color:var(--chalk3);margin-top:12px">Pago único, sin suscripción. Incluye matriz con evidencias, checklist, estructura de entrega, índice de memoria y control final. ${offerEsc(pack.limitations)}</div></div>`;
+    target.innerHTML=`<div style="margin-top:22px;padding-top:20px;border-top:1px solid var(--line2)"><div class="fit-num" style="font-size:22px;color:var(--sky3)">VISTA PREVIA PREPARADA</div><h3 style="margin:8px 0 14px">${offerEsc(pack.title)}</h3><div class="fit-cols"><div><div class="fit-col-lbl" style="color:var(--lime)">Datos publicados</div>${facts}</div><div><div class="fit-col-lbl" style="color:var(--rose)">Alertas</div>${blockers}</div></div><div class="fit-col-lbl" style="margin-top:16px;color:var(--amber)">Checklist inicial</div>${tasks}<div style="margin-top:18px;padding:16px;border:1px solid var(--line2);border-radius:10px"><div style="font-weight:800">Analizar el pliego real</div><div style="font-size:12px;color:var(--chalk3);margin:5px 0 10px">Adjunta PCAP o PPT en PDF (máx. 4,5 MB). Localizaremos pasajes y su página; “no localizado” nunca significa “no exigido”.</div><input id="tender-pdf" type="file" accept="application/pdf" class="fi"><button class="mabtn mabtn-g" onclick="analyzeTenderPdf()">Leer PDF y localizar requisitos</button><div id="pdf-analysis"></div></div><button class="mabtn mabtn-p" style="margin-top:16px" onclick="buyDossier()">${dossierActionLabel()}</button><div style="font-size:11px;color:var(--chalk3);margin-top:12px">${freeDossierAvailable()?'Primer expediente gratuito durante la beta, sin tarjeta.':'Pago único, sin suscripción.'} Incluye matriz con evidencias, checklist, estructura de entrega, índice de memoria y control final. ${offerEsc(pack.limitations)}</div></div>`;
   }catch(e){target.innerHTML=`<div style="color:var(--rose);margin-top:16px">${offerEsc(e.message)}</div>`;}
 }
 
@@ -1522,7 +1566,7 @@ async function analyzeDirectPdf(){
     currentOfferPack=await packRes.json();
     const located=(data.coverage||[]).filter(x=>x.status==='pasajes localizados').map(x=>x.area);
     const sample=(data.findings||[]).slice(0,2).map(x=>`<div class="fit-row"><strong>${offerEsc(x.area)} · pág. ${offerEsc(x.page)}</strong><br>${offerEsc(x.evidence)}</div>`).join('');
-    out.innerHTML=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line2)"><div style="color:var(--lime);font-weight:800">✓ ${data.page_count} páginas leídas</div><div style="font-size:12px;color:var(--chalk2);margin:7px 0">Áreas localizadas: ${located.length?located.map(offerEsc).join(', '):'ninguna automáticamente'}</div>${sample}<div style="font-size:11px;color:var(--chalk3);margin:9px 0">La vista previa muestra solo una muestra. “No localizado” no significa “no exigido”.</div><button class="nb solid" style="width:100%;padding:12px" onclick="buyDossier()">Crear expediente completo · 49 €</button></div>`;
+    out.innerHTML=`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line2)"><div style="color:var(--lime);font-weight:800">✓ ${data.page_count} páginas leídas</div><div style="font-size:12px;color:var(--chalk2);margin:7px 0">Áreas localizadas: ${located.length?located.map(offerEsc).join(', '):'ninguna automáticamente'}</div>${sample}<div style="font-size:11px;color:var(--chalk3);margin:9px 0">La vista previa muestra solo una muestra. “No localizado” no significa “no exigido”.</div><button class="nb solid" style="width:100%;padding:12px" onclick="buyDossier()">${dossierActionLabel()}</button></div>`;
     track('pliego_analizado','home',{pages:data.page_count,areas:(data.findings||[]).length});
   }catch(e){out.innerHTML=`<div style="color:var(--rose);margin-top:10px">${offerEsc(e.message)}</div>`;}
 }
@@ -1554,6 +1598,14 @@ function downloadOfferPack(){
 
 async function buyDossier(){
   if(!S.curLic||!currentOfferPack)return;
+  if(freeDossierAvailable()){
+    downloadOfferPack();
+    localStorage.setItem(FREE_DOSSIER_KEY,new Date().toISOString());
+    track('expediente_beta_descargado','prueba-gratis',{tender:S.curLic.id||S.curLic.titulo,precio_referencia:49});
+    refreshDossierButtons();
+    toast('✓ Primer expediente gratuito descargado. No se ha solicitado ningún pago.','ok');
+    return;
+  }
   sessionStorage.setItem('paid-dossier-tender',JSON.stringify(S.curLic));
   sessionStorage.setItem('paid-dossier-analysis',JSON.stringify(currentDocumentAnalysis));
   try{
@@ -1772,6 +1824,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 
 /* ─── INIT ───────────────────────────────────────── */
 (async()=>{
+  setupFreeDossierCampaign();
   const {data:{session}}=await sb.auth.getSession();
   if(session?.user){
     S.user=session.user;
