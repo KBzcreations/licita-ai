@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   const key = process.env.STRIPE_SECRET_KEY;
   if (action === 'analyze-document') {
     const encoded = String(req.body?.documentBase64 || ''), bytes = Buffer.from(encoded, 'base64');
-    if (!encoded || bytes.length < 5 || bytes.length > 4_500_000 || bytes.subarray(0, 4).toString() !== '%PDF') return res.status(400).json({ error: 'Adjunta un PDF válido de hasta 4,5 MB' });
+    if (!encoded || bytes.length < 5 || bytes.length > 3_000_000 || bytes.subarray(0, 4).toString() !== '%PDF') return res.status(400).json({ error: 'Adjunta un PDF válido de hasta 3 MB' });
     try {
       const canvas = await import('@napi-rs/canvas');
       globalThis.DOMMatrix ||= canvas.DOMMatrix;
@@ -21,7 +21,11 @@ export default async function handler(req, res) {
         const page = await pdf.getPage(n), content = await page.getTextContent();
         pages.push({ page: n, text: content.items.map(x => x.str || '').join(' ') });
       }
-      return res.status(200).json({ file_name: String(req.body?.fileName || 'pliego.pdf').slice(0, 180), truncated: pdf.numPages > 80, ...analyzeTenderPages(pages) });
+      const analysis=analyzeTenderPages(pages);
+      const truncated=pdf.numPages>80;
+      if(!pages.some(page=>page.text.trim()))return res.status(422).json({error:'El PDF no contiene texto extraíble. Esta beta no dispone de OCR; adjunta un PDF con texto seleccionable.'});
+      if(truncated)analysis.warnings.unshift(`Lectura parcial: solo se han leído 80 de ${pdf.numPages} páginas. Revisa las restantes por separado.`);
+      return res.status(200).json({ file_name: String(req.body?.fileName || 'pliego.pdf').slice(0, 180), truncated: pdf.numPages > 80, ...analysis });
     } catch (error) { return res.status(422).json({ error: 'No se pudo leer el PDF; puede estar protegido o ser una imagen escaneada', detail: String(error?.message || error).slice(0, 240) }); }
   }
   if (action === 'checkout') {

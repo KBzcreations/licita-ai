@@ -25,7 +25,8 @@ export function analyzeTenderPages(pages = []) {
     findings: unique.slice(0, 40),
     coverage: AREAS.map(([area]) => ({ area, status: foundAreas.has(area) ? 'pasajes localizados' : 'no localizado automáticamente' })),
     warnings: [
-      ...(pages.length ? [] : ['No se ha podido extraer texto del documento.']),
+      ...(pages.some(page=>String(page.text||'').trim()) ? [] : ['No se ha podido extraer texto del documento.']),
+      ...(unique.length>40 ? ['Se muestran solo los primeros 40 pasajes localizados; revisa el documento completo.'] : []),
       ...(!foundAreas.has('Solvencia económica') ? ['No se localizó automáticamente la solvencia económica.'] : []),
       ...(!foundAreas.has('Solvencia técnica') ? ['No se localizó automáticamente la solvencia técnica.'] : []),
       'Cada pasaje debe revisarse en su página y documento original antes de decidir o presentar.',
