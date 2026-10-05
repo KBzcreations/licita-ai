@@ -1594,12 +1594,27 @@ async function analyzeTenderPdf(){
   }catch(e){out.innerHTML=`<div style="color:var(--rose);margin-top:10px">${offerEsc(e.message)}</div>`;}
 }
 
+function saveDownload(blob,name){
+  let panel=document.getElementById('download-links');
+  if(!panel){
+    panel=document.createElement('div');panel.id='download-links';panel.setAttribute('role','status');
+    panel.style.cssText='margin-top:16px;padding:14px;border:1px solid var(--line2);border-radius:10px';
+  }
+  const target=document.getElementById('overlay').classList.contains('open')?document.getElementById('offer-pack'):document.getElementById('direct-result');
+  target.appendChild(panel);
+  const old=Array.from(panel.querySelectorAll('a')).find(link=>link.download===name);
+  if(old){URL.revokeObjectURL(old.href);old.remove();}
+  const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=name;
+  link.textContent='Guardar '+name;link.style.cssText='display:block;color:var(--sky3);padding:8px 0';
+  panel.appendChild(link);link.click();
+}
+
 function downloadOfferPack(){
   if(!currentOfferPack)return;
   const p=currentOfferPack, rows=p.checklist.map(x=>`<tr><td>${offerEsc(x.area)}</td><td>${offerEsc(x.task)}</td><td>${offerEsc(x.status)}</td><td>${offerEsc(x.evidence||'Por verificar')}</td></tr>`).join('');
   const evidenceRows=(p.document_analysis?.findings||[]).map(x=>`<tr><td>${offerEsc(x.area)}</td><td>${offerEsc(x.page)}</td><td>${offerEsc(x.evidence)}</td><td>Revisar en contexto</td></tr>`).join('');
   const html=`<!doctype html><html lang="es"><meta charset="utf-8"><title>${offerEsc(p.title)}</title><style>body{font-family:Arial,sans-serif;max-width:960px;margin:40px auto;color:#172033;line-height:1.5}h1{color:#174ea6}h2{margin-top:30px;border-bottom:2px solid #e5eaf0;padding-bottom:6px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border:1px solid #ccd4df;padding:9px;text-align:left;vertical-align:top}th{background:#eef4ff}small{color:#667}.notice{background:#fff7df;border:1px solid #eed38a;padding:12px}</style><h1>${offerEsc(p.title)}</h1><p><b>Generado:</b> ${new Date(p.generated_at).toLocaleString('es-ES')}</p><p class="notice">Documento de preparación y control. Verifica siempre cada requisito en el expediente oficial antes de firmar o presentar.</p><h2>1. Datos publicados</h2><ul>${p.facts.map(x=>`<li><b>${offerEsc(x.label)}:</b> ${offerEsc(x.value)}</li>`).join('')}</ul><h2>2. Alertas y bloqueos</h2><ul>${(p.blockers.length?p.blockers:['No se han detectado bloqueos objetivos con los datos disponibles; esto no equivale a cumplimiento.']).map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ul>${p.document_analysis?.truncated?'<p class="notice">LECTURA PARCIAL: se han leído solo las primeras 80 páginas.</p>':''}${(p.document_analysis?.warnings||[]).map(x=>`<p class="notice">${offerEsc(x)}</p>`).join('')}<h2>3. Matriz de revisión</h2><table><tr><th>Área</th><th>Tarea</th><th>Estado</th><th>Evidencia</th></tr>${rows}</table>${evidenceRows?`<h2>4. Evidencias localizadas en el pliego</h2><table><tr><th>Área</th><th>Página</th><th>Pasaje</th><th>Acción</th></tr>${evidenceRows}</table>`:''}<h2>5. Estructura de entrega</h2><ol>${p.folder_structure.map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ol><h2>6. Índice base de memoria técnica</h2><ol>${p.draft_sections.map(x=>`<li>${offerEsc(x)}</li>`).join('')}</ol><h2>7. Control final</h2><ul>${(p.final_control||[]).map(x=>`<li>□ ${offerEsc(x)}</li>`).join('')}</ul><p><small>${offerEsc(p.limitations)}</small></p></html>`;
-  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));a.download='dossier-licitacion.html';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  saveDownload(new Blob([html],{type:'text/html;charset=utf-8'}),'dossier-licitacion.html');
 }
 
 async function buyDossier(){
@@ -1609,7 +1624,7 @@ async function buyDossier(){
 
     track('expediente_beta_descargado','prueba-gratis',{tender:S.curLic.id||S.curLic.titulo,precio_referencia:49});
     refreshDossierButtons();
-    toast('✓ Dossier de trabajo gratuito descargado. No se ha solicitado ningún pago.','ok');
+    toast('✓ Archivo preparado. Si no empieza la descarga, usa el enlace que aparece debajo.','ok');
     return;
   }
   sessionStorage.setItem('paid-dossier-tender',JSON.stringify(S.curLic));
@@ -1664,8 +1679,7 @@ function downloadMatrixCsv(){
   const rows=[['Área','Tarea','Estado','Evidencia','Responsable','Fecha interna']];
   for(const item of currentOfferPack.checklist)rows.push([item.area,item.task,item.status,item.evidence||'Por verificar','','']);
   for(const item of currentDocumentAnalysis?.findings||[])rows.push([item.area,'Contrastar en el documento original','Revisar',`Página ${item.page}: ${item.evidence}`,'','']);
-  const url=URL.createObjectURL(new Blob(['\ufeff'+rows.map(row=>row.map(cell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}));
-  const a=document.createElement('a');a.href=url;a.download='matriz-revision-licitacion.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  saveDownload(new Blob(['\ufeff'+rows.map(row=>row.map(cell).join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'}),'matriz-revision-licitacion.csv');
   track('matriz_descargada','pliego');
 }
 
