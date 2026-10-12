@@ -20,7 +20,7 @@ export function detectAmounts(text) {
   const pattern = /(?:€\s*)?(\d{1,3}(?:[.\s]\d{3})*(?:,\d{1,2})?|\d+(?:[.,]\d{1,2})?)\s*(?:€|euros?)/gi;
   for (const match of String(text || '').matchAll(pattern)) {
     const raw = match[1].replace(/\s/g, '');
-    const normalized = raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : raw;
+    const normalized = raw.includes(',') ? raw.replace(/\./g, '').replace(',', '.') : /^\d{1,3}(?:\.\d{3})+$/.test(raw) ? raw.replace(/\./g, '') : raw;
     const amount = Number(normalized);
     if (Number.isFinite(amount) && amount > 0) values.push(amount);
   }

@@ -24,6 +24,11 @@ test('el diagnóstico no inventa precio y la vista previa reserva contenido', ()
   assert.equal(preview.negotiation_message, undefined);
 });
 
+test('interpreta el formato español de miles y decimales', () => {
+  assert.equal(deterministicQuoteAnalysis({ text: 'Presupuesto de obra con precio total de 1.850 euros, IVA incluido y pago al finalizar.' }).facts.total, 1850);
+  assert.equal(deterministicQuoteAnalysis({ text: 'Presupuesto de obra con precio total de 1.850,50 euros, IVA incluido y pago al finalizar.' }).facts.total, 1850.5);
+});
+
 test('checkout cobra 9,90 euros, pago único y no fuerza métodos ni impuestos', async () => {
   const old = { fetch: global.fetch, key: process.env.STRIPE_SECRET_KEY, enabled: process.env.PAYMENTS_ENABLED, url: process.env.SUPABASE_URL, service: process.env.SUPABASE_SERVICE_KEY };
   process.env.STRIPE_SECRET_KEY = 'sk_test_unit'; process.env.PAYMENTS_ENABLED = 'true'; process.env.SUPABASE_URL = 'https://db.test'; process.env.SUPABASE_SERVICE_KEY = 'service';
