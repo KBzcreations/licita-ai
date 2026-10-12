@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { cleanText, fallbackIntent, normaliseAiIntent, publicTextIsSafe } from "./_intent-engine.js";
+import { handleOffers } from "./_offers-handler.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" };
 
@@ -71,6 +72,7 @@ async function listIntents(config) {
 }
 
 export default async function handler(req, res) {
+  if (req.query?.market === "offers") return handleOffers(req, res);
   Object.entries(JSON_HEADERS).forEach(([key, value]) => res.setHeader(key, value));
   const config = dbConfig();
 

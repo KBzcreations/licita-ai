@@ -34,7 +34,7 @@ async function sendVerificationEmail({ email, company, token, offerId }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return false;
   const siteUrl = process.env.PUBLIC_SITE_URL || "https://www.licita-ai.com";
-  const verifyUrl = `${siteUrl}/api/offers?action=verify&token=${encodeURIComponent(token)}`;
+  const verifyUrl = `${siteUrl}/api/intent?market=offers&action=verify&token=${encodeURIComponent(token)}`;
   const content = verificationEmail({ company, verifyUrl, offerId });
   const payload = {
     from: process.env.RESEND_FROM_EMAIL || "Licita <hola@licita-ai.com>",
@@ -84,7 +84,7 @@ async function verifyOffer(req, res, config) {
   return res.status(200).send(`<!doctype html><html lang="es"><head><meta name="viewport" content="width=device-width"><title>Oferta verificada</title></head><body style="font-family:system-ui;background:#f3f1e8;color:#111515;padding:40px"><main style="max-width:650px;margin:auto;background:white;padding:32px;border-radius:20px"><h1>Oferta verificada ✓</h1><p>Tu propuesta ya puede aparecer en la comparación de Licita.</p><a href="/#intent=${encodeURIComponent(offer.metadata.intent_id)}" style="color:#111515;font-weight:bold">Volver a la petición</a></main></body></html>`);
 }
 
-export default async function handler(req, res) {
+export async function handleOffers(req, res) {
   Object.entries(JSON_HEADERS).forEach(([key, value]) => res.setHeader(key, value));
   const config = dbConfig();
   if (req.method === "GET" && req.query?.action === "verify") return verifyOffer(req, res, config);
