@@ -14,18 +14,21 @@ async function readRawBody(req) {
   return Buffer.concat(chunks);
 }
 
-function verifyStripeSignature(payload, sigHeader, secret) {
-  const parts = Object.fromEntries(
-    sigHeader.split(",").map((p) => p.split("="))
-  );
-  const timestamp = parts.t;
-  const signature = parts.v1;
+export function verifyStripeSignature(payload, sigHeader, secret, now = Date.now()) {
+  const values = String(sigHeader || '').split(',').map((part) => part.split('='));
+  const timestamp = values.find(([key]) => key === 't')?.[1];
+  const signatures = values.filter(([key]) => key === 'v1').map(([, value]) => value);
+  if (!timestamp || !signatures.length || Math.abs(now / 1000 - Number(timestamp)) > 300) return false;
   const signedPayload = `${timestamp}.${payload}`;
   const expected = crypto
     .createHmac("sha256", secret)
     .update(signedPayload, "utf8")
     .digest("hex");
-  return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+  return signatures.some((signature) => {
+    const actual = Buffer.from(String(signature));
+    const wanted = Buffer.from(expected);
+    return actual.length === wanted.length && crypto.timingSafeEqual(wanted, actual);
+  });
 }
 
 async function actualizarPlan(userId, plan) {
@@ -58,6 +61,28 @@ async function registrarEvento(tipo, userId, metadata) {
   });
 }
 
+async function eventoExiste(tipo, sessionId) {
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+  const query = new URLSearchParams({ tipo: `eq.${tipo}`, pagina: 'eq.stripe-webhook', 'metadata->>stripe_session_id': `eq.${sessionId}`, select: 'id', limit: '1' });
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/eventos?${query}`, { headers: { apikey: SUPABASE_SERVICE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_KEY}` } });
+  if (!response.ok) throw new Error('No se pudo verificar la entrega');
+  const rows = await response.json();
+  return Boolean(rows?.length);
+}
+
+async function registrarPagoInforme(session, tipo = 'quote_analysis_paid') {
+  const analysisId = session.metadata?.analysis_id;
+  if (!analysisId || !session.id || await eventoExiste(tipo, session.id)) return;
+  await registrarEvento(tipo, null, {
+    analysis_id: analysisId,
+    stripe_session_id: session.id,
+    amount_total: session.amount_total,
+    currency: session.currency,
+    payment_status: session.payment_status,
+  });
+}
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.status(405).end();
@@ -87,14 +112,22 @@ export default async function handler(req, res) {
   const event = JSON.parse(rawBody.toString("utf8"));
 
   try {
-    if (event.type === "checkout.session.completed") {
+    if (["checkout.session.completed", "checkout.session.async_payment_succeeded"].includes(event.type)) {
       const session = event.data.object;
+      if (session.metadata?.scope === 'quote_analysis' && ['paid', 'no_payment_required'].includes(session.payment_status)) {
+        await registrarPagoInforme(session);
+      }
       const userId = session.client_reference_id || session.metadata?.user_id;
       const plan = session.metadata?.plan;
       if (userId && plan) {
         await actualizarPlan(userId, plan);
         await registrarEvento("suscripcion_completada", userId, { plan });
       }
+    }
+
+    if (event.type === 'checkout.session.async_payment_failed') {
+      const session = event.data.object;
+      if (session.metadata?.scope === 'quote_analysis') await registrarPagoInforme(session, 'quote_analysis_payment_failed');
     }
 
     if (event.type === "customer.subscription.deleted") {
