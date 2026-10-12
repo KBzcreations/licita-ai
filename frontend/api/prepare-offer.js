@@ -134,7 +134,6 @@ export default async function handler(req, res) {
     }
 
     if (action === 'checkout') {
-      if (process.env.PAYMENTS_ENABLED !== 'true') return res.status(503).json({ error: 'Los pagos aún no están activados.' });
       const stripeKey = process.env.STRIPE_SECRET_KEY;
       if (!stripeKey) return res.status(500).json({ error: 'Pago no configurado.' });
       const origin = process.env.PUBLIC_SITE_URL || `https://${req.headers.host}`;
