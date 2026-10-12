@@ -33,6 +33,10 @@ function dbConfig() {
   return url && key ? { url, key } : null;
 }
 
+function hashToken(value) {
+  return crypto.createHash("sha256").update(String(value || "")).digest("hex");
+}
+
 async function insertEvent(config, event) {
   const response = await fetch(`${config.url}/rest/v1/eventos`, {
     method: "POST",
@@ -99,6 +103,7 @@ export default async function handler(req, res) {
   }
   const intent = await structureWithAi(text, region);
   const id = `req_${crypto.randomUUID().replaceAll("-", "").slice(0, 16)}`;
+  const buyerToken = crypto.randomBytes(32).toString("base64url");
   const record = { id, ...intent };
 
   if (config) {
@@ -106,8 +111,8 @@ export default async function handler(req, res) {
       tipo: "market_intent_created",
       pagina: "demand-network",
       session_id: cleanText(body.session_id, 80) || crypto.randomUUID(),
-      metadata: { ...record, created_at: new Date().toISOString() },
+      metadata: { ...record, buyer_token_hash: hashToken(buyerToken), created_at: new Date().toISOString() },
     });
   }
-  return res.status(200).json({ intent: record, saved: Boolean(config) });
+  return res.status(200).json({ intent: record, buyer_token: buyerToken, saved: Boolean(config) });
 }
