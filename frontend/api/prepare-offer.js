@@ -1,8 +1,9 @@
 import crypto from 'crypto';
 import { deterministicQuoteAnalysis, hashAccessToken, normaliseAiAnalysis, publicPreview, redactSensitive } from './_quote-engine.js';
+import { deterministicBidComparison, normaliseComparisonNarrative, publicComparisonPreview } from './_bid-compare-engine.js';
 import { analyzeTenderPages } from './_tender-document.js';
 
-const PRICE_CENTS = 990;
+const PRICE_CENTS = 1900;
 const MAX_PDF_BYTES = 3_000_000;
 const MAX_PAGES = 35;
 const dbConfig = () => ({ url: process.env.SUPABASE_URL, key: process.env.SUPABASE_SERVICE_KEY });
@@ -75,6 +76,23 @@ async function improveWithGroq(text, fallback) {
   } catch { return fallback; }
 }
 
+async function improveComparisonWithGroq(rawOffers, fallback) {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) return fallback;
+  const evidence = rawOffers.map((offer, index) => `OFERTA ${index + 1}: ${String(offer.name || `Oferta ${index + 1}`).slice(0, 80)}\n${redactSensitive(offer.text).slice(0, 12_000)}`).join('\n\n---\n\n');
+  const prompt = `Revisa una comparación de ofertas de obra o subcontratas. Usa únicamente la evidencia aportada. No inventes precios de mercado, mediciones, materiales ni partidas. Los cálculos, totales y matriz ya están hechos y no debes modificarlos. Devuelve SOLO JSON con: recommendation, findings (severity alta/media/baja, title, detail, action), questions y negotiation_message. Prioriza diferencias de alcance, partidas ausentes, IVA, plazos, garantías y pagos.\n\nCOMPARACIÓN CALCULADA:\n${JSON.stringify({ economics: fallback.economics, matrix: fallback.matrix.slice(0, 30), offers: fallback.offers.map(({ name, total, conditions }) => ({ name, total, conditions })) })}\n\nDOCUMENTOS:\n${evidence}`;
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'llama-3.3-70b-versatile', temperature: 0.1, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: 'Eres responsable de compras de una constructora. No inventas datos y distingues precio de alcance.' }, { role: 'user', content: prompt }] }),
+    });
+    if (!response.ok) return fallback;
+    const data = await response.json();
+    return normaliseComparisonNarrative(JSON.parse(data.choices?.[0]?.message?.content || '{}'), fallback);
+  } catch { return fallback; }
+}
+
 function validAccess(record, token) {
   return Boolean(record && token && record.access_token_hash && crypto.timingSafeEqual(Buffer.from(record.access_token_hash), Buffer.from(hashAccessToken(token))));
 }
@@ -84,6 +102,11 @@ export default async function handler(req, res) {
   const body = req.body || {};
   const action = String(body.action || 'analyze');
   try {
+    if (action === 'extract-quote') {
+      const pdf = await extractPdf(body.documentBase64);
+      return res.status(200).json({ text: redactSensitive(pdf.text), truncated: pdf.truncated });
+    }
+
     if (action === 'analyze-document') {
       const bytes = Buffer.from(String(body.documentBase64 || ''), 'base64');
       if (bytes.length < 5 || bytes.length > MAX_PDF_BYTES || bytes.subarray(0, 4).toString() !== '%PDF') return res.status(400).json({ error: 'Adjunta un PDF válido de hasta 3 MB' });
@@ -106,6 +129,19 @@ export default async function handler(req, res) {
     }
 
     if (action === 'analyze') {
+      if (Array.isArray(body.offers)) {
+        const offers = body.offers.slice(0, 5).map((offer, index) => ({
+          name: String(offer?.name || `Oferta ${index + 1}`).slice(0, 80),
+          text: redactSensitive(String(offer?.text || '')).slice(0, 18_000),
+        })).filter((offer) => offer.text.length >= 30);
+        if (offers.length < 2) return res.status(400).json({ error: 'Añade al menos dos ofertas con contenido suficiente para compararlas.' });
+        const deterministic = deterministicBidComparison({ offers, project: body.project, region: body.region });
+        const report = await improveComparisonWithGroq(offers, deterministic);
+        const analysisId = crypto.randomUUID();
+        const accessToken = crypto.randomBytes(24).toString('base64url');
+        await insertEvent('quote_analysis_created', { analysis_id: analysisId, access_token_hash: hashAccessToken(accessToken), report, created_at: new Date().toISOString() });
+        return res.status(200).json({ analysis_id: analysisId, access_token: accessToken, preview: publicComparisonPreview(report), price: { amount: PRICE_CENTS, currency: 'eur', formatted: '19,00 €' } });
+      }
       let source = String(body.text || '').trim();
       let truncated = false;
       if (body.documentBase64) {
@@ -121,7 +157,7 @@ export default async function handler(req, res) {
       const analysisId = crypto.randomUUID();
       const accessToken = crypto.randomBytes(24).toString('base64url');
       await insertEvent('quote_analysis_created', { analysis_id: analysisId, access_token_hash: hashAccessToken(accessToken), report, created_at: new Date().toISOString() });
-      return res.status(200).json({ analysis_id: analysisId, access_token: accessToken, preview: publicPreview(report), price: { amount: PRICE_CENTS, currency: 'eur', formatted: '9,90 €' } });
+      return res.status(200).json({ analysis_id: analysisId, access_token: accessToken, preview: publicPreview(report), price: { amount: PRICE_CENTS, currency: 'eur', formatted: '19,00 €' } });
     }
 
     if (!body.analysisId || !body.accessToken) return res.status(400).json({ error: 'Falta el identificador del análisis.' });
@@ -130,7 +166,8 @@ export default async function handler(req, res) {
 
     if (action === 'status') {
       const paid = await findPaid(String(body.analysisId));
-      return res.status(200).json(paid ? { paid: true, report: record.report } : { paid: false, preview: publicPreview(record.report) });
+      const preview = record.report?.type === 'bid_comparison' ? publicComparisonPreview(record.report) : publicPreview(record.report);
+      return res.status(200).json(paid ? { paid: true, report: record.report } : { paid: false, preview });
     }
 
     if (action === 'checkout') {
@@ -141,8 +178,8 @@ export default async function handler(req, res) {
       params.append('mode', 'payment');
       params.append('line_items[0][price_data][currency]', 'eur');
       params.append('line_items[0][price_data][unit_amount]', String(PRICE_CENTS));
-      params.append('line_items[0][price_data][product_data][name]', 'Informe completo · Licita Negociador');
-      params.append('line_items[0][price_data][product_data][description]', 'Riesgos, preguntas y mensaje de negociación de tu presupuesto');
+      params.append('line_items[0][price_data][product_data][name]', record.report?.type === 'bid_comparison' ? 'Comparativa profesional · Licita Compras' : 'Informe completo · Licita Negociador');
+      params.append('line_items[0][price_data][product_data][description]', record.report?.type === 'bid_comparison' ? 'Tabla de ofertas, diferencias, partidas ausentes y preguntas para proveedores' : 'Riesgos, preguntas y mensaje de negociación de tu presupuesto');
       params.append('line_items[0][quantity]', '1');
       params.append('success_url', `${origin}/negociador/?pago=procesando`);
       params.append('cancel_url', `${origin}/negociador/?pago=cancelado`);

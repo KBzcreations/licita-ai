@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     });
     if(!response.ok)return res.status(502).json({error:"No se pudo guardar el evento"});
     res.status(200).json({ ok: true });
-  } catch (e) {
+  } catch {
     res.status(500).json({ error: "No se pudo guardar el evento" });
   }
 }

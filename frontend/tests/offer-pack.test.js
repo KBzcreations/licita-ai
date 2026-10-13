@@ -28,4 +28,3 @@ test('incorpora evidencias del PDF a la matriz sin inventar cumplimiento', () =>
   assert.equal(pack.document_analysis.page_count, 42);
   assert.equal(pack.final_control.length, 6);
 });
-
