@@ -1,6 +1,10 @@
 {
   "routes": [
     {
+      "src": "/negociador/?",
+      "dest": "/index.html"
+    },
+    {
       "src": "/mapscore(?:/.*)?",
       "dest": "/mapscore-disabled.html"
     },
