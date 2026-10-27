@@ -1,8 +1,15 @@
 {
   "routes": [
-    { "src": "/", "status": 308, "headers": { "Location": "/negociador/" } },
-    { "src": "/mapscore(?:/.*)?", "dest": "/mapscore-disabled.html" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    {
+      "src": "/mapscore(?:/.*)?",
+      "dest": "/mapscore-disabled.html"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
