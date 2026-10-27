@@ -1,14 +1,7 @@
 name: MAPSCORE Production E2E
 
+# Legacy E2E retained for manual diagnosis; MAPSCORE public product is retired.
 on:
-  push:
-    branches: [master]
-    paths:
-      - 'frontend/api/mapscore-*.js'
-      - 'frontend/api/_mapscore-report.js'
-      - 'frontend/public/mapscore/**'
-      - 'frontend/tests/**'
-      - '.github/workflows/mapscore-production-e2e.yml'
   workflow_dispatch:
 
 permissions:
