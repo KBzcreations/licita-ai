@@ -3,8 +3,7 @@ import fs from 'node:fs/promises';
 import { chromium } from 'playwright';
 
 function syntheticPdf(){
-  const phrase='La solvencia economica se acreditara con volumen anual de negocios. La garantia definitiva sera del cinco por ciento. Los criterios de adjudicacion se describen en el pliego.';
-  const stream='BT\n/F1 12 Tf\n72 720 Td\n('+phrase+') Tj\nET\n';
+  const stream='BT\n/F1 12 Tf\n72 720 Td\n(La solvencia economica se acreditara con volumen anual de negocios.) Tj\n0 -22 Td\n(La garantia definitiva sera del cinco por ciento.) Tj\n0 -22 Td\n(Los criterios de adjudicacion se describen en el pliego.) Tj\nET\n';
   const objects=[
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
