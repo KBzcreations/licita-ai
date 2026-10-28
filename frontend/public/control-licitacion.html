@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="index,follow">
+<title>Control de expedientes y requisitos de licitación | LICITA</title>
+<meta name="description" content="Organiza requisitos de los pliegos, responsables y plazos en un expediente de licitación. Importa la matriz CSV de LICITA, trabaja en tu navegador y exporta el seguimiento.">
+<link rel="canonical" href="https://www.licita-ai.com/control-licitacion.html">
+<style>
+:root{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#16372f;background:#f5f8f5}*{box-sizing:border-box}body{margin:0}a{color:inherit}button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:not-allowed}:focus-visible{outline:3px solid #37be8f;outline-offset:3px}.wrap{max-width:1140px;margin:auto;padding:0 20px}.top{background:#103b34;color:white}.top .wrap{display:flex;align-items:center;justify-content:space-between;min-height:70px;gap:12px}.logo{text-decoration:none;font-size:23px;font-weight:900;letter-spacing:-1px}.logo span{color:#7bf1bf}.top a.back{font-size:13px;text-decoration:none;color:#daf6e5}.hero{background:linear-gradient(115deg,#e1f2e8,#f6faf5);padding:45px 0 35px}.eyebrow{text-transform:uppercase;font-size:11px;letter-spacing:2px;font-weight:900;color:#167c60}.hero h1{margin:9px 0;font-size:clamp(27px,4vw,46px);line-height:1.12;letter-spacing:-1.3px}.hero p{color:#56756b;line-height:1.65;max-width:770px}.shell{padding-top:24px;padding-bottom:80px}.card{background:white;border:1px solid #d5e6dc;border-radius:16px;padding:23px;margin-bottom:20px;box-shadow:0 6px 25px #123c2410}.card h2{margin:0 0 15px;font-size:21px}.formrow{display:grid;grid-template-columns:2fr 1fr auto;align-items:end;gap:12px}label{font-size:12px;font-weight:800;display:block;color:#35584c}input,select,textarea{background:#fff;border:1px solid #b7d5c4;border-radius:9px;padding:11px;color:#16372f;width:100%;margin-top:5px;min-height:43px}textarea{resize:vertical;min-height:70px}.btn{border:0;border-radius:9px;background:#127c5f;color:#fff;padding:12px 17px;font-weight:800;min-height:43px}.secondary{background:#e5f2eb;color:#195740}.danger{color:#a42334;background:#faedef}.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.hint{font-size:12px;line-height:1.7;color:#668076}.notice{background:#fff8e8;border:1px solid #ebdfb9;color:#6a5734;border-radius:10px;padding:13px;font-size:12px;line-height:1.55}.toolbar{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:14px}.toolbar select{width:auto;min-width:180px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.stat{padding:15px;border-radius:12px;background:#ecf6ef;border:1px solid #cde7d5}.stat b{font-size:26px;display:block}.stat span{font-size:11px;color:#47705e;font-weight:700}.work{display:grid;grid-template-columns:1.05fr .95fr;gap:20px}.stack{display:grid;gap:12px}.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:900px;font-size:12px}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #e2ede5;vertical-align:top}th{background:#eef6f0;white-space:nowrap}td textarea{min-width:170px;min-height:55px}td input{min-width:110px}td select{min-width:125px}.status{font-weight:800;font-size:12px;color:#23745a}.urgent{color:#ad3035;font-weight:800}.empty{padding:30px 12px;text-align:center;color:#60776c;border:1px dashed #b8d5c5;border-radius:11px}.foot{font-size:12px;line-height:1.7;color:#6a8178}#message{min-height:19px;font-size:13px;margin:8px 0;color:#20775b}#message.error{color:#ad3035}.hide{display:none!important}@media(max-width:800px){.formrow,.work,.stats{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.card{padding:17px}.hero{padding:30px 0}.top .wrap{min-height:60px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="logo" href="/">L<span>·</span> LICITA</a><a class="back" href="/">← Volver al analizador de pliegos</a></div></header>
+<section class="hero"><div class="wrap"><div class="eyebrow">Herramienta funcional · beta gratuita</div><h1>Del pliego al expediente controlado.</h1><p>Convierte los requisitos localizados en tareas con responsable, fecha y estado. Importa el CSV del analizador de LICITA, revisa cada referencia y exporta tu seguimiento. Sin cuentas ni documentos enviados a servidores.</p></div></section>
+<main class="wrap shell">
+<section class="card"><h2>1. Crear expediente</h2><form id="new-project" class="formrow"><label>Nombre o número de expediente<input id="project-name" maxlength="110" required placeholder="Ej.: suministro de equipos informáticos"></label><label>Organismo (opcional)<input id="project-client" maxlength="100" placeholder="Ej.: Ayuntamiento"></label><button class="btn" type="submit">Crear expediente</button></form><p class="hint">La información se guarda únicamente en este navegador. Exporta una copia antes de cambiar de dispositivo o borrar los datos.</p></section>
+<section class="card"><div class="toolbar"><div><h2 style="margin:0">2. Trabajar en el expediente</h2><p id="active-label" class="hint" style="margin:5px 0 0">Crea un expediente para comenzar.</p></div><div class="actions"><label for="choose-project">Expediente<select id="choose-project" aria-label="Seleccionar expediente"></select></label><button type="button" id="delete-project" class="btn danger">Eliminar</button></div></div>
+<div class="stats"><div class="stat"><b id="total">0</b><span>Requisitos</span></div><div class="stat"><b id="done">0</b><span>Verificados</span></div><div class="stat"><b id="pending">0</b><span>Pendientes</span></div><div class="stat"><b id="late">0</b><span>Vencidos</span></div></div>
+<div class="actions"><button class="btn secondary" id="import-csv" type="button">Importar matriz CSV</button><input type="file" id="csv-file" accept=".csv,text/csv,text/plain" hidden><button class="btn secondary" id="export-csv" type="button">Exportar seguimiento CSV</button><button class="btn secondary" id="backup" type="button">Guardar copia JSON</button><button class="btn secondary" id="restore-btn" type="button">Restaurar copia JSON</button><input type="file" id="restore-file" accept=".json,application/json" hidden><button class="btn secondary" id="demo" type="button">Crear ejemplo</button></div>
+<p id="message" aria-live="polite"></p><div class="notice">El estado «Verificado» significa que una persona lo ha revisado: <strong>no certifica cumplimiento ni sustituye al PCAP, PPT, anexos o anuncios oficiales.</strong> Las coincidencias automáticas del analizador deben contrastarse manualmente.</div>
+</section>
+<div class="work">
+<section class="card"><h2>3. Añadir requisito</h2><form id="new-task" class="stack">
+<label>Área o categoría<input name="area" required maxlength="90" placeholder="Ej.: solvencia técnica"></label>
+<label>Qué hay que comprobar<textarea name="detail" required maxlength="1000" placeholder="Ej.: acreditar tres contratos similares"></textarea></label>
+<label>Fuente documental / página<input name="source" maxlength="240" placeholder="Ej.: PCAP, página 18"></label>
+<div class="formrow" style="grid-template-columns:1fr 1fr"><label>Responsable<input name="owner" maxlength="90" placeholder="Persona o equipo"></label><label>Fecha límite<input name="due" type="date"></label></div>
+<button type="submit" class="btn">Añadir a la lista</button></form>
+</section>
+<section class="card"><h2>4. Cómo utilizarlo</h2><p class="hint">Primero genera una matriz en <a href="/">el analizador gratuito de LICITA</a>. Descárgala como CSV y pulsa «Importar matriz CSV». Después asigna responsables, revisa las evidencias y marca cada requisito.</p><p class="hint">También puedes crear tareas manualmente y exportar el seguimiento para compartirlo en Excel. El botón «Crear ejemplo» incorpora un expediente ficticio para explorar la herramienta.</p><div class="notice">Versión local individual. Todavía no tiene cuentas, colaboración en tiempo real, recordatorios automáticos ni cobros. Nunca presentes este seguimiento como una verificación jurídica automática.</div></section>
+</div>
+<section class="card"><div class="toolbar"><h2 style="margin:0">Matriz de control</h2><label>Filtrar<select id="filter"><option value="all">Todos</option><option value="Pendiente">Pendiente</option><option value="En revisión">En revisión</option><option value="Verificado">Verificado</option></select></label></div><div id="empty" class="empty">Todavía no hay requisitos. Añade uno o importa una matriz CSV.</div><div class="scroll" id="table-wrap" hidden><table><thead><tr><th>Área</th><th>Requisito y evidencia</th><th>Origen</th><th>Responsable</th><th>Fecha límite</th><th>Estado</th><th></th></tr></thead><tbody id="task-rows"></tbody></table></div></section>
+<p class="foot">Privacidad: este módulo no utiliza analítica, ni transmite los datos introducidos. Los expedientes se guardan mediante almacenamiento local del navegador, que puede eliminarse o no estar disponible. Haz copias de seguridad. LICITA no presta asesoramiento jurídico, ni garantiza la admisión de ofertas.</p>
+</main>
+<script>
+(function(){
+"use strict";
+var KEY="licita-control-v1", state={projects:[],active:null}, persisted=true;
+var $=function(id){return document.getElementById(id)};
+function uid(){return "id"+Date.now().toString(36)+Math.random().toString(36).slice(2,9)}
+function notice(msg,err){$("message").textContent=msg;$("message").className=err?"error":""}
+function validDate(s){return /^\d{4}-\d{2}-\d{2}$/.test(s||"")?s:""}
+function active(){return state.projects.find(function(p){return p.id===state.active})||null}
+function store(){try{localStorage.setItem(KEY,JSON.stringify(state));persisted=true}catch(e){persisted=false;notice("El navegador no ha guardado los cambios. Exporta una copia JSON.",true)}}
+function clean(s,max){return String(s==null?"":s).trim().slice(0,max)}
+function createProject(name,client){var p={id:uid(),name:clean(name,110),client:clean(client,100),tasks:[]};state.projects.unshift(p);state.active=p.id;store();render();return p}
+function choose(){var p=active();if(p)return p;notice("Primero crea un expediente.",true);return null}
+function csvCell(v){var s=String(v==null?"":v).replace(/\r?\n/g," ");if(/^[\s]*[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'}
+function download(text,name,mime){var blob=new Blob([text],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url)},1200)}
+function parseCSV(input){
+ var data=input.replace(/^\uFEFF/,"");var first=data.split(/\r?\n/,1)[0]||"";
+ var delim=[",",";","\t"].sort(function(a,b){return (first.split(b).length-first.split(a).length)})[0];
+ var rows=[],row=[],field="",quoted=false;
+ for(var i=0;i<data.length;i++){var ch=data[i];if(ch==='"'){if(quoted&&data[i+1]==='"'){field+='"';i++}else quoted=!quoted}else if(ch===delim&&!quoted){row.push(field);field=""}else if((ch==="\n"||ch==="\r")&&!quoted){if(ch==="\r"&&data[i+1]==="\n")i++;row.push(field);if(row.some(function(x){return x.trim()}))rows.push(row);row=[];field=""}else{field+=ch}}
+ if(quoted)throw Error("CSV con comillas sin cerrar");row.push(field);if(row.some(function(x){return x.trim()}))rows.push(row);return rows
+}
+function fromCSV(text){
+ var rows=parseCSV(text);if(!rows.length)throw Error("Archivo vacío");
+ var header=rows[0].map(function(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim()});
+ var hasHead=header.some(function(x){return /area|requisito|documento|localizacion|pagina|comprobacion|responsable|estado/.test(x)});
+ var lookup=function(rx){return header.findIndex(function(s){return rx.test(s)})};
+ var ia=lookup(/area|categoria/),id=lookup(/comprobacion|requisito|pasaje|descripcion|detalle/),is=lookup(/documento|pagina|localizacion|origen|fuente/),io=lookup(/responsable/),it=lookup(/fecha|plazo|vencimiento/),ie=lookup(/estado/);
+ return rows.slice(hasHead?1:0).filter(function(r){return r.some(function(x){return x.trim()})}).slice(0,500).map(function(r){
+ var val=function(i){return i>=0?clean(r[i],1000):""};
+ var detail=val(id)||clean(r.slice(1).join(" · "),1000)||clean(r[0],1000);
+ return {id:uid(),area:val(ia)||"Revisión",detail:detail,source:val(is),owner:val(io),due:validDate(val(it)),status:["Pendiente","En revisión","Verificado"].includes(val(ie))?val(ie):"Pendiente"}
+ }).filter(function(t){return t.detail})
+}
+function td(tr,node){var el=document.createElement("td");el.appendChild(node);tr.appendChild(el);return el}
+function textEl(tag,value){var el=document.createElement(tag);el.textContent=value;return el}
+function field(value,type,change){var el=document.createElement("input");el.type=type||"text";el.value=value;el.addEventListener("change",function(){change(el.value)});return el}
+function render(){
+ var sel=$("choose-project"),previous=state.active;sel.textContent="";
+ state.projects.forEach(function(p){var option=document.createElement("option");option.value=p.id;option.textContent=p.name;sel.appendChild(option)});
+ if(!active()&&state.projects.length)state.active=state.projects[0].id;
+ sel.value=state.active||"";var p=active(),yes=!!p;
+ $("active-label").textContent=p?(p.name+(p.client?" · "+p.client:"")):"Crea un expediente para comenzar.";
+ ["delete-project","import-csv","export-csv","backup"].forEach(function(id){$(id).disabled=!yes});
+ $("new-task").querySelectorAll("input,textarea,button").forEach(function(el){el.disabled=!yes});
+ var t=p?p.tasks:[],done=t.filter(function(x){return x.status==="Verificado"}).length,now=new Date().toISOString().slice(0,10);
+ $("total").textContent=t.length;$("done").textContent=done;$("pending").textContent=t.length-done;$("late").textContent=t.filter(function(x){return x.due&&x.due<now&&x.status!=="Verificado"}).length;
+ var filter=$("filter").value,shown=t.filter(function(x){return filter==="all"||x.status===filter});
+ $("task-rows").textContent="";$("empty").hidden=shown.length>0;$("table-wrap").hidden=shown.length===0;
+ shown.forEach(function(task){
+ var tr=document.createElement("tr");td(tr,textEl("strong",task.area));
+ var text=document.createElement("div");text.textContent=task.detail;text.style.whiteSpace="pre-wrap";td(tr,text);
+ td(tr,textEl("span",task.source||"—"));
+ var owner=field(task.owner,"text",function(value){task.owner=clean(value,90);store()});owner.maxLength=90;owner.setAttribute("aria-label","Responsable de "+task.area);td(tr,owner);
+ var due=field(task.due,"date",function(value){task.due=validDate(value);store();render()});td(tr,due);
+ var statuses=document.createElement("select");statuses.setAttribute("aria-label","Estado de "+task.area);
+ ["Pendiente","En revisión","Verificado"].forEach(function(value){var opt=document.createElement("option");opt.value=value;opt.textContent=value;statuses.appendChild(opt)});statuses.value=task.status;
+ statuses.addEventListener("change",function(){task.status=statuses.value;store();render()});td(tr,statuses);
+ var del=document.createElement("button");del.className="btn danger";del.type="button";del.textContent="Quitar";del.setAttribute("aria-label","Eliminar requisito "+task.area);del.onclick=function(){if(confirm("¿Eliminar este requisito?")){p.tasks=p.tasks.filter(function(x){return x.id!==task.id});store();render()}};td(tr,del);$("task-rows").appendChild(tr)
+ });
+}
+try{var raw=localStorage.getItem(KEY);if(raw){var parsed=JSON.parse(raw);if(parsed&&Array.isArray(parsed.projects)){state=parsed}}}catch(e){notice("No se pudo leer el historial local.",true);state={projects:[],active:null}}
+state.projects=Array.isArray(state.projects)?state.projects.filter(function(p){return p&&typeof p.name==="string"&&Array.isArray(p.tasks)}):[];
+state.projects.forEach(function(p){p.tasks=p.tasks.filter(function(t){return t&&t.id&&t.detail})});
+$("new-project").addEventListener("submit",function(e){e.preventDefault();var name=$("project-name").value;if(!name.trim())return;createProject(name,$("project-client").value);e.target.reset();notice("Expediente creado.")});
+$("choose-project").addEventListener("change",function(){state.active=this.value;store();render()});
+$("delete-project").addEventListener("click",function(){var p=active();if(!p||!confirm("¿Eliminar el expediente y sus requisitos de este navegador?"))return;state.projects=state.projects.filter(function(x){return x.id!==p.id});state.active=state.projects[0]?state.projects[0].id:null;store();render();notice("Expediente eliminado.")});
+$("new-task").addEventListener("submit",function(e){e.preventDefault();var p=choose();if(!p)return;var form=new FormData(e.target),detail=clean(form.get("detail"),1000);if(!detail)return;p.tasks.push({id:uid(),area:clean(form.get("area"),90)||"Revisión",detail:detail,source:clean(form.get("source"),240),owner:clean(form.get("owner"),90),due:validDate(form.get("due")),status:"Pendiente"});store();render();e.target.reset();notice("Requisito incorporado.")});
+$("import-csv").onclick=function(){if(choose())$("csv-file").click()};
+$("csv-file").addEventListener("change",async function(){var p=choose(),f=this.files[0];if(!p||!f)return;if(f.size>2*1024*1024){notice("El CSV supera el límite de 2 MB.",true);this.value="";return}try{var tasks=fromCSV(await f.text());if(!tasks.length)throw Error("No se han identificado filas con requisitos");p.tasks.push.apply(p.tasks,tasks);store();render();notice(tasks.length+" requisitos importados. Comprueba el contenido y sus referencias.")}catch(e){notice("No se pudo importar: "+e.message,true)}this.value=""});
+$("export-csv").onclick=function(){var p=choose();if(!p)return;var rows=[["Área","Requisito","Fuente","Responsable","Fecha límite","Estado"]].concat(p.tasks.map(function(t){return[t.area,t.detail,t.source,t.owner,t.due,t.status]}));download("\uFEFF"+rows.map(function(row){return row.map(csvCell).join(";")}).join("\r\n"),"licita-seguimiento.csv","text/csv;charset=utf-8")};
+$("backup").onclick=function(){if(!state.projects.length)return;download(JSON.stringify(state,null,2),"licita-expedientes.json","application/json")};
+$("restore-btn").onclick=function(){$("restore-file").click()};
+$("restore-file").addEventListener("change",async function(){var f=this.files[0];if(!f)return;try{if(f.size>2*1024*1024)throw Error("Copia demasiado grande");var backup=JSON.parse(await f.text());if(!backup||!Array.isArray(backup.projects))throw Error("Formato no válido");if(!confirm("¿Sustituir los expedientes locales por esta copia de seguridad?"))return;state={projects:backup.projects.slice(0,100).map(function(p){return{id:uid(),name:clean(p.name,110)||"Expediente restaurado",client:clean(p.client,100),tasks:(Array.isArray(p.tasks)?p.tasks:[]).slice(0,500).map(function(t){return{id:uid(),area:clean(t.area,90),detail:clean(t.detail,1000),source:clean(t.source,240),owner:clean(t.owner,90),due:validDate(t.due),status:["Pendiente","En revisión","Verificado"].includes(t.status)?t.status:"Pendiente"}}).filter(function(t){return t.detail})}}),active:null};state.active=state.projects[0]?state.projects[0].id:null;store();render();notice("Copia restaurada.")}catch(e){notice("No se pudo restaurar: "+e.message,true)}this.value=""});
+$("demo").onclick=function(){var p=createProject("DEMO · Suministro de equipos","Organismo ficticio");p.tasks=[{id:uid(),area:"Solvencia",detail:"Comprobar que la cifra de negocios exigida coincide con las cuentas acreditables",source:"PCAP · página ilustrativa 12",owner:"Comercial",due:"",status:"En revisión"},{id:uid(),area:"Criterios",detail:"Revisar los criterios de valoración y sus fórmulas",source:"PCAP · página ilustrativa 18",owner:"",due:"",status:"Pendiente"},{id:uid(),area:"Sobres",detail:"Confirmar qué documentación corresponde a cada sobre",source:"PCAP · ubicación por confirmar",owner:"",due:"",status:"Pendiente"}];store();render();notice("Ejemplo ficticio cargado. No contiene datos reales.")};
+$("filter").addEventListener("change",render);render();
+})();
+</script>
+</body></html>
