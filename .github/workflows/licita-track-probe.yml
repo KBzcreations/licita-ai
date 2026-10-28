@@ -1,0 +1,33 @@
+name: LICITA Analytics Write Probe
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'frontend/api/track.js'
+      - '.github/workflows/licita-track-probe.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Confirm analytics endpoint persists a clearly synthetic event
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload='{"tipo":"licita_healthcheck","pagina":"licita-matriz-beta","metadata":{"synthetic":true,"source":"github-actions","note":"Exclude from all commercial metrics"}}'
+          status=$(curl -sS --max-time 25 -o /tmp/track-response -w '%{http_code}' \
+            -X POST 'https://www.licita-ai.com/api/track' \
+            -H 'Content-Type: application/json' \
+            -H 'User-Agent: LICITA-Analytics-Healthcheck' \
+            --data "$payload")
+          echo "Analytics endpoint HTTP status: $status"
+          if [ "$status" != 200 ]; then
+            echo "::error::Analytics write failed. Check Vercel environment and Supabase table eventos."
+            head -c 400 /tmp/track-response || true
+            exit 1
+          fi
+          grep -Fq '"ok":true' /tmp/track-response
+          echo 'PASS: Synthetic event was accepted by the server and Supabase; exclude type licita_healthcheck from real user metrics.'
