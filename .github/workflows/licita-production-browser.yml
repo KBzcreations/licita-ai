@@ -4,6 +4,7 @@ on:
     branches: [master]
     paths:
       - 'frontend/tests/production-browser-e2e.mjs'
+      - 'frontend/tests/official-pcap-e2e.mjs'
       - '.github/workflows/licita-production-browser.yml'
   workflow_dispatch:
 permissions:
@@ -30,3 +31,15 @@ jobs:
         env:
           SITE_URL: https://www.licita-ai.com
         run: node tests/production-browser-e2e.mjs
+      - name: Download a published 52-page official PCAP model from Junta de Andalucía
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 2 --max-time 60 'https://www.juntadeandalucia.es/export/drupaljda/PCAP%20NO%20SARA%20v6_0.pdf' -o /tmp/licita-pcap-junta.pdf
+          test "$(head -c 5 /tmp/licita-pcap-junta.pdf)" = '%PDF-'
+          echo "Downloaded official PCAP model: $(wc -c < /tmp/licita-pcap-junta.pdf) bytes"
+      - name: Verify full real public PCAP PDF in production browser
+        working-directory: frontend
+        env:
+          PCAP_PATH: /tmp/licita-pcap-junta.pdf
+        run: node tests/official-pcap-e2e.mjs
