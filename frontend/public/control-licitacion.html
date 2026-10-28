@@ -60,10 +60,10 @@ function fromCSV(text){
  var header=rows[0].map(function(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim()});
  var hasHead=header.some(function(x){return /area|requisito|documento|localizacion|pagina|comprobacion|responsable|estado/.test(x)});
  var lookup=function(rx){return header.findIndex(function(s){return rx.test(s)})};
- var ia=lookup(/area|categoria/),id=lookup(/comprobacion|requisito|pasaje|descripcion|detalle/),is=lookup(/documento|pagina|localizacion|origen|fuente/),io=lookup(/responsable/),it=lookup(/fecha|plazo|vencimiento/),ie=lookup(/estado/);
+ var ia=lookup(/area|categoria/),id=lookup(/comprobacion|requisito|pasaje|descripcion|detalle/),ip=lookup(/documento.*pasaje|evidencia|extracto/),is=lookup(/localizacion|pagina|origen|fuente|documento/),io=lookup(/responsable/),it=lookup(/fecha|plazo|vencimiento/),ie=lookup(/estado/);
  return rows.slice(hasHead?1:0).filter(function(r){return r.some(function(x){return x.trim()})}).slice(0,500).map(function(r){
  var val=function(i){return i>=0?clean(r[i],1000):""};
- var detail=val(id)||clean(r.slice(1).join(" · "),1000)||clean(r[0],1000);
+ var detail=(ip>=0&&ip!==id?clean(val(ip)+(val(id)?" · Comprobar: "+val(id):""),1000):val(id))||clean(r.slice(1).join(" · "),1000)||clean(r[0],1000);
  return {id:uid(),area:val(ia)||"Revisión",detail:detail,source:val(is),owner:val(io),due:validDate(val(it)),status:["Pendiente","En revisión","Verificado"].includes(val(ie))?val(ie):"Pendiente"}
  }).filter(function(t){return t.detail})
 }
