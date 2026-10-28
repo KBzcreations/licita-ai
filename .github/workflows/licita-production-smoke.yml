@@ -1,0 +1,53 @@
+name: LICITA Production HTTP Smoke
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'frontend/index.html'
+      - 'frontend/vercel.json'
+      - 'frontend/licita-app.js'
+      - 'frontend/tender-core.mjs'
+      - '.github/workflows/licita-production-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-public:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Check public HTML and legacy route
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://www.licita-ai.com"
+          for attempt in $(seq 1 12); do
+            echo "Attempt ${attempt} to verify production..."
+            curl -sS -L --max-time 25 -D /tmp/licita-headers -o /tmp/licita-home "${base}/?smoke=${GITHUB_SHA:0:12}&attempt=${attempt}" || true
+            if grep -Fq 'Tu pliego,' /tmp/licita-home; then break; fi
+            if [ "$attempt" -eq 12 ]; then
+              echo "::error::Public homepage does not show the new tender review product."
+              head -n 35 /tmp/licita-headers || true
+              head -c 600 /tmp/licita-home || true
+              exit 1
+            fi
+            sleep 10
+          done
+          grep -Fq 'LICITA — Revisa tus pliegos' /tmp/licita-home
+          grep -Fq 'id="documents"' /tmp/licita-home
+          grep -Fq 'id="csv"' /tmp/licita-home
+          echo "PASS: production homepage is the new tender review product"
+          curl -sS -L --max-time 25 -D /tmp/licita-legacy-headers -o /tmp/licita-legacy "${base}/negociador/?smoke=${GITHUB_SHA:0:12}"
+          if ! grep -Fq 'Tu pliego,' /tmp/licita-legacy; then
+            echo "::error::Legacy /negociador/ route still serves the retired quote comparator."
+            head -n 35 /tmp/licita-legacy-headers || true
+            head -c 600 /tmp/licita-legacy || true
+            exit 1
+          fi
+          echo "PASS: legacy route now serves tender review product"
+          asset=$(grep -oE 'src="/assets/[^"]+\.js"' /tmp/licita-home | head -1 | cut -d '"' -f2)
+          test -n "$asset" || { echo "::error::No built JS asset in homepage"; exit 1; }
+          curl -fsSL --max-time 25 "${base}${asset}" -o /tmp/licita-asset
+          test -s /tmp/licita-asset
+          echo "PASS: production JS bundle accessible (${asset})"
+          echo "All public HTTP smoke checks passed"
