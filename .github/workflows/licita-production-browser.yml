@@ -1,0 +1,32 @@
+name: LICITA Production Browser E2E
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'frontend/tests/production-browser-e2e.mjs'
+      - '.github/workflows/licita-production-browser.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install browser test dependencies
+        working-directory: frontend
+        run: |
+          npm ci
+          npm install --no-save --package-lock=false playwright
+          npx playwright install --with-deps chromium
+      - name: Verify live product with synthetic PDF (desktop and mobile)
+        working-directory: frontend
+        env:
+          SITE_URL: https://www.licita-ai.com
+        run: node tests/production-browser-e2e.mjs
