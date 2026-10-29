@@ -60,11 +60,23 @@ function fromCSV(text){
  var header=rows[0].map(function(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").trim()});
  var hasHead=header.some(function(x){return /area|requisito|documento|localizacion|pagina|comprobacion|responsable|estado/.test(x)});
  var lookup=function(rx){return header.findIndex(function(s){return rx.test(s)})};
- var ia=lookup(/area|categoria/),id=lookup(/comprobacion|requisito|pasaje|descripcion|detalle/),ip=lookup(/documento.*pasaje|evidencia|extracto/),is=lookup(/localizacion|pagina|origen|fuente|documento/),io=lookup(/responsable/),it=lookup(/fecha|plazo|vencimiento/),ie=lookup(/estado/);
+ var ia=lookup(/area|categoria/),id=lookup(/comprobacion|requisito|pasaje|descripcion|detalle/),ip=lookup(/documento.*pasaje|evidencia|extracto/),is=lookup(/localizacion|pagina|origen|fuente|documento/),io=lookup(/responsable/),it=lookup(/fecha|plazo|vencimiento/);
+ var ie=lookup(/^estado manual$/);if(ie<0)ie=lookup(/^estado$/);
+ // La matriz nativa LICITA exporta Documento, Página, Pasaje y Tarea en columnas separadas.
+ var iDoc=lookup(/^documento$/),iPage=lookup(/^pagina$/),iPass=lookup(/^pasaje$/),iAction=lookup(/^tarea de verificacion$|^comprobacion pendiente$/);
+ var nativeMatrix=hasHead&&iDoc>=0&&iPage>=0&&iPass>=0;
  return rows.slice(hasHead?1:0).filter(function(r){return r.some(function(x){return x.trim()})}).slice(0,500).map(function(r){
- var val=function(i){return i>=0?clean(r[i],1000):""};
- var detail=(ip>=0&&ip!==id?clean(val(ip)+(val(id)?" · Comprobar: "+val(id):""),1000):val(id))||clean(r.slice(1).join(" · "),1000)||clean(r[0],1000);
- return {id:uid(),area:val(ia)||"Revisión",detail:detail,source:val(is),owner:val(io),due:validDate(val(it)),status:["Pendiente","En revisión","Verificado"].includes(val(ie))?val(ie):"Pendiente"}
+  var val=function(i){return i>=0?clean(r[i],1000):""};
+  var detail,source;
+  if(nativeMatrix){
+   var passage=val(iPass),action=val(iAction),doc=val(iDoc),page=val(iPage);
+   detail=clean((passage||action||"Revisión manual del pliego")+(passage&&action?" · Comprobar: "+action:""),1000);
+   source=clean(doc+(page?" · pág. "+page:""),240);
+  }else{
+   detail=(ip>=0&&ip!==id?clean(val(ip)+(val(id)?" · Comprobar: "+val(id):""),1000):val(id))||clean(r.slice(1).join(" · "),1000)||clean(r[0],1000);
+   source=val(is);
+  }
+  return {id:uid(),area:val(ia)||"Revisión",detail:detail,source:source,owner:val(io),due:validDate(val(it)),status:["Pendiente","En revisión","Verificado"].includes(val(ie))?val(ie):"Pendiente"}
  }).filter(function(t){return t.detail})
 }
 function td(tr,node){var el=document.createElement("td");el.appendChild(node);tr.appendChild(el);return el}
