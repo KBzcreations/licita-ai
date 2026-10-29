@@ -81,7 +81,7 @@ try{
  const owner=tracker.locator('#task-rows tr').filter({hasText:'Solvencia económica'}).locator('input[type="text"]');
  await owner.fill('Equipo de licitaciones');await owner.press('Tab');
  await tracker.reload({waitUntil:'domcontentloaded'});
- assert.match(await tracker.locator('#task-rows').innerText(),/Equipo de licitaciones/,'Los cambios deben persistir localmente');
+ assert.equal(await tracker.locator('#task-rows tr').filter({hasText:'Solvencia económica'}).locator('input[type="text"]').inputValue(),'Equipo de licitaciones','Los cambios deben persistir localmente');
  const trackingDownload=tracker.waitForEvent('download',{timeout:30000});
  await tracker.locator('#export-csv').click();
  const exported=await trackingDownload;
