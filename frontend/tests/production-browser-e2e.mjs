@@ -54,6 +54,12 @@ try{
   assert.match(csv,/licitacion-sintetica\.pdf/);
   assert.match(csv,/Pendiente/);
   assert.ok(!posted.some(x=>/solvencia economica|garantia definitiva|licitacion-sintetica\.pdf/i.test(x)),'No deben enviarse contenidos ni nombres de PDF en analítica');
+  const events=posted.map(x=>JSON.parse(x));
+  assert.ok(events.some(e=>e.tipo==='tender_pageview'),'Debe medirse la visita sin identificar al usuario');
+  assert.ok(events.some(e=>e.tipo==='tender_qualified_visit'),'Una selección válida de PDF debe medirse como visita cualificada aproximada');
+  const sessions=new Set(events.map(e=>e.session_id));
+  assert.equal(sessions.size,1,'Todos los eventos de la misma pestaña deben compartir sesión efímera');
+  assert.match([...sessions][0],/^[0-9a-f-]{36}$/i,'La sesión debe ser un UUID aleatorio');
   assert.equal(errors.length,0,'No deben producirse errores de JavaScript: '+errors.join('; '));
   if(scenario.name==='mobile'){
     const widths=await page.evaluate(()=>({screen:innerWidth,doc:document.documentElement.scrollWidth}));
