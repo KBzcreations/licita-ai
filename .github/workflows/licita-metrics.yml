@@ -1,0 +1,27 @@
+name: LICITA Anonymous Funnel Metrics
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'metrics_licita.py'
+      - '.github/workflows/licita-metrics.yml'
+      - 'frontend/licita-app.js'
+  workflow_dispatch:
+  schedule:
+    - cron: '10 7 * * *'
+permissions:
+  contents: read
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Count only aggregated anonymous LICITA events (last 7 days)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: python metrics_licita.py
