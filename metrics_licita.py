@@ -72,20 +72,20 @@ def main():
     types, visits, qualified, analyzed, exported, choices = summarize(events)
     print(f"LICITA / ventana: {since} hasta {datetime.now(timezone.utc).isoformat()} (UTC)")
     print(f"Eventos de la beta recuperados: {len(events)} (incluidos sintéticos)")
-    print(f"Vistas de página: {types['tender_pageview']} eventos; {len(visits)} sesiones por pestaña")
-    print(f"Selección válida de PDF: {types['tender_qualified_visit']} eventos; {len(qualified)} sesiones aproximadas")
+    print(f"Vistas de página: {types['tender_pageview']} eventos; {len(visits)} cargas de página identificables")
+    print(f"Selección válida de PDF: {types['tender_qualified_visit']} eventos; {len(qualified)} cargas con PDF aproximadas")
     print(f"Análisis iniciados: {types['tender_analysis_started']}")
-    print(f"Análisis completados: {types['tender_analysis_completed']} eventos; {len(analyzed)} sesiones identificables")
+    print(f"Análisis completados: {types['tender_analysis_completed']} eventos; {len(analyzed)} cargas identificables")
     print(f"CSV descargados: {types['tender_export_csv']} eventos; {len(exported)} sesiones identificables")
     print(f"Interés declarado, NO compra: sí={choices['si']}, depende={choices['depende']}, no={choices['no']}")
     if qualified:
-        print(f"Embudo sobre sesiones con PDF: análisis={len(qualified & analyzed)}/{len(qualified)}, CSV={len(qualified & exported)}/{len(qualified)}")
+        print(f"Embudo sobre cargas con PDF: análisis={len(qualified & analyzed)}/{len(qualified)}, CSV={len(qualified & exported)}/{len(qualified)}")
     else:
-        print("Embudo: aún no hay sesiones con selección de PDF medibles.")
-    print("AVISO: sesiones por pestaña ≠ personas; selección de PDF ≠ humano confirmado; eventos anteriores sin session_id no cuentan como sesiones.")
+        print("Embudo: aún no hay cargas con selección de PDF medibles.")
+    print("AVISO: cada identificador vive solo durante una carga de página (sin almacenamiento local); cargas ≠ personas; selección de PDF ≠ humano confirmado; eventos antiguos sin ID no se pueden deduplicar.")
     print("AVISO: la encuesta no acredita disposición real a pagar; no se miden ventas.")
     if len(qualified) < 100:
-        print("DECISIÓN: menos de 100 sesiones con PDF; no declarar fracaso comercial.")
+        print("DECISIÓN: menos de 100 cargas con PDF; no declarar fracaso comercial.")
 
 
 if __name__ == "__main__":
