@@ -3,6 +3,9 @@ on:
   push:
     branches: [master]
     paths:
+      - 'frontend/licita-app.js'
+      - 'frontend/index.html'
+      - 'frontend/api/track.js'
       - 'frontend/tests/production-browser-e2e.mjs'
       - 'frontend/tests/official-pcap-e2e.mjs'
       - '.github/workflows/licita-production-browser.yml'
