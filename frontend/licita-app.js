@@ -6,27 +6,20 @@ const $=id=>document.getElementById(id);
 let files=[],report=null,working=false;
 function status(msg,kind=''){$('status').textContent=msg;$('status').className='status '+kind;}
 function escapeHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-// Identificador aleatorio de una pestaña: sin cookies, usuario, IP, nombre ni texto del PDF.
-const SESSION_KEY='licita:session:v1',QUALIFIED_KEY='licita:qualified:v1';
-let sessionId,qualifiedPending=false;
-try {
-  sessionId=sessionStorage.getItem(SESSION_KEY);
-  if(!sessionId||!/^[0-9a-f-]{36}$/i.test(sessionId)){
-    sessionId=crypto.randomUUID();
-    sessionStorage.setItem(SESSION_KEY,sessionId);
-  }
-}catch{sessionId=crypto.randomUUID();}
+// Identificador aleatorio SOLO en memoria durante esta carga: sin cookies,
+// localStorage, sessionStorage, datos del PDF ni identificador entre visitas.
+const sessionId=crypto.randomUUID();
+let qualifiedPending=false,qualifiedSent=false;
 async function track(tipo,metadata={}){
   try {const response=await fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({tipo,pagina:'licita-matriz-beta',session_id:sessionId,metadata})});return response.ok;}catch{return false;}
 }
 // Las visitas no prueban que sean personas. Una selección válida de PDF indica intención.
 track('tender_pageview');
 async function trackQualifiedVisit(){
-  if(qualifiedPending)return;
-  try{if(sessionStorage.getItem(QUALIFIED_KEY)===sessionId)return;}catch{}
+  if(qualifiedPending||qualifiedSent)return;
   qualifiedPending=true;
   const ok=await track('tender_qualified_visit',{action:'valid_pdf_selected'});
-  if(ok){try{sessionStorage.setItem(QUALIFIED_KEY,sessionId);}catch{}}
+  if(ok)qualifiedSent=true;
   qualifiedPending=false;
 }
 function selectFiles(list){
