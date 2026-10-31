@@ -35,6 +35,16 @@ try{
   });
   await page.goto(base+scenario.path+'?e2e='+Date.now(),{waitUntil:'domcontentloaded',timeout:60000});
   assert.match(await page.title(),/Revisa tus pliegos/,'La portada es la versión de licitaciones');
+  // A permanent 308 previously cached by browsers must not be reintroduced.
+  assert.equal(new URL(page.url()).pathname,scenario.path,'La ruta pública no debe redirigir a la portada antigua');
+  if(scenario.name==='desktop'){
+    assert.equal(await page.locator('script[src="/_vercel/insights/script.js"]').count(),1,'La portada debe incluir Web Analytics');
+    const analytics=await page.request.get(base+'/_vercel/insights/script.js',{timeout:30000});
+    assert.ok(analytics.ok(),'Vercel debe servir el script de Analytics (HTTP '+analytics.status()+')');
+    const mime=analytics.headers()['content-type']||'';
+    assert.match(mime,/javascript|ecmascript/i,'Analytics debe devolver JavaScript y no una página HTML: '+mime);
+    console.log('PASS analytics: script servido públicamente con MIME JavaScript');
+  }
   await page.locator('#documents').setInputFiles({name:'licitacion-sintetica.pdf',mimeType:'application/pdf',buffer:pdf});
   assert.equal(await page.locator('#analyze').isDisabled(),false,'El botón debe activarse al adjuntar un PDF');
   await page.locator('#analyze').click();
