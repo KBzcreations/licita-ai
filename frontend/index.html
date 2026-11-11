@@ -1,21 +1,154 @@
 <!doctype html>
-<html lang="es"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LICITA — Revisa tus pliegos y descarga una matriz de requisitos</title>
-<meta name="description" content="Extrae pasajes de PCAP y PPT y genera una matriz de revisión para licitaciones. Gratis en beta, sin registro ni subida de documentos.">
-<link rel="canonical" href="https://www.licita-ai.com/"><link rel="icon" href="/favicon.svg">
-<style>
-:root{font-family:system-ui,-apple-system,sans-serif;color:#15322d;background:#f7faf7}*{box-sizing:border-box}body{margin:0}button,input{font:inherit}a{color:inherit}button{cursor:pointer}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #12bb92;outline-offset:3px}.wrap{max-width:1160px;margin:auto;padding:0 24px}header{background:#0c2e30;color:#f0fff9}nav{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:15px}.logo{font-weight:900;font-size:24px;letter-spacing:-1px;text-decoration:none}.logo b{color:#6aebbd}nav .navlinks{display:flex;gap:24px;align-items:center}nav a{font-size:14px;text-decoration:none;font-weight:700}.navbtn{padding:11px 17px;border:1px solid #6be7ba;border-radius:9px}.hero{background:linear-gradient(130deg,#e0f2e9,#f7faf7);padding:80px 0}.hero-inner{display:grid;grid-template-columns:1.25fr .75fr;gap:55px;align-items:center}.kicker{letter-spacing:1.6px;color:#0b9479;font-weight:900;font-size:12px}.hero h1{font-size:clamp(42px,5.8vw,72px);letter-spacing:-3px;line-height:1.08;margin:18px 0 22px}.hero h1 em{font-style:normal;color:#0b967b}.hero p{font-size:17px;line-height:1.7;color:#486961}.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:15px 23px;border-radius:10px;background:#047c62;color:white;border:0;text-decoration:none;font-weight:800;font-size:14px}.btn:disabled{opacity:.45;cursor:not-allowed}.ghost{background:#e1eee6;color:#145c4a}.hero-buttons{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}.meta{font-size:12px!important;color:#55756a!important;margin-top:23px}.example{background:#0d3033;color:#edfdf7;border-radius:18px;padding:29px;box-shadow:0 20px 40px #244b3635;transform:rotate(1deg)}.example small{color:#82e2bb;font-size:11px;letter-spacing:1px;font-weight:900}.example h2{font-size:22px;margin:22px 0}.exrow{border-top:1px solid #ffffff2c;padding:14px 0;font-size:13px;display:flex;justify-content:space-between;gap:9px}.exrow span{color:#a7d9c7}.example .note{font-size:11px;color:#b6cfc7}.section{padding:78px 0}.section.alt{background:#eaf3ed}.intro{text-align:center;max-width:780px;margin:0 auto 32px}.intro h2{font-size:clamp(29px,4vw,43px);letter-spacing:-1.5px;margin:12px 0}.intro p{color:#5f796c;line-height:1.7}.cols{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}.box{background:white;border:1px solid #d1e5d8;border-radius:18px;padding:30px;box-shadow:0 15px 35px #24533b0d}.drop{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;border:2px dashed #9ecbb7;border-radius:12px;background:#f3faf5;padding:32px 20px;cursor:pointer}.drop.drag{background:#e2f4e9}.drop strong{font-size:19px}.drop span{color:#53796a;font-size:12px}.drop input{font-size:12px;width:100%;max-width:270px;margin-top:12px}.small{color:#647d72;font-size:12px;line-height:1.7}.filelist{font-size:12px;color:#2d6650;min-height:26px;margin-top:18px;overflow-wrap:anywhere}.full{width:100%;margin-top:17px}.status{font-size:13px;min-height:14px;line-height:1.5}.status.bad{color:#a3242d}.status.good{color:#10765d}.features{list-style:none;margin:0;padding:0}.features li{padding:14px 0;border-bottom:1px solid #e0eee4;font-size:14px;font-weight:750}.features li:before{content:'✓';color:#0a9275;margin-right:13px}.hint{background:#f1f8ee;border:1px solid #d8e7c9;padding:17px;border-radius:10px;margin-top:24px;font-size:12px;line-height:1.7}.result{margin-top:22px;background:white;border:1px solid #bddeca;border-radius:18px;padding:25px}.result header{background:transparent;color:#15322d;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}.result h3{font-size:24px;margin:0}.result p{color:#617b70;font-size:13px}.exports{display:flex;gap:9px;flex-wrap:wrap}.exports button{padding:12px 15px;font-size:12px}.warn{background:#fff7e7;border:1px solid #e8d6b0;border-radius:9px;padding:15px;font-size:12px;line-height:1.7;color:#6c5929;margin:18px 0;white-space:pre-wrap}.scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:690px;font-size:12px}th{text-align:left;background:#eaf5ee}td,th{padding:13px;border-bottom:1px solid #dbe9df;vertical-align:top}td:first-child{font-weight:800;min-width:135px}.evidence{display:block;margin-bottom:10px;overflow-wrap:anywhere}.evidence strong{display:block;color:#16775f}.found{color:#09755a}.missing{color:#956a2a}.three{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.tile{border:1px solid #d2e8d8;border-radius:14px;padding:25px;background:white}.tile b{color:#09886c;font-size:12px}.tile h3{margin:18px 0 10px;font-size:20px}.tile p{font-size:14px;line-height:1.7;color:#638071}.feedback{background:#10353a;color:#edfdf7}.feedback p{color:#b9dcd0;line-height:1.75}.survey{background:#f5fbf7;border-radius:12px;color:#173b30;padding:28px}.survey h3{margin-top:0}.options{display:flex;flex-wrap:wrap;gap:10px}.options button{border:1px solid #a2d0b6;background:white;padding:12px 13px;border-radius:8px;color:#125a44;font-size:12px;font-weight:800}.options button:disabled{opacity:.45}footer{background:#082629;color:#b0d0c5;padding:26px 0;font-size:12px}[hidden]{display:none!important}@media(max-width:800px){.hero-inner,.cols,.three{grid-template-columns:1fr}.example{transform:none}.hero,.section{padding:55px 0}.navlinks a:not(.navbtn){display:none}.hero h1{letter-spacing:-2px}.wrap{padding:0 17px}.box{padding:20px}}
-</style></head><body>
-<header><nav class="wrap"><a class="logo" href="/">L<b>·</b> LICITA</a><div class="navlinks"><a href="#proceso">Cómo funciona</a><a href="/control-licitacion.html">Control de expedientes</a><a href="#privacidad">Privacidad</a><a class="navbtn" href="#pliego-directo">Probar gratis ↗</a></div></nav></header>
-<main>
-<section class="hero"><div class="wrap hero-inner"><div><div class="kicker">BETA GRATUITA · SIN REGISTRO</div><h1>Tu pliego, <em>sin perderte</em> entre páginas.</h1><p>Prepara tus licitaciones con una matriz de revisión: localiza pasajes sobre solvencia, plazos, garantías, sobres y criterios. Cada pista conserva su documento y su página para que puedas comprobarla.</p><div class="hero-buttons"><a class="btn" href="#pliego-directo">Crear mi matriz gratis →</a><a class="btn ghost" href="#proceso">Ver cómo funciona</a><a class="btn ghost" href="/control-licitacion.html">Organizar requisitos →</a></div><p class="meta">✓ Sin registro · ✓ PDF procesados en tu dispositivo · ✓ Exportación CSV</p></div><div class="example"><small>VISTA ILUSTRATIVA · NO ES UN ANÁLISIS REAL</small><h2>Matriz de preparación</h2><div class="exrow">Solvencia económica <span>Pág. 12 · revisar</span></div><div class="exrow">Criterios de adjudicación <span>Pág. 18 · revisar</span></div><div class="exrow">Garantías <span>No localizado</span></div><p class="note">Las coincidencias no garantizan el cumplimiento.</p></div></div></section>
-<section class="section alt" id="pliego-directo"><div class="wrap"><div class="intro"><div class="kicker">HERRAMIENTA FUNCIONAL · 0 €</div><h2>Genera tu matriz ahora.</h2><p>Adjunta hasta dos archivos PDF (por ejemplo, PCAP y PPT). La prueba admite un máximo de 20 MB y analiza hasta 100 páginas por archivo.</p></div><div class="cols"><div class="box"><label class="drop" id="drop"><strong>↥ Selecciona tus pliegos PDF</strong><span>O arrástralos a esta zona</span><input id="documents" type="file" accept="application/pdf,.pdf" multiple></label><div id="file-list" class="filelist">No has seleccionado documentos.</div><p class="small">El PDF y su contenido se procesan únicamente en el navegador. Esta versión no interpreta PDFs escaneados sin texto. Las pruebas de extracción se basan en coincidencias verificables, no en conclusiones jurídicas automáticas.</p><button id="analyze" class="btn full" type="button" disabled>Localizar requisitos →</button><p id="status" class="status" aria-live="polite"></p></div><aside class="box"><h3>Qué encontrarás</h3><ul class="features"><li>Plazos y presentación</li><li>Solvencia económica y técnica</li><li>Criterios de adjudicación</li><li>Documentación y sobres</li><li>Garantías, ejecución y firma</li></ul><div class="hint"><strong>Importante:</strong> “No localizado” nunca significa “no exigido”. Todas las coincidencias se deben comprobar en los documentos originales y sus anexos.</div></aside></div>
-<div id="results" class="result" hidden><header><div><h3>Tu matriz de revisión</h3><p id="summary"></p></div><div class="exports"><button id="csv" type="button" class="btn">Descargar CSV ↓</button><button id="html" type="button" class="btn ghost">Informe imprimible ↓</button></div></header><div id="warnings" class="warn"></div><div class="scroll"><table><thead><tr><th>Área</th><th>Localización</th><th>Documento y pasaje</th><th>Comprobación pendiente</th></tr></thead><tbody id="resultrows"></tbody></table></div><p class="small">Matriz de apoyo, no certificación de cumplimiento ni sustituto del pliego oficial.</p></div></div></section>
-<section class="section wrap" id="proceso"><div class="intro"><div class="kicker">TRES PASOS</div><h2>Del PDF a tareas comprobables.</h2></div><div class="three"><div class="tile"><b>01 / LECTURA</b><h3>Adjunta el pliego</h3><p>Extraemos el texto seleccionable en tu ordenador o móvil, sin enviar los archivos a nuestro servidor.</p></div><div class="tile"><b>02 / REVISIÓN</b><h3>Localizamos pasajes</h3><p>Buscamos expresiones relacionadas con áreas habituales y conservamos su página para contrastarlas.</p></div><div class="tile"><b>03 / ORGANIZACIÓN</b><h3>Descarga y comprueba</h3><p>Abre el CSV en Excel, asigna responsables y marca tareas pendientes antes de presentar la oferta.</p></div></div></section>
-<section class="section alt" id="organizar"><div class="wrap cols"><div><div class="kicker">NUEVA HERRAMIENTA GRATUITA</div><h2>De la matriz al trabajo realizado.</h2><p>Una vez tengas tu CSV, crea un expediente, asigna responsables, controla fechas y marca cada requisito como pendiente, en revisión o verificado. Los datos se guardan en tu navegador y puedes exportarlos.</p><a class="btn" href="/control-licitacion.html">Abrir control de expedientes →</a></div><div class="box"><h3>¿Qué puedes hacer?</h3><ul class="features"><li>Importar la matriz de LICITA</li><li>Añadir requisitos manualmente</li><li>Asignar responsables y plazos</li><li>Filtrar por estado</li><li>Exportar CSV y copias de seguridad</li></ul><p class="small">Beta individual: sin sincronización de equipos ni alertas automáticas.</p></div></div></section><section class="section feedback" id="participar"><div class="wrap cols"><div><div class="kicker">TÚ DECIDES QUÉ MEJORAMOS</div><h2>¿Pagarías por una versión profesional?</h2><p>Queremos medir si merece la pena añadir comparación entre versiones, seguimiento de requisitos y exportación avanzada. No hay cobros activos: esta herramienta es gratuita durante la beta.</p></div><div class="survey"><h3>¿Lo utilizarías de pago si te ahorra tiempo real?</h3><p class="small">Respuesta opcional. Sin correo, cuenta ni nombre.</p><div class="options"><button data-interest="si">Sí, si funciona</button><button data-interest="depende">Depende del precio</button><button data-interest="no">No pagaría</button></div><p class="small" id="survey-status" aria-live="polite"></p></div></div></section>
-<section class="section wrap" id="privacidad"><div class="intro"><div class="kicker">PRIVACIDAD Y LÍMITES</div><h2>Tus pliegos no salen del dispositivo.</h2><p>El documento se analiza localmente, sin enviarse a servidores externos. Para medir el uso registramos cargas de página y acciones básicas (selección válida de PDF, análisis y descargas) con un identificador aleatorio que solo existe en memoria durante esa carga. No usamos cookies ni almacenamiento del navegador para esta medición; nunca enviamos nombres ni contenido de los PDF. También utilizamos Vercel Web Analytics para contar visitas y páginas consultadas sin cookies de seguimiento; el proveedor puede tratar datos técnicos de conexión para elaborar estadísticas agregadas. Ni los PDF ni sus nombres se envían a este servicio. Tu respuesta voluntaria sobre una versión de pago también se registra si la envías. No almacenamos aquí tus archivos. Revisa siempre PCAP, PPT, anexos y el anuncio original en la <a href="https://contrataciondelestado.es/" target="_blank" rel="noopener noreferrer">Plataforma de Contratación del Sector Público</a>.</p></div></section>
-</main><footer><div class="wrap">LICITA · Preparar licitaciones, con pruebas y sin promesas vacías. · Beta gratuita</div></footer>
-<!-- Vercel Web Analytics: no PDF content or file names are sent by this script. Requires Web Analytics enabled in Vercel. -->
-<script defer src="/_vercel/insights/script.js"></script>
-<script type="module" src="/licita-app.js"></script></body></html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071d2b">
+  <title>Reclámalo — Evalúa y prepara tu reclamación aérea</title>
+  <meta name="description" content="Comprueba de forma prudente una incidencia aérea y prepara una reclamación personalizada con documentación e instrucciones oficiales de AESA.">
+  <link rel="canonical" href="https://www.licita-ai.com/">
+  <link rel="icon" href="/favicon.svg">
+  <link rel="stylesheet" href="/reclamalo.css">
+</head>
+<body>
+  <a class="skip" href="#evaluador">Saltar al evaluador</a>
+  <header class="site-header">
+    <nav class="shell nav" aria-label="Navegación principal">
+      <a class="brand" href="#inicio" aria-label="Reclámalo, inicio"><span>R</span> Reclámalo</a>
+      <div class="nav-links">
+        <a href="#evaluador">Evaluación</a><a href="#premium">Premium</a><a href="#aesa">AESA</a><a class="nav-cta" href="#evaluador">Revisar mi vuelo</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="inicio">
+    <section class="hero">
+      <div class="shell hero-grid">
+        <div>
+          <p class="eyebrow">DERECHOS AÉREOS · REGLAS VIGENTES EN ESPAÑA</p>
+          <h1>Tu reclamación,<br><em>con los matices.</em></h1>
+          <p class="hero-copy">Comprueba si tu retraso, cancelación o denegación de embarque puede dar derecho a compensación. Cuando falten datos o la causa sea discutible, te lo diremos.</p>
+          <div class="hero-actions"><a class="button primary" href="#evaluador">Evaluar mi caso gratis</a><a class="button secondary" href="#premium">Ver Premium · 4,99 €</a></div>
+          <ul class="trust-line" aria-label="Características de privacidad"><li>Sin registro</li><li>Datos en tu dispositivo</li><li>Sin comisión</li></ul>
+        </div>
+        <aside class="case-card" aria-label="Ejemplo de evaluación">
+          <div class="case-top"><span>CASO ILUSTRATIVO</span><span class="live-dot">● Evaluado</span></div>
+          <p class="route">MAD <span>→</span> BRU</p>
+          <div class="case-facts"><span>Retraso llegada</span><b>3 h 24 min</b></div><div class="case-facts"><span>Distancia</span><b>≤ 1.500 km</b></div>
+          <div class="case-total"><span>Compensación posible</span><strong>250 €</strong><small>por pasajero</small></div>
+          <p class="case-note">El resultado real depende de la cobertura, horarios, causa y pruebas.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="notice-strip" aria-label="Estado del servicio"><div class="shell"><strong>Modo de validación:</strong> Premium está implementado para pruebas, pero los pagos reales permanecen desactivados hasta autorización expresa. Nadie puede recibir un cargo.</div></section>
+
+    <section class="section" id="evaluador">
+      <div class="shell narrow">
+        <div class="section-heading"><p class="eyebrow coral">EVALUACIÓN GRATUITA</p><h2>Primero, aclaremos qué ocurrió.</h2><p>No prometemos una indemnización sin comprobar los datos que cambian el resultado.</p></div>
+        <form id="evaluation-form" class="panel form-panel" novalidate>
+          <div class="progress" aria-hidden="true"><span></span></div>
+          <fieldset>
+            <legend>1. Incidencia y trayecto</legend>
+            <div class="choice-grid three-choice">
+              <label class="choice"><input type="radio" name="incident" value="delay" required checked><span><b>Retraso</b><small>Llegaste tarde al destino</small></span></label>
+              <label class="choice"><input type="radio" name="incident" value="cancellation"><span><b>Cancelación</b><small>El vuelo no se realizó</small></span></label>
+              <label class="choice"><input type="radio" name="incident" value="denied"><span><b>Embarque denegado</b><small>Sobreventa o razón operativa</small></span></label>
+            </div>
+            <div class="field-grid">
+              <label>Fecha del vuelo<input name="flightDate" type="date" required></label>
+              <label>Salida del itinerario<select name="departureScope" required><option value="eu">UE, EEE o Suiza</option><option value="outside">Fuera de la UE/EEE/Suiza</option></select></label>
+              <label>Llegada final<select name="arrivalScope" required><option value="eu">UE, EEE o Suiza</option><option value="outside">Fuera de la UE/EEE/Suiza</option></select></label>
+              <label>Compañía que operó el vuelo<select name="euOperatingCarrier" required><option value="yes">Compañía de la UE</option><option value="no">Compañía no UE</option><option value="unknown">No lo sé</option></select></label>
+              <label class="third-country-field" hidden>¿Recibiste beneficios, compensación y asistencia equivalentes en el país de salida?<select name="thirdCountryBenefits"><option value="unknown">No lo sé</option><option value="no">No</option><option value="yes">Sí</option></select></label>
+              <label>Distancia aproximada<select name="distanceBand" required><option value="short">Hasta 1.500 km</option><option value="medium">1.500–3.500 km</option><option value="intra_eu_long">Más de 1.500 km dentro de la UE</option><option value="long">Más de 3.500 km fuera de la UE</option></select></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>2. Horarios y circunstancias</legend>
+            <div class="field-grid">
+              <label class="delay-field">Retraso al llegar al destino final (minutos)<input name="arrivalDelayMinutes" type="number" min="0" max="2880" value="180" inputmode="numeric"></label>
+              <label class="cancellation-field" hidden>Días de antelación del aviso<input name="noticeDays" type="number" min="0" max="365" inputmode="numeric" placeholder="Ej. 3"></label>
+              <label>¿Te ofrecieron transporte alternativo?<select name="rerouted"><option value="no">No</option><option value="yes">Sí</option></select></label>
+              <label class="reroute-field" hidden>Salida alternativa: minutos antes de la original<input name="rerouteDepartureEarlyMinutes" type="number" min="0" max="1440" value="0" inputmode="numeric"></label>
+              <label>¿La aerolínea alega una causa extraordinaria?<select name="extraordinary"><option value="unknown">No lo sé / no lo explicó</option><option value="no">No</option><option value="yes">Sí</option></select></label>
+              <label>Pasajeros incluidos<select name="passengers"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select></label>
+              <label class="denied-field" hidden>Motivo de la denegación<select name="deniedReason"><option value="overbooking">Sobreventa o razón operativa</option><option value="health_security_documents">Salud, seguridad o documentación</option><option value="unknown">No lo sé</option></select></label>
+              <label class="denied-field" hidden>¿Renunciaste voluntariamente a la plaza?<select name="voluntaryDenied"><option value="no">No</option><option value="yes">Sí</option></select></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>3. ¿Había conexiones?</legend>
+            <div class="field-grid"><label>Vuelos de conexión<select name="hasConnections"><option value="no">No</option><option value="yes">Sí</option></select></label><label class="connection-field" hidden>¿Todos estaban en una misma reserva?<select name="singleBooking"><option value="yes">Sí</option><option value="no">No / eran reservas separadas</option><option value="unknown">No lo sé</option></select></label></div>
+          </fieldset>
+          <div class="form-actions"><button class="button primary" type="submit">Ver evaluación</button><p>Orientación automatizada, no asesoramiento jurídico.</p></div>
+        </form>
+
+        <section id="evaluation-result" class="result-card" hidden aria-live="polite">
+          <div class="result-head"><div><p class="eyebrow">RESULTADO ORIENTATIVO</p><h3 id="result-headline"></h3></div><div class="amount"><strong id="result-amount">—</strong><span id="result-amount-label">por pasajero</span></div></div>
+          <div id="result-checks" class="checks"></div>
+          <div class="result-actions"><a class="button primary" href="#premium">Preparar mi expediente</a><button class="text-button" id="edit-case" type="button">Modificar datos</button></div>
+          <p class="legal-note">Cálculo basado en reglas aplicables a 11/11/2026. El Reglamento (UE) 2026/2202 está publicado, pero sus cambios serán aplicables desde el 23/10/2027.</p>
+        </section>
+      </div>
+    </section>
+
+    <section class="section premium-section" id="premium">
+      <div class="shell">
+        <div class="premium-intro"><div><p class="eyebrow mint">EXPEDIENTE PREMIUM</p><h2>No compres una carta genérica.<br>Prepara un caso defendible.</h2></div><div class="price"><strong>4,99 €</strong><span>pago único · sin comisión</span></div></div>
+        <div class="premium-grid">
+          <div class="premium-list">
+            <div><b>01</b><span><strong>Evaluación personalizada</strong><small>Conclusión prudente, importe y puntos que requieren prueba.</small></span></div>
+            <div><b>02</b><span><strong>Carta adaptada al caso</strong><small>Hechos, solicitud y fundamento jurídico revisables.</small></span></div>
+            <div><b>03</b><span><strong>Lista de documentación</strong><small>Qué adjuntar y qué justificantes conservar.</small></span></div>
+            <div><b>04</b><span><strong>Ruta AESA</strong><small>Cuándo acudir, qué presentar y qué esperar.</small></span></div>
+          </div>
+          <div class="premium-gate panel" id="premium-gate"><span class="test-badge">PRUEBA SIN COBRO</span><h3>Genera el expediente completo</h3><p>El precio previsto es 4,99 €, pero el cobro está desactivado. Puedes probar ahora el flujo y los documentos sin introducir tarjeta.</p><button class="button primary full" id="open-premium" type="button">Probar Premium sin pagar</button><small>Estado del pago: <strong>desactivado</strong>. No existe llamada a Stripe ni a otra pasarela.</small></div>
+        </div>
+
+        <section id="premium-workspace" class="workspace panel" hidden>
+          <div class="workspace-head"><div><p class="eyebrow coral">TU EXPEDIENTE LOCAL</p><h3>Completa solo lo necesario.</h3></div><div class="local-pill">🔒 No se envía al servidor</div></div>
+          <form id="premium-form" novalidate>
+            <div class="field-grid">
+              <label>Nombre y apellidos<input name="claimantName" autocomplete="name" required></label><label>Compañía operadora<input name="airline" required placeholder="La que realizó o debía realizar el vuelo"></label>
+              <label>Número de vuelo<input name="flightNumber" required placeholder="Ej. IB1234"></label><label>Fecha del vuelo<input name="flightDate" type="date" required></label>
+              <label>Origen<input name="origin" required placeholder="Ej. Madrid (MAD)"></label><label>Destino final<input name="destination" required placeholder="Ej. Bruselas (BRU)"></label>
+              <label>Localizador de reserva<input name="bookingReference" required autocomplete="off"></label><label>Gastos reclamables acreditados (€)<input name="expenses" type="number" min="0" step="0.01" inputmode="decimal" placeholder="0,00"></label>
+            </div>
+            <label>Relato breve de los hechos<textarea name="facts" rows="5" required placeholder="Indica horarios previstos y reales, aviso recibido, alternativa ofrecida y asistencia prestada."></textarea></label>
+            <label class="consent"><input type="checkbox" name="confirmed" required><span>He revisado los datos y entiendo que el documento es un borrador informativo; la compañía o AESA pueden valorar de otro modo los hechos y las pruebas.</span></label>
+            <div class="workspace-actions"><button class="button primary" type="submit">Generar expediente</button><button class="button tertiary" id="save-local" type="button">Guardar borrador en este dispositivo</button><button class="text-button danger" id="clear-local" type="button">Borrar datos locales</button></div><p id="premium-status" class="status" aria-live="polite"></p>
+          </form>
+          <div id="document-output" class="document-output" hidden>
+            <div class="document-toolbar"><h3>Expediente preparado</h3><div><button class="button tertiary" id="copy-letter" type="button">Copiar carta</button><button class="button tertiary" id="download-letter" type="button">Descargar .txt</button><button class="button primary" id="print-pack" type="button">Imprimir / guardar PDF</button></div></div>
+            <article id="claim-letter" class="paper"></article>
+            <div class="doc-grid"><section><h4>Documentos para AESA</h4><ul id="document-list" class="document-list"></ul></section><section><h4>Siguiente paso</h4><ol><li>Envía primero la reclamación a la compañía por su canal oficial.</li><li>Guarda el justificante y espera su respuesta hasta un mes.</li><li>Si no responde o no satisface tu reclamación, presenta el expediente ante AESA.</li></ol></section></div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="section" id="aesa"><div class="shell narrow">
+      <div class="section-heading"><p class="eyebrow coral">TRAMITACIÓN EN ESPAÑA</p><h2>La ruta correcta importa.</h2><p>AESA exige que primero reclames a la compañía y conserves la prueba de haberlo hecho.</p></div>
+      <div class="timeline">
+        <article><span>1</span><div><h3>Reclama a la operadora</h3><p>Usa su formulario o canal de atención, adjunta reserva y pruebas, y guarda el justificante.</p></div></article><article><span>2</span><div><h3>Espera hasta un mes</h3><p>Si la respuesta no es satisfactoria o no llega en un mes, puedes acudir a AESA.</p></div></article>
+        <article><span>3</span><div><h3>Presenta ante AESA</h3><p>Adjunta reclamación previa, respuesta si existe, billete o tarjeta de embarque e identificación vigente.</p></div></article><article><span>4</span><div><h3>Conoce el efecto</h3><p>Para incidentes desde el 2/06/2023, la decisión de AESA es vinculante para la aerolínea; si no cumple en un mes, puede pedirse ejecución judicial.</p></div></article>
+      </div><div class="scope-warning"><strong>AESA no cubre todo.</strong> Equipaje, daños y perjuicios y cláusulas del contrato quedan fuera de este procedimiento específico. Este producto se limita a retraso, cancelación y denegación de embarque bajo reglas europeas. AESA indica un plazo general de cinco años desde el incidente para la reclamación previa; la reclamación previa aportada a AESA no debe tener más de un año.</div>
+    </div></section>
+
+    <section class="section sources-section" id="fuentes"><div class="shell narrow">
+      <div class="section-heading"><p class="eyebrow mint">FUENTES Y LÍMITES</p><h2>Reglas visibles, no una caja negra.</h2></div>
+      <div class="source-grid">
+        <a href="https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32004R0261" target="_blank" rel="noopener noreferrer"><b>Reglamento (CE) 261/2004</b><span>Texto oficial vigente ↗</span></a><a href="https://www.boe.es/buscar/doc.php?id=DOUE-Z-2024-70053" target="_blank" rel="noopener noreferrer"><b>Directrices interpretativas 2024</b><span>Comisión Europea / BOE ↗</span></a>
+        <a href="https://www.seguridadaerea.gob.es/es/ambitos/derechos-de-los-pasajeros/inicia-tu-reclamacion-con-aesa" target="_blank" rel="noopener noreferrer"><b>Iniciar reclamación con AESA</b><span>Documentación oficial ↗</span></a><a href="https://www.seguridadaerea.gob.es/es/preguntas-frecuentes-derechos-pasajeros" target="_blank" rel="noopener noreferrer"><b>Preguntas frecuentes AESA</b><span>Plazos y procedimiento ↗</span></a>
+        <a href="https://eur-lex.europa.eu/legal-content/ES/TXT/?uri=CELEX:32026R2202" target="_blank" rel="noopener noreferrer"><b>Reglamento (UE) 2026/2202</b><span>Cambios aplicables desde 23/10/2027 ↗</span></a>
+      </div>
+    </div></section>
+
+    <section class="privacy" id="privacidad"><div class="shell privacy-grid"><div><p class="eyebrow mint">PRIVACIDAD LOCAL</p><h2>Tu caso se queda contigo.</h2></div><div><p>Los datos del evaluador y del expediente se procesan en el navegador. No se suben reservas, nombres, documentos ni hechos a nuestros servidores. Solo se guarda un borrador en <em>localStorage</em> si pulsas «Guardar borrador»; puedes borrarlo desde la propia herramienta.</p><p>No hay cuentas, cookies publicitarias ni pagos activos. Antes de una activación comercial harán falta identidad del prestador, condiciones de contratación, política de privacidad final y autorización expresa.</p></div></div></section>
+  </main>
+
+  <footer><div class="shell"><div class="brand"><span>R</span> Reclámalo</div><p>Herramienta informativa para pasajeros en España · Versión jurídica 11/11/2026</p><div><a href="#fuentes">Fuentes</a><a href="#privacidad">Privacidad</a></div></div></footer>
+  <script type="module" src="/reclamalo-app.js"></script>
+</body>
+</html>

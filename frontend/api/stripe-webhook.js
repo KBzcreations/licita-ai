@@ -84,6 +84,10 @@ async function registrarPagoInforme(session, tipo = 'quote_analysis_paid') {
 }
 
 export default async function handler(req, res) {
+  if (process.env.RECLAMALO_PAYMENTS_AUTHORIZED !== "true") {
+    res.status(503).json({ code: "PAYMENTS_DISABLED", error: "Webhooks de pago desactivados" });
+    return;
+  }
   if (req.method !== "POST") {
     res.status(405).end();
     return;

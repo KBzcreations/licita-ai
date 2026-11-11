@@ -1,16 +1,28 @@
-# React + Vite
+# Reclámalo
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación web local-first para evaluar retrasos, cancelaciones y denegaciones de embarque conforme a las reglas europeas aplicables en España, y preparar un expediente de reclamación.
 
-Currently, two official plugins are available:
+## Desarrollo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm ci
+npm test
+npm run build
+npm run dev
+```
 
-## React Compiler
+En Vercel, el directorio raíz del proyecto es `frontend`, el comando de compilación es `npm run build` y la salida es `dist`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Privacidad y pagos
 
-## Expanding the ESLint configuration
+- La evaluación, los datos personales y la generación de la carta ocurren en el navegador.
+- Solo se usa `localStorage` cuando la persona pulsa expresamente «Guardar borrador».
+- El frontend no llama a servicios de analítica, cuentas o pago.
+- `/api/create-checkout-session` devuelve siempre `503 PAYMENTS_DISABLED`.
+- El webhook también queda bloqueado salvo la variable específica `RECLAMALO_PAYMENTS_AUTHORIZED=true`; esa variable no debe configurarse sin autorización expresa y revisión comercial/legal.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Versión jurídica
+
+Reglas vigentes comprobadas a 11/11/2026. El motor no evalúa vuelos desde el 23/10/2027, fecha desde la que serán aplicables los cambios del Reglamento (UE) 2026/2202.
+
+Fuentes principales: Reglamento (CE) 261/2004, directrices interpretativas de la Comisión de 2024, portal oficial de derechos de pasajeros de la UE y procedimiento/FAQ de AESA. Los enlaces están visibles en la aplicación.
