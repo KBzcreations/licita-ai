@@ -7,8 +7,6 @@ on:
       - '.github/workflows/licita-metrics.yml'
       - 'frontend/licita-app.js'
   workflow_dispatch:
-  schedule:
-    - cron: '10 7 * * *'
 permissions:
   contents: read
 jobs:

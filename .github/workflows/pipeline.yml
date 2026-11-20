@@ -1,9 +1,7 @@
 name: Pipeline Licitaciones
 
 on:
-  schedule:
-    - cron: '0 7 * * *'  # Cada dia a las 8am hora española
-  workflow_dispatch:      # También permite ejecutarlo manualmente
+  workflow_dispatch:      # Conservado solo para recuperación manual de LICITA
 
 jobs:
   pipeline:
