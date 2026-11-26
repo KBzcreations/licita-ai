@@ -148,6 +148,11 @@ export function evaluateCase(rawInput = {}) {
     headline = 'Faltan datos para concluir';
   }
 
+  // Un caso sin derecho (p. ej. retraso < 3 h) no debe volver a 'review' por la causa o las conexiones.
+  if (eligibility.eligible === false) {
+    status = 'unlikely';
+    headline = 'No aparece compensación fija';
+  }
   if (status === 'unlikely' || status === 'outside') amount = 0;
   return {
     status,
@@ -178,7 +183,7 @@ export function buildClaimText(input, result) {
     ? ` En particular, solicito ${Number(input.expenses).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € de gastos acreditados.`
     : '';
 
-  return `${claimant}\n\nA la atención del Servicio de Atención al Cliente de ${airline}\n\nASUNTO: Reclamación por ${incidentLabel} — vuelo ${flight}, ${route}, ${date}\nLOCALIZADOR: ${booking}\n\nEXPONGO\n\nQue tenía una reserva confirmada para el vuelo indicado y sufrí una incidencia de ${incidentLabel}. ${input.facts?.trim() || '[Describe aquí de forma breve lo ocurrido, los horarios reales y la asistencia recibida.]'}\n\nLa reclamación se formula frente a la compañía que operó el vuelo, al amparo del Reglamento (CE) n.º 261/2004 y de su interpretación vigente. ${result.checks.map((item) => item.detail).join(' ')}\n\nSOLICITO\n\n1. ${amountRequest}\n2. El reembolso de los gastos de asistencia necesarios, razonables y acreditados que la compañía no proporcionó, si procede.${expenses}\n3. Una respuesta escrita y motivada. Si se alegan circunstancias extraordinarias, solicito que se identifique la causa concreta, su relación con este vuelo y las medidas razonables adoptadas.\n\nAdjunto copia de la reserva o tarjeta de embarque y los justificantes disponibles. Conservo el comprobante de presentación de esta reclamación.\n\nAtentamente,\n\n${claimant}\nFecha: ${new Date().toLocaleDateString('es-ES')}\n\n---\nDocumento generado localmente por Reclámalo. Borrador informativo: revisa los datos antes de enviarlo. Versión jurídica ${LEGAL_VERSION}.`;
+  return `${claimant}\n\nA la atención del Servicio de Atención al Cliente de ${airline}\n\nASUNTO: Reclamación por ${incidentLabel} — vuelo ${flight}, ${route}, ${date}\nLOCALIZADOR: ${booking}\n\nEXPONGO\n\nQue tenía una reserva confirmada para el vuelo indicado y sufrí una incidencia de ${incidentLabel}. ${input.facts?.trim() || '[Describe aquí de forma breve lo ocurrido, los horarios reales y la asistencia recibida.]'}\n\nLa reclamación se formula frente a la compañía que operó el vuelo, al amparo del Reglamento (CE) n.º 261/2004 y de su interpretación vigente. ${result.checks.filter((item) => item.ok === true).map((item) => item.detail).join(' ')}\n\nSOLICITO\n\n1. ${amountRequest}\n2. El reembolso de los gastos de asistencia necesarios, razonables y acreditados que la compañía no proporcionó, si procede.${expenses}\n3. Una respuesta escrita y motivada. Si se alegan circunstancias extraordinarias, solicito que se identifique la causa concreta, su relación con este vuelo y las medidas razonables adoptadas.\n\nAdjunto copia de la reserva o tarjeta de embarque y los justificantes disponibles. Conservo el comprobante de presentación de esta reclamación.\n\nAtentamente,\n\n${claimant}\nFecha: ${new Date().toLocaleDateString('es-ES')}\n\n---\nDocumento generado localmente por Reclámalo. Borrador informativo: revisa los datos antes de enviarlo. Versión jurídica ${LEGAL_VERSION}.`;
 }
 
 export function getAesaChecklist(input = {}) {

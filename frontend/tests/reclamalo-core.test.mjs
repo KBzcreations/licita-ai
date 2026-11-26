@@ -81,3 +81,30 @@ test('el checklist pide la reserva completa cuando hay conexión', () => {
   assert.match(getAesaChecklist({ hasConnections: 'yes' }).join(' '), /reserva completa/i);
   assert.equal(LEGAL_VERSION, '2026-11-11');
 });
+
+test('un retraso de menos de 3 horas no muestra importe aunque la causa sea desconocida', () => {
+  const result = evaluateCase({ ...base, arrivalDelayMinutes: 150, extraordinary: 'unknown' });
+  assert.equal(result.status, 'unlikely');
+  assert.equal(result.amountPerPassenger, 0);
+  assert.equal(result.totalAmount, 0);
+});
+
+test('una cancelación avisada con 14 días sigue sin importe aunque haya conexiones en reservas separadas', () => {
+  const result = evaluateCase({ ...base, incident: 'cancellation', noticeDays: 20, hasConnections: 'yes', singleBooking: 'no' });
+  assert.equal(result.status, 'unlikely');
+  assert.equal(result.totalAmount, 0);
+});
+
+test('la carta solo recoge hechos favorables y nunca frases dirigidas al pasajero', () => {
+  const cases = [
+    { ...base, arrivalDelayMinutes: 150 },
+    { ...base, extraordinary: 'unknown' },
+    { ...base, incident: 'cancellation', noticeDays: 20 },
+    { ...base, incident: 'cancellation', noticeDays: '' },
+    { ...base, hasConnections: 'yes', singleBooking: 'no' },
+  ];
+  for (const input of cases) {
+    const letter = buildClaimText({ ...input, claimantName: 'Ana', airline: 'Vueling' }, evaluateCase(input));
+    assert.doesNotMatch(letter, /Falta|Hay que|No des por|inferior a 3 horas|al menos 14 días|no parece aplicable|reservas separadas/);
+  }
+});
