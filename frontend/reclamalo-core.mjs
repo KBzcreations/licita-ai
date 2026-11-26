@@ -171,14 +171,14 @@ export function evaluateCase(rawInput = {}) {
 export function buildClaimText(input, result) {
   const claimant = input.claimantName?.trim() || '[Nombre y apellidos]';
   const airline = input.airline?.trim() || '[Compañía aérea operadora]';
-  const flight = input.flightNumber?.trim() || '[Número de vuelo]';
+  const flight = input.flightNumber?.trim().replace(/\s+/g, '').toUpperCase() || '[Número de vuelo]';
   const route = [input.origin?.trim(), input.destination?.trim()].filter(Boolean).join('–') || '[Origen–destino]';
   const booking = input.bookingReference?.trim() || '[Localizador]';
-  const date = input.flightDate || '[Fecha del vuelo]';
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(input.flightDate || '') ? input.flightDate.split('-').reverse().join('/') : (input.flightDate || '[Fecha del vuelo]');
   const incidentLabel = { delay: 'gran retraso', cancellation: 'cancelación', denied: 'denegación de embarque' }[input.incident] || 'incidencia';
   const amountRequest = result.totalAmount > 0
-    ? `Solicito el abono de ${result.totalAmount.toLocaleString('es-ES')} € (${result.amountPerPassenger.toLocaleString('es-ES')} € por pasajero, ${result.passengers} pasajero${result.passengers === 1 ? '' : 's'}), sujeto a la comprobación de los hechos y de cualquier causa de exoneración debidamente acreditada.`
-    : 'Solicito una respuesta motivada sobre mis derechos, junto con la documentación que justifique cualquier causa de exclusión alegada.';
+    ? `El abono de ${result.totalAmount.toLocaleString('es-ES')} € (${result.amountPerPassenger.toLocaleString('es-ES')} € por pasajero, ${result.passengers} pasajero${result.passengers === 1 ? '' : 's'}), sujeto a la comprobación de los hechos y de cualquier causa de exoneración debidamente acreditada.`
+    : 'Una respuesta motivada sobre mis derechos, junto con la documentación que justifique cualquier causa de exclusión alegada.';
   const expenses = Number(input.expenses) > 0
     ? ` En particular, solicito ${Number(input.expenses).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € de gastos acreditados.`
     : '';

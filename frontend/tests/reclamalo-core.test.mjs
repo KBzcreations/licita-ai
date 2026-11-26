@@ -74,7 +74,7 @@ test('la carta incluye hechos y no inventa una compensación cuando no correspon
   const letter = buildClaimText(input, result);
   assert.match(letter, /Ana/);
   assert.match(letter, /respuesta motivada/i);
-  assert.ok(!letter.includes('Solicito el abono de 0'));
+  assert.ok(!letter.includes('abono de 0'));
 });
 
 test('el checklist pide la reserva completa cuando hay conexión', () => {
@@ -107,4 +107,11 @@ test('la carta solo recoge hechos favorables y nunca frases dirigidas al pasajer
     const letter = buildClaimText({ ...input, claimantName: 'Ana', airline: 'Vueling' }, evaluateCase(input));
     assert.doesNotMatch(letter, /Falta|Hay que|No des por|inferior a 3 horas|al menos 14 días|no parece aplicable|reservas separadas/);
   }
+});
+
+test('la carta normaliza el número de vuelo y escribe la fecha en formato español', () => {
+  const input = { ...base, flightNumber: ' ib 4567', flightDate: '2026-11-24', origin: 'Granada (GRX)', destination: 'Bruselas (BRU)' };
+  const letter = buildClaimText(input, evaluateCase(input));
+  assert.match(letter, /vuelo IB4567, Granada \(GRX\)–Bruselas \(BRU\), 24\/11\/2026/);
+  assert.match(letter, /SOLICITO\n\n1\. El abono de/);
 });

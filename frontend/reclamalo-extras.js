@@ -39,14 +39,50 @@ import AIRPORT_DATA from './reclamalo-airports.js';
   }));
   document.body.append(list);
 
+  // Nombres en español y ciudades con varios aeropuertos: se elige el principal.
+  const norm = (t) => (t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/^aeropuerto (de |del )?/, '').replace(/[·,]/g, ' ').replace(/\s+/g, ' ').trim();
+  const ALIAS = Object.fromEntries(Object.entries({
+    MAD: 'madrid|barajas|madrid barajas', BCN: 'barcelona|el prat|barcelona el prat', VLC: 'valencia', SVQ: 'sevilla',
+    AGP: 'malaga', PMI: 'palma|palma de mallorca|mallorca', LPA: 'gran canaria|las palmas|las palmas de gran canaria',
+    TFS: 'tenerife|tenerife sur', TFN: 'tenerife norte|los rodeos', SPC: 'la palma', ACE: 'lanzarote|arrecife', FUE: 'fuerteventura',
+    IBZ: 'ibiza|eivissa', MAH: 'menorca|mahon', SCQ: 'santiago de compostela', LCG: 'a coruna|la coruna|coruna',
+    OVD: 'asturias|oviedo', BIO: 'bilbao', EAS: 'san sebastian|donostia', SDR: 'santander', VGO: 'vigo', ZAZ: 'zaragoza',
+    ALC: 'alicante|elche', RMU: 'murcia', LEI: 'almeria', GRX: 'granada', XRY: 'jerez', VLL: 'valladolid', REU: 'reus',
+    GRO: 'girona|gerona', PNA: 'pamplona', VIT: 'vitoria', BJZ: 'badajoz', LEN: 'leon', MLN: 'melilla', VDE: 'el hierro', GMZ: 'la gomera',
+    BRU: 'bruselas|bruselas zaventem', CRL: 'charleroi|bruselas charleroi', LHR: 'londres|londres heathrow|heathrow', LGW: 'londres gatwick|gatwick',
+    STN: 'londres stansted|stansted', LTN: 'londres luton|luton', CDG: 'paris|paris charles de gaulle|charles de gaulle', ORY: 'paris orly|orly',
+    BVA: 'paris beauvais|beauvais', FCO: 'roma|roma fiumicino|fiumicino', CIA: 'roma ciampino|ciampino', MXP: 'milan|milan malpensa|malpensa',
+    BGY: 'milan bergamo|bergamo', LIN: 'milan linate|linate', MUC: 'munich', FRA: 'francfort|frankfurt', LIS: 'lisboa', OPO: 'oporto|porto',
+    AMS: 'amsterdam', BER: 'berlin', VIE: 'viena', ZRH: 'zurich', GVA: 'ginebra', BSL: 'basilea', DUB: 'dublin', EDI: 'edimburgo',
+    MAN: 'manchester', BHX: 'birmingham', BRS: 'bristol', GLA: 'glasgow', ATH: 'atenas', ARN: 'estocolmo', CPH: 'copenhague', OSL: 'oslo',
+    HEL: 'helsinki', WAW: 'varsovia', KRK: 'cracovia', PRG: 'praga', BUD: 'budapest', OTP: 'bucarest', SOF: 'sofia', VCE: 'venecia',
+    NAP: 'napoles', FLR: 'florencia', BLQ: 'bolonia', PSA: 'pisa', TRN: 'turin', CGN: 'colonia', DUS: 'dusseldorf', HAM: 'hamburgo',
+    STR: 'stuttgart', MRS: 'marsella', NCE: 'niza', LYS: 'lyon', BOD: 'burdeos', TLS: 'toulouse|tolosa', NTE: 'nantes', LUX: 'luxemburgo',
+    MLA: 'malta', IST: 'estambul', RAK: 'marrakech', TNG: 'tanger', CMN: 'casablanca', CAI: 'el cairo|cairo', TLV: 'tel aviv',
+    DXB: 'dubai', DOH: 'doha', JFK: 'nueva york|new york', MIA: 'miami', LAX: 'los angeles', ORD: 'chicago', YYZ: 'toronto', YUL: 'montreal',
+    MEX: 'mexico|ciudad de mexico', CUN: 'cancun', BOG: 'bogota', MDE: 'medellin', EZE: 'buenos aires', LIM: 'lima', SCL: 'santiago de chile',
+    GRU: 'sao paulo', GIG: 'rio de janeiro', HAV: 'la habana|habana', SDQ: 'santo domingo', PUJ: 'punta cana', CCS: 'caracas',
+    UIO: 'quito', GYE: 'guayaquil', PTY: 'panama',
+  }).flatMap(([code, names]) => names.split('|').map((n) => [n, code])));
+
   const findAirport = (text) => {
     const t = (text || '').trim();
-    const code = t.slice(0, 3).toUpperCase();
-    if (/^[A-Z]{3}$/.test(code) && AIRPORTS.has(code) && (t.length === 3 || t[3] === ' ')) return AIRPORTS.get(code);
-    const low = t.toLowerCase();
+    if (!t) return null;
+    const code3 = t.slice(0, 3).toUpperCase();
+    if (/^[A-Za-z]{3}$/.test(t.slice(0, 3)) && AIRPORTS.has(code3) && (t.length === 3 || /^[\s·(-]/.test(t[3]))) return AIRPORTS.get(code3);
+    const inParens = t.match(/\(([A-Za-z]{3})\)/);
+    if (inParens && AIRPORTS.has(inParens[1].toUpperCase())) return AIRPORTS.get(inParens[1].toUpperCase());
+    const low = norm(t.replace(/\([^)]*\)/g, ''));
     if (low.length < 3) return null;
-    const hits = [...AIRPORTS.values()].filter((a) => a.label.toLowerCase().includes(low));
-    return hits.length === 1 ? hits[0] : null;
+    if (ALIAS[low] && AIRPORTS.has(ALIAS[low])) return AIRPORTS.get(ALIAS[low]);
+    const hits = [...AIRPORTS.values()].filter((a) => norm(a.label).includes(low));
+    if (hits.length === 1) return hits[0];
+    // Varias coincidencias: gana la ciudad exacta y, a igualdad, el aeropuerto europeo.
+    const score = (a) => (norm(a.label.split(' – ')[0]) === low ? 2 : 0) + (a.eu ? 1 : 0);
+    const best = Math.max(...hits.map(score), 0);
+    const top = hits.filter((a) => score(a) === best);
+    return best >= 2 && top.length === 1 ? top[0] : null;
   };
   const distanceKm = (a, b) => {
     const r = (d) => (d * Math.PI) / 180;
@@ -70,8 +106,11 @@ import AIRPORT_DATA from './reclamalo-airports.js';
     const a = findAirport(form.elements.namedItem('originAirport').value);
     const b = findAirport(form.elements.namedItem('destinationAirport').value);
     if (!a || !b) {
-      routeInfo.textContent = 'Escribe la ciudad o el código (MAD, GRX…) y elige de la lista. Si tu aeropuerto no aparece, elige la distancia a mano.';
-      routeInfo.dataset.state = '';
+      const typed = ['originAirport', 'destinationAirport'].some((n) => norm(form.elements.namedItem(n).value).length >= 3);
+      routeInfo.textContent = typed
+        ? `No reconocemos ${!a ? 'el aeropuerto de origen' : 'el aeropuerto de destino'}. Elígelo de la lista o escribe su código (por ejemplo BRU). Si no aparece, elige la distancia a mano: de ella depende el importe.`
+        : 'Escribe la ciudad o el código (MAD, GRX…) y elige de la lista. Si tu aeropuerto no aparece, elige la distancia a mano.';
+      routeInfo.dataset.state = typed ? 'warn' : '';
       return;
     }
     const km = distanceKm(a, b);
@@ -85,7 +124,7 @@ import AIRPORT_DATA from './reclamalo-airports.js';
       + (near ? ' Está cerca de un límite: confirma la distancia antes de reclamar.' : '');
     routeInfo.dataset.state = 'ok';
   };
-  ['originAirport', 'destinationAirport'].forEach((n) => form.elements.namedItem(n).addEventListener('input', updateRoute));
+  ['originAirport', 'destinationAirport'].forEach((n) => ['input', 'change'].forEach((ev) => form.elements.namedItem(n).addEventListener(ev, updateRoute)));
   // Enlaces desde las páginas por aeropuerto: /?origen=AGP&destino=LHR
   [['origen', 'originAirport'], ['destino', 'destinationAirport']].forEach(([param, field]) => {
     const code = (params.get(param) || '').toUpperCase();
@@ -138,8 +177,13 @@ import AIRPORT_DATA from './reclamalo-airports.js';
       const [city, name] = x.label.split(' – ');
       return name && name.length <= 20 && !name.toLowerCase().includes(city.toLowerCase()) && !city.toLowerCase().includes(name.toLowerCase()) ? name : city;
     };
-    if (a) set('origin', `${place(a)} (${a.code})`);
-    if (b) set('destination', `${place(b)} (${b.code})`);
+    // Si el pasajero escribió la ciudad (p. ej. «Bruselas»), se respeta su nombre en la carta.
+    const written = (n, x) => {
+      const t = form.elements.namedItem(n).value.trim().replace(/\s*\([^)]*\)\s*$/, '');
+      return t && !t.includes(' · ') && t.length > 3 && t.toUpperCase() !== x.code ? t.charAt(0).toUpperCase() + t.slice(1) : place(x);
+    };
+    if (a) set('origin', `${written('originAirport', a)} (${a.code})`);
+    if (b) set('destination', `${written('destinationAirport', b)} (${b.code})`);
   };
   openBtn.addEventListener('click', prefillPremium);
   openBtn.addEventListener('click', () => {
@@ -153,6 +197,19 @@ import AIRPORT_DATA from './reclamalo-airports.js';
     } else {
       warn.hidden = true;
     }
+  });
+
+  // Avisos si el relato no cuadra con lo marcado en la evaluación
+  premiumForm.addEventListener('submit', () => {
+    const facts = norm(premiumForm.elements.namedItem('facts').value);
+    const incident = form.elements.namedItem('incident').value;
+    const extraordinary = form.elements.namedItem('extraordinary').value;
+    const notes = [];
+    if (incident === 'delay' && /\bcancel/.test(facts)) notes.push('En el relato dices que el vuelo se canceló, pero en la evaluación marcaste «retraso». Si fue una cancelación, cámbialo arriba y vuelve a comprobar: los derechos y la carta cambian.');
+    if (incident === 'cancellation' && /\bretras/.test(facts) && !/\bcancel/.test(facts)) notes.push('En el relato hablas de un retraso, pero en la evaluación marcaste «cancelación». Revisa cuál fue la incidencia.');
+    if (extraordinary !== 'yes' && /(tormenta|temporal|niebla|nieve|ceniza|huracan|meteorolog|huelga de controladores|control aereo)/.test(facts)) notes.push('Mencionas una causa como el mal tiempo o una huelga de controladores. La aerolínea puede alegar circunstancias extraordinarias y no pagar la compensación, aunque sí debe darte asistencia y reembolso o transporte alternativo. Puedes reclamar igualmente y pedir que lo demuestre.');
+    const warn = $('#premium-warning');
+    if (notes.length) { warn.textContent = notes.join(' '); warn.hidden = false; }
   });
 
   const donateOk = /^https:\/\//.test(DONATION_LINK);
