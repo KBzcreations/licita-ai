@@ -1,39 +1,17 @@
-import js from '@eslint/js'
-import globals from 'globals'
-import reactHooks from 'eslint-plugin-react-hooks'
-import reactRefresh from 'eslint-plugin-react-refresh'
-import { defineConfig, globalIgnores } from 'eslint/config'
+import js from '@eslint/js';
+import globals from 'globals';
+import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'reclamalo-airports.js']),
   {
-    files: ['api/**/*.js', 'tests/**/*.js'],
+    files: ['*.js', '*.mjs'],
     extends: [js.configs.recommended],
-    languageOptions: {
-      ecmaVersion: 'latest',
-      globals: globals.node,
-      parserOptions: { sourceType: 'module' },
-    },
-    rules: { 'no-empty': 'off' },
+    languageOptions: { ecmaVersion: 'latest', sourceType: 'module', globals: globals.browser },
   },
   {
-    files: ['src/**/*.{js,jsx}'],
-    extends: [
-      js.configs.recommended,
-      reactHooks.configs.flat.recommended,
-      reactRefresh.configs.vite,
-    ],
-    languageOptions: {
-      ecmaVersion: 2020,
-      globals: globals.browser,
-      parserOptions: {
-        ecmaVersion: 'latest',
-        ecmaFeatures: { jsx: true },
-        sourceType: 'module',
-      },
-    },
-    rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
-    },
+    files: ['tests/**/*.mjs', 'scripts/**/*.mjs', 'vite.config.js', 'eslint.config.js'],
+    extends: [js.configs.recommended],
+    languageOptions: { ecmaVersion: 'latest', sourceType: 'module', globals: globals.node },
   },
-])
+]);

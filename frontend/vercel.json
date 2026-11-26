@@ -1,19 +1,18 @@
 {
   "routes": [
     {
-      "src": "/negociador/?",
-      "dest": "/index.html"
+      "src": "/(api|blog|negociador|mapscore|analizar-pliego-licitacion|checklist-licitacion-publica|ejemplo-expediente|revisar-presupuesto-[a-z-]+)(/.*)?",
+      "status": 410,
+      "dest": "/retirada.html"
     },
     {
-      "src": "/mapscore(?:/.*)?",
-      "dest": "/mapscore-disabled.html"
+      "src": "/(control-licitacion|mapscore-disabled)(\\.html)?",
+      "status": 410,
+      "dest": "/retirada.html"
     },
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
+    { "handle": "filesystem" },
+    { "src": "/(aeropuerto|aerolinea)/([a-z-]+)/?", "dest": "/$1/$2.html" },
+    { "src": "/(aviso-legal|privacidad)/?", "dest": "/$1.html" },
+    { "src": "/(.*)", "status": 404, "dest": "/404.html" }
   ]
 }

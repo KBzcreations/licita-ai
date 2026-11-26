@@ -4,9 +4,91 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#071d2b">
-  <title>Reclámalo — Evalúa y prepara tu reclamación aérea</title>
-  <meta name="description" content="Comprueba de forma prudente una incidencia aérea y prepara una reclamación personalizada con documentación e instrucciones oficiales de AESA.">
+  <title>Vuelo retrasado o cancelado: comprueba gratis tu indemnización | Reclámalo</title>
+  <meta name="description" content="¿Tu vuelo llegó con más de 3 horas de retraso o te lo cancelaron? Comprueba gratis si te corresponden 250, 400 o 600 € y prepara tu reclamación sin pagar comisión.">
   <link rel="canonical" href="https://www.licita-ai.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_ES">
+  <meta property="og:site_name" content="Reclámalo">
+  <meta property="og:title" content="¿Vuelo retrasado o cancelado? Comprueba gratis si te deben hasta 600 €">
+  <meta property="og:description" content="Evalúa tu caso en un minuto y prepara la reclamación a la aerolínea sin comisión. Tus datos se quedan en tu móvil.">
+  <meta property="og:url" content="https://www.licita-ai.com/">
+  <meta property="og:image" content="https://www.licita-ai.com/og-reclamalo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "name": "Reclámalo",
+   "url": "https://www.licita-ai.com/",
+   "applicationCategory": "UtilitiesApplication",
+   "operatingSystem": "Web",
+   "inLanguage": "es",
+   "description": "Herramienta gratuita para comprobar si un retraso, una cancelación o una denegación de embarque dan derecho a compensación y preparar la reclamación.",
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+   }
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "¿Cuánto me corresponde si mi vuelo se retrasa o se cancela?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Depende de la distancia del vuelo: 250 € hasta 1.500 km, 400 € entre 1.500 y 3.500 km (o más de 1.500 km dentro de la UE) y 600 € en vuelos de más de 3.500 km fuera de la UE. Son importes por pasajero. Si te ofrecieron otro vuelo y llegaste con poco retraso, pueden reducirse a la mitad."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "¿A partir de cuántas horas de retraso puedo reclamar?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Desde 3 horas de retraso en la llegada a tu destino final. Lo que cuenta es la hora a la que se abren las puertas del avión en el destino, no la hora de salida."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "¿Qué pasa si la aerolínea dice que fue una circunstancia extraordinaria?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "La aerolínea tiene que probar la causa concreta, que afectó a tu vuelo y que tomó todas las medidas razonables. Una tormenta o una huelga de controladores pueden serlo; una avería técnica normal no suele serlo, según el Tribunal de Justicia de la UE."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "¿Cuánto tiempo tengo para reclamar?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Para vuelos en España, AESA indica un plazo general de cinco años desde el incidente para la reclamación a la aerolínea. Con la reforma europea, desde el 23 de octubre de 2027 el plazo pasará a ser de nueve meses."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "¿Tengo que pagar algo?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "No. Reclámalo es gratis y no cobra comisión sobre lo que recuperes. Reclamar a la aerolínea y, si no responde, a AESA también es gratis. Si quieres, puedes apoyar el proyecto con una aportación voluntaria."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "¿Qué datos míos guarda Reclámalo?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Ninguno en nuestros servidores. La evaluación y la carta se generan en tu navegador y solo se guardan en tu dispositivo si pulsas «Guardar borrador»."
+     }
+    }
+   ]
+  }
+ ]
+}</script>
   <link rel="icon" href="/favicon.svg">
   <link rel="stylesheet" href="/reclamalo.css">
 </head>
@@ -16,7 +98,7 @@
     <nav class="shell nav" aria-label="Navegación principal">
       <a class="brand" href="#inicio" aria-label="Reclámalo, inicio"><span>R</span> Reclámalo</a>
       <div class="nav-links">
-        <a href="#evaluador">Evaluación</a><a href="#premium">Expediente</a><a href="#aesa">AESA</a><a class="nav-cta" href="#evaluador">Revisar mi vuelo</a>
+        <a href="#evaluador">Evaluación</a><a href="#premium">Expediente</a><a href="#aesa">AESA</a><a href="#preguntas">Preguntas</a><a class="nav-cta" href="#evaluador">Revisar mi vuelo</a>
       </div>
     </nav>
   </header>
@@ -26,8 +108,8 @@
       <div class="shell hero-grid">
         <div>
           <p class="eyebrow">DERECHOS AÉREOS · REGLAS VIGENTES EN ESPAÑA</p>
-          <h1>Tu reclamación,<br><em>con los matices.</em></h1>
-          <p class="hero-copy">Comprueba si tu retraso, cancelación o denegación de embarque puede dar derecho a compensación. Cuando falten datos o la causa sea discutible, te lo diremos.</p>
+          <h1>¿Vuelo retrasado o cancelado?<br><em>Comprueba si te deben hasta 600 €.</em></h1>
+          <p class="hero-copy">Comprueba gratis si tu retraso, cancelación o denegación de embarque da derecho a compensación y prepara la reclamación tú mismo, sin pagar comisión. Cuando falten datos o la causa sea discutible, te lo diremos.</p>
           <div class="hero-actions"><a class="button primary" href="#evaluador">Evaluar mi caso gratis</a><a class="button secondary" href="#premium">Preparar expediente gratis</a></div>
           <ul class="trust-line" aria-label="Características de privacidad"><li>Sin registro</li><li>Datos en tu dispositivo</li><li>Gratis y sin comisión</li></ul>
         </div>
@@ -136,6 +218,19 @@
       </div><div class="scope-warning"><strong>AESA no cubre todo.</strong> Equipaje, daños y perjuicios y cláusulas del contrato quedan fuera de este procedimiento específico. Este producto se limita a retraso, cancelación y denegación de embarque bajo reglas europeas. AESA indica un plazo general de cinco años desde el incidente para la reclamación previa; la reclamación previa aportada a AESA no debe tener más de un año.</div>
     </div></section>
 
+
+    <section class="section faq-section" id="preguntas"><div class="shell narrow">
+      <div class="section-heading"><p class="eyebrow coral">PREGUNTAS FRECUENTES</p><h2>Lo que más se pregunta</h2></div>
+      <div class="faq"><details><summary>¿Cuánto me corresponde si mi vuelo se retrasa o se cancela?</summary><p>Depende de la distancia del vuelo: 250 € hasta 1.500 km, 400 € entre 1.500 y 3.500 km (o más de 1.500 km dentro de la UE) y 600 € en vuelos de más de 3.500 km fuera de la UE. Son importes por pasajero. Si te ofrecieron otro vuelo y llegaste con poco retraso, pueden reducirse a la mitad.</p></details><details><summary>¿A partir de cuántas horas de retraso puedo reclamar?</summary><p>Desde 3 horas de retraso en la llegada a tu destino final. Lo que cuenta es la hora a la que se abren las puertas del avión en el destino, no la hora de salida.</p></details><details><summary>¿Qué pasa si la aerolínea dice que fue una circunstancia extraordinaria?</summary><p>La aerolínea tiene que probar la causa concreta, que afectó a tu vuelo y que tomó todas las medidas razonables. Una tormenta o una huelga de controladores pueden serlo; una avería técnica normal no suele serlo, según el Tribunal de Justicia de la UE.</p></details><details><summary>¿Cuánto tiempo tengo para reclamar?</summary><p>Para vuelos en España, AESA indica un plazo general de cinco años desde el incidente para la reclamación a la aerolínea. Con la reforma europea, desde el 23 de octubre de 2027 el plazo pasará a ser de nueve meses.</p></details><details><summary>¿Tengo que pagar algo?</summary><p>No. Reclámalo es gratis y no cobra comisión sobre lo que recuperes. Reclamar a la aerolínea y, si no responde, a AESA también es gratis. Si quieres, puedes apoyar el proyecto con una aportación voluntaria.</p></details><details><summary>¿Qué datos míos guarda Reclámalo?</summary><p>Ninguno en nuestros servidores. La evaluación y la carta se generan en tu navegador y solo se guardan en tu dispositivo si pulsas «Guardar borrador».</p></details></div>
+    </div></section>
+
+    <!-- paginas:inicio -->
+    <section class="section pages-section" id="por-aeropuerto"><div class="shell narrow">
+      <div class="section-heading"><p class="eyebrow coral">GUÍAS RÁPIDAS</p><h2>Por aeropuerto y por aerolínea</h2></div>
+      <p class="pages-links"><b>Aeropuertos:</b> <a href="/aeropuerto/madrid">Madrid-Barajas</a> · <a href="/aeropuerto/barcelona">Barcelona-El Prat</a> · <a href="/aeropuerto/palma-de-mallorca">Palma de Mallorca</a> · <a href="/aeropuerto/malaga">Málaga-Costa del Sol</a> · <a href="/aeropuerto/alicante">Alicante-Elche</a> · <a href="/aeropuerto/gran-canaria">Gran Canaria</a> · <a href="/aeropuerto/tenerife-sur">Tenerife Sur</a> · <a href="/aeropuerto/tenerife-norte">Tenerife Norte</a> · <a href="/aeropuerto/valencia">Valencia</a> · <a href="/aeropuerto/sevilla">Sevilla</a> · <a href="/aeropuerto/bilbao">Bilbao</a> · <a href="/aeropuerto/ibiza">Ibiza</a> · <a href="/aeropuerto/granada">Granada-Jaén</a> · <a href="/aeropuerto/lanzarote">Lanzarote</a> · <a href="/aeropuerto/fuerteventura">Fuerteventura</a> · <a href="/aeropuerto/santiago">Santiago de Compostela</a></p>
+      <p class="pages-links"><b>Aerolíneas:</b> <a href="/aerolinea/ryanair">Ryanair</a> · <a href="/aerolinea/vueling">Vueling</a> · <a href="/aerolinea/iberia">Iberia</a> · <a href="/aerolinea/air-europa">Air Europa</a> · <a href="/aerolinea/volotea">Volotea</a> · <a href="/aerolinea/binter">Binter</a></p>
+    </div></section>
+    <!-- paginas:fin -->
     <section class="section sources-section" id="fuentes"><div class="shell narrow">
       <div class="section-heading"><p class="eyebrow mint">FUENTES Y LÍMITES</p><h2>Reglas visibles, no una caja negra.</h2></div>
       <div class="source-grid">
@@ -145,10 +240,10 @@
       </div>
     </div></section>
 
-    <section class="privacy" id="privacidad"><div class="shell privacy-grid"><div><p class="eyebrow mint">PRIVACIDAD LOCAL</p><h2>Tu caso se queda contigo.</h2></div><div><p>Los datos del evaluador y del expediente se procesan en el navegador. No se suben reservas, nombres, documentos ni hechos a nuestros servidores. Solo se guarda un borrador en <em>localStorage</em> si pulsas «Guardar borrador»; puedes borrarlo desde la propia herramienta.</p><p>No hay cuentas, pagos ni cookies publicitarias. Si haces una aportación voluntaria, la gestiona la plataforma de pago en su propia página: no vemos tu tarjeta. Más detalles en la <a href="privacidad.html">política de privacidad</a>.</p></div></div></section>
+    <section class="privacy" id="privacidad"><div class="shell privacy-grid"><div><p class="eyebrow mint">PRIVACIDAD LOCAL</p><h2>Tu caso se queda contigo.</h2></div><div><p>Los datos del evaluador y del expediente se procesan en el navegador. No se suben reservas, nombres, documentos ni hechos a nuestros servidores. Solo se guarda un borrador en <em>localStorage</em> si pulsas «Guardar borrador»; puedes borrarlo desde la propia herramienta.</p><p>No hay cuentas, pagos ni cookies publicitarias. Si haces una aportación voluntaria, la gestiona la plataforma de pago en su propia página: no vemos tu tarjeta. Más detalles en la <a href="/privacidad">política de privacidad</a>.</p></div></div></section>
   </main>
 
-  <footer><div class="shell"><div class="brand"><span>R</span> Reclámalo</div><p>Herramienta informativa para pasajeros en España · Versión jurídica 11/11/2026</p><div><a href="#fuentes">Fuentes</a><a href="aviso-legal.html">Aviso legal</a><a href="privacidad.html">Privacidad</a><a class="donate-link donate-only" data-place="pie" href="#" target="_blank" rel="noopener" hidden>Apoyar el proyecto</a></div></div></footer>
+  <footer><div class="shell"><div class="brand"><span>R</span> Reclámalo</div><p>Herramienta informativa para pasajeros en España · Versión jurídica 11/11/2026</p><div><a href="#fuentes">Fuentes</a><a href="/aviso-legal">Aviso legal</a><a href="/privacidad">Privacidad</a><a class="donate-link donate-only" data-place="pie" href="#" target="_blank" rel="noopener" hidden>Apoyar el proyecto</a></div></div></footer>
   <script type="module" src="/reclamalo-app.js"></script>
   <script type="module" src="/reclamalo-extras.js"></script>
 </body>

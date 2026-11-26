@@ -1,9 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://www.licita-ai.com/</loc>
-    <lastmod>2026-11-11</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
+  <url><loc>https://www.licita-ai.com/</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/madrid</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/barcelona</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/palma-de-mallorca</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/malaga</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/alicante</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/gran-canaria</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/tenerife-sur</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/tenerife-norte</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/valencia</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/sevilla</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/bilbao</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/ibiza</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/granada</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/lanzarote</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/fuerteventura</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aeropuerto/santiago</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aerolinea/ryanair</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aerolinea/vueling</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aerolinea/iberia</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aerolinea/air-europa</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aerolinea/volotea</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aerolinea/binter</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/aviso-legal</loc><lastmod>2026-11-26</lastmod></url>
+  <url><loc>https://www.licita-ai.com/privacidad</loc><lastmod>2026-11-26</lastmod></url>
 </urlset>
