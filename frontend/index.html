@@ -16,7 +16,7 @@
     <nav class="shell nav" aria-label="Navegación principal">
       <a class="brand" href="#inicio" aria-label="Reclámalo, inicio"><span>R</span> Reclámalo</a>
       <div class="nav-links">
-        <a href="#evaluador">Evaluación</a><a href="#premium">Premium</a><a href="#aesa">AESA</a><a class="nav-cta" href="#evaluador">Revisar mi vuelo</a>
+        <a href="#evaluador">Evaluación</a><a href="#premium">Expediente</a><a href="#aesa">AESA</a><a class="nav-cta" href="#evaluador">Revisar mi vuelo</a>
       </div>
     </nav>
   </header>
@@ -28,8 +28,8 @@
           <p class="eyebrow">DERECHOS AÉREOS · REGLAS VIGENTES EN ESPAÑA</p>
           <h1>Tu reclamación,<br><em>con los matices.</em></h1>
           <p class="hero-copy">Comprueba si tu retraso, cancelación o denegación de embarque puede dar derecho a compensación. Cuando falten datos o la causa sea discutible, te lo diremos.</p>
-          <div class="hero-actions"><a class="button primary" href="#evaluador">Evaluar mi caso gratis</a><a class="button secondary" href="#premium">Ver Premium · 4,99 €</a></div>
-          <ul class="trust-line" aria-label="Características de privacidad"><li>Sin registro</li><li>Datos en tu dispositivo</li><li>Sin comisión</li></ul>
+          <div class="hero-actions"><a class="button primary" href="#evaluador">Evaluar mi caso gratis</a><a class="button secondary" href="#premium">Preparar expediente gratis</a></div>
+          <ul class="trust-line" aria-label="Características de privacidad"><li>Sin registro</li><li>Datos en tu dispositivo</li><li>Gratis y sin comisión</li></ul>
         </div>
         <aside class="case-card" aria-label="Ejemplo de evaluación">
           <div class="case-top"><span>CASO ILUSTRATIVO</span><span class="live-dot">● Evaluado</span></div>
@@ -41,7 +41,7 @@
       </div>
     </section>
 
-    <section class="notice-strip" aria-label="Estado del servicio"><div class="shell"><strong>Modo de validación:</strong> Premium está implementado para pruebas, pero los pagos reales permanecen desactivados hasta autorización expresa. Nadie puede recibir un cargo.</div></section>
+    <section class="notice-strip" aria-label="Estado del servicio" hidden><div class="shell"><strong>Modo de validación:</strong> Premium está implementado para pruebas, pero los pagos reales permanecen desactivados hasta autorización expresa. Nadie puede recibir un cargo.</div></section>
 
     <section class="section" id="evaluador">
       <div class="shell narrow">
@@ -56,12 +56,12 @@
               <label class="choice"><input type="radio" name="incident" value="denied"><span><b>Embarque denegado</b><small>Sobreventa o razón operativa</small></span></label>
             </div>
             <div class="field-grid">
-              <label>Fecha del vuelo<input name="flightDate" type="date" required></label>
+              <label>Aeropuerto de salida<input name="originAirport" list="airport-list" autocomplete="off" placeholder="Ej. Granada o GRX"></label><label>Aeropuerto de llegada final<input name="destinationAirport" list="airport-list" autocomplete="off" placeholder="Ej. Bruselas o BRU"></label><p class="route-info" id="route-info" aria-live="polite"></p><label>Fecha del vuelo<input name="flightDate" type="date" required></label>
               <label>Salida del itinerario<select name="departureScope" required><option value="eu">UE, EEE o Suiza</option><option value="outside">Fuera de la UE/EEE/Suiza</option></select></label>
               <label>Llegada final<select name="arrivalScope" required><option value="eu">UE, EEE o Suiza</option><option value="outside">Fuera de la UE/EEE/Suiza</option></select></label>
               <label>Compañía que operó el vuelo<select name="euOperatingCarrier" required><option value="yes">Compañía de la UE</option><option value="no">Compañía no UE</option><option value="unknown">No lo sé</option></select></label>
               <label class="third-country-field" hidden>¿Recibiste beneficios, compensación y asistencia equivalentes en el país de salida?<select name="thirdCountryBenefits"><option value="unknown">No lo sé</option><option value="no">No</option><option value="yes">Sí</option></select></label>
-              <label>Distancia aproximada<select name="distanceBand" required><option value="short">Hasta 1.500 km</option><option value="medium">1.500–3.500 km</option><option value="intra_eu_long">Más de 1.500 km dentro de la UE</option><option value="long">Más de 3.500 km fuera de la UE</option></select></label>
+              <label>Distancia (se calcula sola con los aeropuertos)<select name="distanceBand" required><option value="short">Hasta 1.500 km</option><option value="medium">1.500–3.500 km</option><option value="intra_eu_long">Más de 1.500 km dentro de la UE</option><option value="long">Más de 3.500 km fuera de la UE</option></select></label>
             </div>
           </fieldset>
           <fieldset>
@@ -86,7 +86,7 @@
 
         <section id="evaluation-result" class="result-card" hidden aria-live="polite">
           <div class="result-head"><div><p class="eyebrow">RESULTADO ORIENTATIVO</p><h3 id="result-headline"></h3></div><div class="amount"><strong id="result-amount">—</strong><span id="result-amount-label">por pasajero</span></div></div>
-          <div id="result-checks" class="checks"></div>
+          <div id="result-checks" class="checks"></div><div id="result-compare" class="compare" hidden></div>
           <div class="result-actions"><a class="button primary" href="#premium">Preparar mi expediente</a><button class="text-button" id="edit-case" type="button">Modificar datos</button></div>
           <p class="legal-note">Cálculo basado en reglas aplicables a 11/11/2026. El Reglamento (UE) 2026/2202 está publicado, pero sus cambios serán aplicables desde el 23/10/2027.</p>
         </section>
@@ -95,7 +95,7 @@
 
     <section class="section premium-section" id="premium">
       <div class="shell">
-        <div class="premium-intro"><div><p class="eyebrow mint">EXPEDIENTE PREMIUM</p><h2>No compres una carta genérica.<br>Prepara un caso defendible.</h2></div><div class="price"><strong>4,99 €</strong><span>pago único · sin comisión</span></div></div>
+        <div class="premium-intro"><div><p class="eyebrow mint">EXPEDIENTE COMPLETO</p><h2>No envíes una carta genérica.<br>Prepara un caso defendible.</h2></div><div class="price"><strong>Gratis</strong><span>sin pago · sin comisión</span><span class="price-vs">Un intermediario al 35 % se queda 87,50 € de 250 €</span></div></div>
         <div class="premium-grid">
           <div class="premium-list">
             <div><b>01</b><span><strong>Evaluación personalizada</strong><small>Conclusión prudente, importe y puntos que requieren prueba.</small></span></div>
@@ -103,12 +103,12 @@
             <div><b>03</b><span><strong>Lista de documentación</strong><small>Qué adjuntar y qué justificantes conservar.</small></span></div>
             <div><b>04</b><span><strong>Ruta AESA</strong><small>Cuándo acudir, qué presentar y qué esperar.</small></span></div>
           </div>
-          <div class="premium-gate panel" id="premium-gate"><span class="test-badge">PRUEBA SIN COBRO</span><h3>Genera el expediente completo</h3><p>El precio previsto es 4,99 €, pero el cobro está desactivado. Puedes probar ahora el flujo y los documentos sin introducir tarjeta.</p><button class="button primary full" id="open-premium" type="button">Probar Premium sin pagar</button><small>Estado del pago: <strong>desactivado</strong>. No existe llamada a Stripe ni a otra pasarela.</small></div>
+          <div class="premium-gate panel" id="premium-gate"><span class="test-badge free-badge">GRATIS</span><h3>Genera el expediente completo</h3><p>Sin pago, sin registro y sin comisión sobre lo que cobres. Tus datos se quedan en tu dispositivo.</p><button class="button primary full" id="open-premium" type="button">Preparar mi expediente gratis</button><small class="donate-only" hidden>Si te resulta útil, puedes <a class="donate-link" data-place="gate" href="#" target="_blank" rel="noopener">apoyar el proyecto</a> con una aportación voluntaria. No cambia nada del servicio.</small></div>
         </div>
 
         <section id="premium-workspace" class="workspace panel" hidden>
           <div class="workspace-head"><div><p class="eyebrow coral">TU EXPEDIENTE LOCAL</p><h3>Completa solo lo necesario.</h3></div><div class="local-pill">🔒 No se envía al servidor</div></div>
-          <form id="premium-form" novalidate>
+          <p class="premium-warning" id="premium-warning" hidden></p><form id="premium-form" novalidate>
             <div class="field-grid">
               <label>Nombre y apellidos<input name="claimantName" autocomplete="name" required></label><label>Compañía operadora<input name="airline" required placeholder="La que realizó o debía realizar el vuelo"></label>
               <label>Número de vuelo<input name="flightNumber" required placeholder="Ej. IB1234"></label><label>Fecha del vuelo<input name="flightDate" type="date" required></label>
@@ -120,9 +120,9 @@
             <div class="workspace-actions"><button class="button primary" type="submit">Generar expediente</button><button class="button tertiary" id="save-local" type="button">Guardar borrador en este dispositivo</button><button class="text-button danger" id="clear-local" type="button">Borrar datos locales</button></div><p id="premium-status" class="status" aria-live="polite"></p>
           </form>
           <div id="document-output" class="document-output" hidden>
-            <div class="document-toolbar"><h3>Expediente preparado</h3><div><button class="button tertiary" id="copy-letter" type="button">Copiar carta</button><button class="button tertiary" id="download-letter" type="button">Descargar .txt</button><button class="button primary" id="print-pack" type="button">Imprimir / guardar PDF</button></div></div>
+            <div class="document-toolbar"><h3>Expediente preparado</h3><div><button class="button tertiary" id="copy-letter" type="button">Copiar carta</button><button class="button tertiary" id="download-letter" type="button">Descargar .txt</button><button class="button tertiary" id="ics-reminder" type="button">Recordatorio en 30 días</button><button class="button primary" id="print-pack" type="button">Imprimir / guardar PDF</button></div></div>
             <article id="claim-letter" class="paper"></article>
-            <div class="doc-grid"><section><h4>Documentos para AESA</h4><ul id="document-list" class="document-list"></ul></section><section><h4>Siguiente paso</h4><ol><li>Envía primero la reclamación a la compañía por su canal oficial.</li><li>Guarda el justificante y espera su respuesta hasta un mes.</li><li>Si no responde o no satisface tu reclamación, presenta el expediente ante AESA.</li></ol></section></div>
+            <div class="doc-grid"><section><h4>Documentos para AESA</h4><ul id="document-list" class="document-list"></ul></section><section><h4>Siguiente paso</h4><ol><li>Envía primero la reclamación a la compañía por su canal oficial.</li><li>Guarda el justificante y espera su respuesta hasta un mes.</li><li>Si no responde o no satisface tu reclamación, presenta el expediente ante AESA.</li></ol></section></div><div class="donate-box donate-only" hidden><div><b>¿Te ha servido?</b><span>Reclámalo es gratis y no cobra comisión. Si quieres ayudar a mantenerlo, puedes hacer una aportación voluntaria. No desbloquea nada: solo apoya el proyecto.</span></div><a class="button primary donate-link" data-place="expediente" href="#" target="_blank" rel="noopener">Apoyar Reclámalo</a></div>
           </div>
         </section>
       </div>
@@ -145,10 +145,11 @@
       </div>
     </div></section>
 
-    <section class="privacy" id="privacidad"><div class="shell privacy-grid"><div><p class="eyebrow mint">PRIVACIDAD LOCAL</p><h2>Tu caso se queda contigo.</h2></div><div><p>Los datos del evaluador y del expediente se procesan en el navegador. No se suben reservas, nombres, documentos ni hechos a nuestros servidores. Solo se guarda un borrador en <em>localStorage</em> si pulsas «Guardar borrador»; puedes borrarlo desde la propia herramienta.</p><p>No hay cuentas, cookies publicitarias ni pagos activos. Antes de una activación comercial harán falta identidad del prestador, condiciones de contratación, política de privacidad final y autorización expresa.</p></div></div></section>
+    <section class="privacy" id="privacidad"><div class="shell privacy-grid"><div><p class="eyebrow mint">PRIVACIDAD LOCAL</p><h2>Tu caso se queda contigo.</h2></div><div><p>Los datos del evaluador y del expediente se procesan en el navegador. No se suben reservas, nombres, documentos ni hechos a nuestros servidores. Solo se guarda un borrador en <em>localStorage</em> si pulsas «Guardar borrador»; puedes borrarlo desde la propia herramienta.</p><p>No hay cuentas, pagos ni cookies publicitarias. Si haces una aportación voluntaria, la gestiona la plataforma de pago en su propia página: no vemos tu tarjeta. Más detalles en la <a href="privacidad.html">política de privacidad</a>.</p></div></div></section>
   </main>
 
-  <footer><div class="shell"><div class="brand"><span>R</span> Reclámalo</div><p>Herramienta informativa para pasajeros en España · Versión jurídica 11/11/2026</p><div><a href="#fuentes">Fuentes</a><a href="#privacidad">Privacidad</a></div></div></footer>
+  <footer><div class="shell"><div class="brand"><span>R</span> Reclámalo</div><p>Herramienta informativa para pasajeros en España · Versión jurídica 11/11/2026</p><div><a href="#fuentes">Fuentes</a><a href="aviso-legal.html">Aviso legal</a><a href="privacidad.html">Privacidad</a><a class="donate-link donate-only" data-place="pie" href="#" target="_blank" rel="noopener" hidden>Apoyar el proyecto</a></div></div></footer>
   <script type="module" src="/reclamalo-app.js"></script>
+  <script type="module" src="/reclamalo-extras.js"></script>
 </body>
 </html>
