@@ -1,7 +1,4 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-})
+// Reclámalo: portada con Vite; el resto de páginas son HTML estático en public/.
+export default defineConfig({});

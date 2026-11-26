@@ -1,0 +1,22 @@
+:root{--ink:#071d2b;--paper:#f6f5ef;--coral:#ff6b4a;--coral2:#e84e31;--mint:#72e5bd;--muted:#5b6a72;--line:#d9ddd7;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper)}
+*{box-sizing:border-box}body{margin:0;background:var(--paper)}
+.top{background:var(--ink);display:flex;justify-content:space-between;align-items:center;padding:16px max(20px,calc((100% - 820px)/2))}
+.brand{color:#fff;font-weight:900;text-decoration:none;display:inline-flex;align-items:center;gap:10px;letter-spacing:-.5px}
+.brand span{display:inline-grid;place-items:center;background:var(--coral);color:#fff;width:31px;height:31px;border-radius:9px;transform:rotate(-4deg)}
+.top-cta{color:#fff;border:1px solid var(--mint);border-radius:9px;padding:9px 14px;font-size:14px;font-weight:700;text-decoration:none}
+main{width:min(820px,calc(100% - 40px));margin:44px auto 56px;line-height:1.7;font-size:16px}
+.eyebrow{color:var(--coral2);font-size:12px;font-weight:900;letter-spacing:1.2px;margin:0}
+h1{font-size:clamp(30px,5.5vw,46px);line-height:1.1;letter-spacing:-1.2px;margin:10px 0 16px}
+h2{font-size:22px;letter-spacing:-.4px;margin:40px 0 10px}
+.lead{font-size:18px;color:#24414e}
+.cta{display:inline-block;background:var(--coral);color:#fff;font-weight:800;text-decoration:none;padding:14px 20px;border-radius:12px;margin:8px 0 6px;box-shadow:0 10px 24px #ff6b4a40}
+.cta:hover{background:var(--coral2)}
+table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14.5px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line)}th{background:#eef2ee;font-size:13px}
+tr:last-child td{border-bottom:0}
+.note{font-size:14px;color:var(--muted)}
+a{color:var(--coral2)}
+ol li,ul li{margin-bottom:6px}
+footer{background:#04131d;color:#9eb2ba;padding:26px max(20px,calc((100% - 820px)/2));font-size:13px;line-height:1.9}
+footer a{color:#fff}footer .legal{color:#7f97a1;margin-top:14px}
+@media(max-width:600px){th:nth-child(2),td:nth-child(2){display:none}}

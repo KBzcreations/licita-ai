@@ -1,213 +1,37 @@
-# Licita AI 🚀
+# Reclámalo
 
-Plataforma SaaS de licitaciones públicas del sector tecnológico con análisis automático mediante IA.
+Herramienta web gratuita para comprobar si un retraso, una cancelación o una denegación de embarque dan derecho a compensación según el Reglamento (CE) 261/2004, y preparar la reclamación a la aerolínea y, si hace falta, ante AESA. Todo se procesa en el navegador: no hay servidor de datos ni cuentas.
 
-## 📋 Descripción
+Se publica en Vercel desde la carpeta `frontend/` (rama `master` → producción; ramas y PR → vista previa).
 
-Licita AI escanea diariamente licitaciones públicas, filtra las del sector tecnológico y utiliza Inteligencia Artificial para extraer información clave y generar resúmenes comerciales ejecutivos.
+## Estructura
 
-**Características principales:**
-- Scraping automático de portales de licitaciones
-- Filtrado inteligente por palabras clave tech
-- Análisis con IA (Gemini) de cada licitación
-- Base de datos en Supabase
-- API REST con FastAPI
-- Frontend React moderno
-- Autenticación de usuarios
+| Ruta | Qué es |
+| --- | --- |
+| `frontend/index.html` | Portada con el evaluador, el expediente, AESA y preguntas frecuentes |
+| `frontend/reclamalo-core.mjs` | Motor de reglas (importes, umbrales, exclusiones) y carta de reclamación |
+| `frontend/reclamalo-app.js` | Interfaz del evaluador y del expediente |
+| `frontend/reclamalo-extras.js` | Aeropuertos y distancia, comparativa, recordatorio `.ics`, aportaciones voluntarias (Stripe) |
+| `frontend/reclamalo-airports.js` | Aeropuertos con vuelos regulares (OurAirports) |
+| `frontend/scripts/` | Generador de páginas por aeropuerto y aerolínea, sitemap y dominio (`site.mjs`) |
+| `frontend/public/` | Páginas estáticas: aeropuertos, aerolíneas, aviso legal, privacidad, 404 |
+| `frontend/vercel.json` | Rutas: 410 para direcciones antiguas de Licita/MapScore y 404 real |
 
----
-
-## 🏗️ Arquitectura
-
-```
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Scraper.py    │────▶│  Extractor.py    │────▶│   Supabase      │
-│   (scraping)    │     │  (IA Gemini)     │     │   (PostgreSQL)  │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-                                                        │
-                                                        ▼
-┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   Frontend      │◀────│   Main.py        │◀────│   API REST      │
-│   (React+Vite)  │     │   (FastAPI)      │     │   (endpoints)   │
-└─────────────────┘     └──────────────────┘     └─────────────────┘
-```
-
----
-
-## 🚀 Inicio Rápido
-
-### Prerrequisitos
-
-- Python 3.10+
-- Node.js 18+
-- Cuenta en Supabase
-- API Key de Google Gemini
-
-### 1. Backend
+## Comandos (dentro de `frontend/`)
 
 ```bash
-# Instalar dependencias
-pip install -r requirements.txt
-
-# Configurar variables de entorno (.env)
-# - SUPABASE_URL
-# - SUPABASE_KEY
-# - SUPABASE_SERVICE_KEY (para insertar datos)
-# - GEMINI_API_KEY
-
-# Ejecutar pipeline completo
-python pipeline.py
-
-# Iniciar API
-python main.py
-# o: uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-### 2. Frontend
-
-```bash
-cd frontend
-
-# Instalar dependencias
 npm install
-
-# Configurar variables (.env)
-# - VITE_SUPABASE_URL
-# - VITE_SUPABASE_ANON_KEY
-# - VITE_API_URL=http://localhost:8000
-
-# Iniciar dev server
-npm run dev
+npm run dev     # desarrollo local
+npm test        # pruebas del motor y de la carta
+npm run lint
+npm run pages   # regenera páginas, sitemap y enlaces internos (tras cambiar SITE o los listados)
+npm run build
 ```
 
----
+## Cambiar de dominio
 
-## 📦 Estructura del Proyecto
+1. Edita `SITE` en `frontend/scripts/site.mjs`.
+2. Ejecuta `npm run pages` (actualiza canónicas, sitemap, robots y vista previa al compartir).
+3. Añade el dominio en Vercel y redirige el anterior.
 
-```
-licita-ai/
-├── scraper.py          # Scraper de licitaciones
-├── extractor.py        # Procesamiento con IA + Supabase
-├── pipeline.py         # Pipeline completo
-├── main.py             # API FastAPI
-├── seed_data.py        # Script para datos de prueba
-├── schema.sql          # Schema de Supabase
-├── supabase_rls_fix.sql # Fix políticas RLS
-├── .env                # Variables de entorno (backend)
-├── requirements.txt    # Dependencias Python
-└── frontend/
-    ├── src/
-    │   ├── App.jsx         # Componentes principales
-    │   ├── contexts/       # AuthContext
-    │   └── lib/            # Supabase client
-    ├── .env                # Variables de entorno (frontend)
-    └── package.json
-```
-
----
-
-## 💰 Modelo de Monetización
-
-### Planes Sugeridos
-
-| Plan | Precio | Características |
-|------|--------|-----------------|
-| **Free** | €0/mes | 5 licitaciones/día, filtros básicos |
-| **Pro** | €49/mes | Licitaciones ilimitadas, alertas email, API access |
-| **Enterprise** | €199/mes | Multi-usuario, webhooks, SLA, soporte prioritario |
-
-### Estrategia de Monetización
-
-1. **Freemium**: Permite uso gratuito limitado para captar usuarios
-2. **Alertas Premium**: Notificaciones en tiempo real por email/SMS
-3. **API Access**: Cobro por uso de API para integración con otros sistemas
-4. **White-label**: Licencia para consultoras que quieran usar la plataforma con su marca
-
-### Canales de Adquisición
-
-- SEO: Posicionar para "licitaciones tecnología", "contratos públicos IT"
-- LinkedIn: Contenido sobre oportunidades de negocio en sector público
-- Partnerships: Consultoras tecnológicas, cámaras de comercio
-- Google Ads: Keywords de licitaciones y contratos públicos
-
----
-
-## 🔧 Configuración de Producción
-
-### Backend (Render/Railway)
-
-1. Crear nuevo servicio Web Service
-2. Conectar repositorio GitHub
-3. Configurar variables de entorno
-4. Build command: `pip install -r requirements.txt`
-5. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
-
-### Frontend (Vercel/Netlify)
-
-1. Conectar repositorio GitHub
-2. Directorio: `frontend`
-3. Build command: `npm run build`
-4. Output directory: `dist`
-5. Configurar variables de entorno
-
-### Tarea Programada (Cron)
-
-Ejecutar `pipeline.py` cada 6-12 horas:
-- **Render**: Scheduled Jobs
-- **Railway**: Cron job
-- **GitHub Actions**: Workflow programado
-- **Cron local**: `0 */6 * * * cd /path && python pipeline.py`
-
----
-
-## 🛡️ Seguridad
-
-### Variables Críticas (NUNCA exponer en frontend)
-
-```
-SUPABASE_SERVICE_KEY  # Solo backend
-GEMINI_API_KEY        # Solo backend
-```
-
-### Políticas RLS Recomendadas
-
-Ejecutar `supabase_rls_fix.sql` en el SQL Editor de Supabase para:
-- Permitir lectura pública de licitaciones
-- Restringir escritura a usuarios autenticados
-- Aislar datos de usuario por ID
-
----
-
-## 📈 Métricas Clave (KPIs)
-
-- **MRR**: Ingreso recurrente mensual
-- **Churn Rate**: % de cancelaciones
-- **CAC**: Coste de adquisición de cliente
-- **LTV**: Valor de vida del cliente
-- **Activación**: % usuarios que ven 10+ licitaciones
-
----
-
-## 🚧 Próximas Features
-
-- [ ] Alertas email automáticas (Resend/SendGrid)
-- [ ] Webhooks para integraciones
-- [ ] Dashboard de analytics
-- [ ] Exportación a PDF/Excel
-- [ ] Integración con múltiples portales de licitaciones
-- [ ] Sistema de recomendación con IA
-- [ ] Stripe para pagos recurrentes
-
----
-
-## 📄 Licencia
-
-MIT License
-
----
-
-## 🤝 Contacto
-
-Desarrollado para transformar licitaciones públicas en oportunidades de negocio.
-
-**¿Listo para monetizar?** Sigue la guía de deployment arriba y lanza tu MVP en menos de 1 hora.
+El código de Licita AI y MapScore está archivado en las ramas `archive/licita-before-reclamalo-2026-11-11` y `archive/licita-mapscore-2026-11-26`.

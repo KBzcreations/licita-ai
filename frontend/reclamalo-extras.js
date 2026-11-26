@@ -13,11 +13,6 @@ import AIRPORT_DATA from './reclamalo-airports.js';
   const AESA_URL = 'https://www.seguridadaerea.gob.es/es/ambitos/derechos-de-los-pasajeros/inicia-tu-reclamacion-con-aesa';
   const $ = (q) => document.querySelector(q);
   const eur = (n) => `${n.toLocaleString('es-ES', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })} €`;
-  const store = {
-    get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } },
-    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* sin almacenamiento */ } },
-    del(k) { try { localStorage.removeItem(k); } catch { /* nada */ } },
-  };
 
   // ---------- UTM: recordar de qué vídeo o campaña llega la visita ----------
   const params = new URLSearchParams(location.search);
@@ -91,6 +86,12 @@ import AIRPORT_DATA from './reclamalo-airports.js';
     routeInfo.dataset.state = 'ok';
   };
   ['originAirport', 'destinationAirport'].forEach((n) => form.elements.namedItem(n).addEventListener('input', updateRoute));
+  // Enlaces desde las páginas por aeropuerto: /?origen=AGP&destino=LHR
+  [['origen', 'originAirport'], ['destino', 'destinationAirport']].forEach(([param, field]) => {
+    const code = (params.get(param) || '').toUpperCase();
+    const el = form.elements.namedItem(field);
+    if (AIRPORTS.has(code) && !el.value) el.value = `${code} · ${AIRPORTS.get(code).label}`;
+  });
   updateRoute();
 
   // ---------- Comparativa con un intermediario a comisión ----------
